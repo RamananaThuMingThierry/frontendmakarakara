@@ -11,13 +11,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-protected $fillable = [
-        'name',
-        'slug',
-        'parent_id',
-    ];
+    public $table = 'categories';
+
+    protected $fillable = ['name', 'slug', 'parent_id'];
 
     protected $appends = ['encrypted_id'];
 
