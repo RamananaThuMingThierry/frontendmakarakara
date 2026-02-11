@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\ActivityLogController;
+use App\Http\Controllers\WEB\BrandController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,7 @@ Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/reset-password', [AuthController::class, 'rest']);
 
 Route::middleware('auth:sanctum')->group(function(){
+    
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::middleware(['role:admin'])->group(function () {
@@ -30,7 +32,10 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('admin/account', function(Request $request){
             return response()->json($request->user());
         });
+        
         Route::apiResource('/admin/categories', CategoryController::class);
+
+        Route::apiResource('/admin/brand', BrandController::class);
 
         Route::apiResource('/admin/activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
     });

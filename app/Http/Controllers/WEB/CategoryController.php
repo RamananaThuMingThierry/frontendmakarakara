@@ -92,30 +92,49 @@ class CategoryController extends Controller{
 
         $data = $request->validated();
 
-        $category = $this->categoryService->getCategoryById($id, ['*']);
+        try{
+            $category = $this->categoryService->getCategoryById($id, ['*']);
 
-        if(!$category){
-            return response()->json(['message' => 'Catégorie non trouvée.'], 404);
+            if(!$category){
+                return response()->json(['message' => 'Catégorie non trouvée.'], 404);
+            }
+
+            $category = $this->categoryService->updateCategory($id, $data);
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_category',
+                'entity_type' => 'Category',
+                'entity_id' => $category->id,
+                'metadata' => [
+                    "name" => $category->name,
+                    "slug" => $category->slug,
+                    "parent_id" => $category->parent_id
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Catégorie mise à jour avec succès.',
+                'data' => $category
+            ]);
+        }catch(Throwable $e){
+            // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_category_failed',
+                'entity_type' => 'Category',
+                'entity_id' => null,
+                'metadata' => [
+                    'payload' => $data,
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+            
+            return response()->json([
+                'message' => 'Erreur lors de la mise à jours de la catégorie.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $category = $this->categoryService->updateCategory($id, $data);
-
-        $this->activityLogService->createActivityLog([
-            'user_id' => auth()->id(),
-            'action' => 'update_category',
-            'entity_type' => 'Category',
-            'entity_id' => $category->id,
-            'metadata' => [
-                "name" => $category->name,
-                "slug" => $category->slug,
-                "parent_id" => $category->parent_id
-            ],
-        ]);
-
-        return response()->json([
-            'message' => 'Catégorie mise à jour avec succès.',
-            'data' => $category
-        ]);
     }
 
     public function destroy(string $encryptedId){
@@ -150,6 +169,18 @@ class CategoryController extends Controller{
             return response()->json(['message' => 'Catégorie supprimée avec succès.']);
 
         } catch (\Exception $e) {
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'delete_category_failed',
+                'entity_type' => 'Category',
+                'entity_id' => $category->id,
+                'metadata' => [
+                   'payload' => $category,
+                    'error' => $e->getMessage(),
+                ],    
+            ]);
+
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }

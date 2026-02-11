@@ -27,20 +27,6 @@ class Brand extends Model
     protected $appends = ['encrypted_id'];
 
     /**
-     * Générer slug automatiquement
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($brand) {
-            if (!$brand->slug) {
-                $brand->slug = Str::slug($brand->name);
-            }
-        });
-    }
-
-    /**
      * encrypted_id pour API
      */
     public function getEncryptedIdAttribute()
@@ -54,13 +40,5 @@ class Brand extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
-    }
-
-    /**
-     * Scope: marques actives
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
     }
 }
