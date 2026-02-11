@@ -6,6 +6,7 @@ use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\BrandController;
+use App\Http\Controllers\WEB\CityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('/admin/categories', CategoryController::class);
 
         Route::apiResource('/admin/brand', BrandController::class);
+
+        Route::apiResource('/admin/city', CityController::class);
 
         Route::apiResource('/admin/activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
     });
