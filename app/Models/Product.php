@@ -37,27 +37,6 @@ class Product extends Model
     protected $appends = ['encrypted_id'];
 
     /**
-     * Générer slug automatiquement si non fourni
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($product) {
-            if (!$product->slug) {
-                $product->slug = Str::slug($product->name);
-            }
-        });
-
-        static::updating(function ($product) {
-            // Optionnel : si tu veux regénérer le slug quand name change
-            // if ($product->isDirty('name')) {
-            //     $product->slug = Str::slug($product->name);
-            // }
-        });
-    }
-
-    /**
      * encrypted_id pour API
      */
     public function getEncryptedIdAttribute()
