@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\CategoryController;
+use App\Http\Controllers\WEB\ActivityLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,8 @@ Route::middleware('auth:sanctum')->group(function(){
             return response()->json($request->user());
         });
         Route::apiResource('/admin/categories', CategoryController::class);
+
+        Route::apiResource('/admin/activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
     });
 
     Route::middleware(['role:delivery'])->group(function () {

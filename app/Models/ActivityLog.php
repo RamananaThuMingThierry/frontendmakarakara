@@ -11,13 +11,7 @@ class ActivityLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'action',
-        'entity_type',
-        'entity_id',
-        'metadata',
-    ];
+    protected $fillable = ['user_id', 'action', 'entity_type', 'entity_id', 'metadata'];
 
     protected $casts = [
         'metadata' => 'array',
@@ -39,30 +33,6 @@ class ActivityLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Créer un log rapidement
-     */
-    public static function log($action, $entity = null, $metadata = [])
-    {
-        return static::create([
-            'user_id' => auth()->id(),
-            'action' => $action,
-            'entity_type' => $entity ? class_basename($entity) : null,
-            'entity_id' => $entity?->id,
-            'metadata' => $metadata,
-        ]);
-    }
-
-    /**
-     * Scope par entité
-     */
-    public function scopeForEntity($query, $type, $id)
-    {
-        return $query
-            ->where('entity_type', $type)
-            ->where('entity_id', $id);
     }
 }
 
