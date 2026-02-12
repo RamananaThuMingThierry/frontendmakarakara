@@ -8,4 +8,4 @@
 
 <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
 
-<p>Cordialement,<br>L'équipe Makarakara</p>
+<p>Cordialement,<br>L'équipe MAHAKARAKARA</p>

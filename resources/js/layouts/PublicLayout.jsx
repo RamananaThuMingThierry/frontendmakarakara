@@ -1,18 +1,28 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/common/Navbar";
-import Footer from "../components/common/Footer";
+import Header from "../Components/website/Header";
+import Footer from "../Components/website/Footer";
+import { CartProvider } from "../hooks/website/CartContext";
+import { FavoritesProvider } from "../hooks/website/FavoritesContext";
+import { AuthProvider } from "../hooks/website/AuthContext";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function PublicLayout() {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 container mx-auto p-4">
-        <Outlet />
-        
-      </main>
-
-      <Footer />
-    </div>
-  );
+return (
+<CartProvider>
+    <FavoritesProvider>
+        <AuthProvider>
+            <div className="d-flex flex-column min-vh-100">
+                <Header />
+                <main className="flex-grow-1">
+                    <Outlet />
+                </main>
+                <Footer />
+            </div>
+        </AuthProvider>
+    </FavoritesProvider>
+</CartProvider>
+);
 }

@@ -22,7 +22,7 @@ public function __construct(private AuthService $auth) {}
         try{
             $user = $this->auth->login($data['email'], $data['password'], (bool)($data['remember'] ?? false));
 
-            $token = $user?->createToken('makarakara')->plainTextToken;
+            $token = $user?->createToken('MAHAKARAKARA')->plainTextToken;
         
             return response()->json([
                 'message' => 'Connecté',
@@ -49,7 +49,7 @@ public function __construct(private AuthService $auth) {}
         $user->assignRole('admin');
 
         // token direct après register (pratique pour React)
-        $token = $user->createToken('makarakara')->plainTextToken;
+        $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
 
 
         return response()->json(

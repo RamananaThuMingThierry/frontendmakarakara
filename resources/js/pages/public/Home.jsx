@@ -1,3 +1,15 @@
+import ContactSection from "../../Components/website/ContactSection";
+import Features from "../../Components/website/Features";
+import HappyClients from "../../Components/website/HappyClients";
+import HeroCarousel from "../../Components/website/HeroCarousel";
+import ProductsSection from "../../Components/website/ProductsSection";
+
 export default function Home() {
-  return <h1 className="text-2xl font-bold">Bienvenue sur la boutique</h1>;
+  return <>
+    <HeroCarousel/>
+    <Features/>
+    <ProductsSection/>
+    <HappyClients/>
+    <ContactSection/>
+  </>;
 }

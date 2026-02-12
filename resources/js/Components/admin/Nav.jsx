@@ -33,7 +33,7 @@ export default function Nav({
           width={30}
           height={30}
         />
-        &nbsp;MAKARAKARA
+        &nbsp;MAHAKARAKARA
       </span>
 
       <button

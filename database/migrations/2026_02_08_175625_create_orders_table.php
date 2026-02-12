@@ -25,6 +25,10 @@ return new class extends Migration
             $table->decimal('delivery_fee', 12, 2)->default(0);
             $table->decimal('total', 12, 2);
 
+            $table->string('coupon_code')->nullable();
+            $table->enum('payment_method', ['cash', 'mobile_money'])->default('cash');
+            $table->string('payment_reference')->nullable(); // ex: ref mobile money
+
             $table->text('notes')->nullable();
 
             // Option: ville choisie pour la commande (si tu veux)
