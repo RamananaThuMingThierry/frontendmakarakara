@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import '../../../css/website.css';
+
 export default function HappyClients() {
   const images = [
     "/website/images/c1.jpg",
@@ -48,9 +51,9 @@ export default function HappyClients() {
 
         {/* CTA */}
         <div className="text-center mt-4">
-          <button className="btn btn-dark px-4">
+          <Link class="btn btn-dark btn-sm px-4" to="/gallery">
             Voir plus de photos
-          </button>
+          </Link>
         </div>
 
       </div>

@@ -3,6 +3,7 @@ import Features from "../../Components/website/Features";
 import HappyClients from "../../Components/website/HappyClients";
 import HeroCarousel from "../../Components/website/HeroCarousel";
 import ProductsSection from "../../Components/website/ProductsSection";
+import TestimonialSection from "../../Components/website/TestimonialSection";
 
 export default function Home() {
   return <>
@@ -10,6 +11,7 @@ export default function Home() {
     <Features/>
     <ProductsSection/>
     <HappyClients/>
+    <TestimonialSection/>
     <ContactSection/>
   </>;
 }

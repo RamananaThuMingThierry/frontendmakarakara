@@ -16,21 +16,34 @@ import Account from "../pages/public/Account";
 
 import Login from "../pages/Login";
 import ProtectedRoute from "../Components/website/ProtectedRoute";
+import Register from "../pages/Register";
+import ForgotPassword from "../pages/ForgotPassword";
+import VerifyCode from "../pages/VerifyCode";
+import ResetPassword from "../pages/ResetPassword";
+import GalleryClients from "../pages/public/GalleryClients";
+import TestimonialsPage from "../pages/public/TestimonialsPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <PublicLayout />,
     children: [
+
       { index: true, element: <Home /> },
       { path: "shop", element: <Shop /> },
       { path: "cart", element: <Cart /> },
       { path: "checkout", element: <Checkout /> },
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
+      { path: "gallery", element: <GalleryClients /> },
       { path: "favorites", element: <Favorites /> },
+      { path: "testimonials", element: <TestimonialsPage />},
       { path: "search", element: <SearchResults /> },
       { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "verify-code", element: <VerifyCode /> },
+      { path: "reset-password", element: <ResetPassword /> },
       { path: "order-success/:orderNumber", element: <OrderSuccess /> },
       { path: "product/:id", element: <ProductDetails /> },
 

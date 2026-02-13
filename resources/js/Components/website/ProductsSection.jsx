@@ -223,7 +223,7 @@ export default function ProductsSection() {
 
         {/* CTA */}
         <div className="text-center mt-4">
-          <Link className="btn btn-outline-dark px-4" to="/shop">
+          <Link className="btn btn-outline-dark btn-sm px-4" to="/shop">
             Voir tous les produits
           </Link>
         </div>

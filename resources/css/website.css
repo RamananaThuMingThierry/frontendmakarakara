@@ -7,3 +7,27 @@
 .logo__image {
     max-width: 220px;
 }
+
+/* Client Satisfait */
+
+.client-card {
+  height: 220px;
+}
+
+.client-card img {
+  transition: transform 0.6s ease;
+}
+
+.client-card:hover img {
+  transform: scale(1.2);
+}
+
+/* Testimonials */
+.testimonial-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
