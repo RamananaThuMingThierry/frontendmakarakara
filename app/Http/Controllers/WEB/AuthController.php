@@ -6,32 +6,39 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
 public function __construct(private AuthService $auth) {}
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $data = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-            'remember' => ['nullable'],
-        ]);
+
+        $data = $request->validated();
 
         try{
             $user = $this->auth->login($data['email'], $data['password'], (bool)($data['remember'] ?? false));
 
-            $token = $user?->createToken('MAHAKARAKARA')->plainTextToken;
+            $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
         
-            return response()->json([
-                'message' => 'Connecté',
-                'user' => $user,
-                'token' => $token
-            ]);
+            // ✅ récupérer le rôle spatie
+            $roles = $user->getRoleNames(); // "admin" | "customer" | "delivery"
 
-        }catch(Exception $e){
-            return back()->withErrors(['email' => 'Les informations de connexion sont invalides.'])->withInput();
+            return response()->json([
+                'message' => 'Connexion réussie',
+                'user' => $user,
+                'roles' => $roles,
+                'token' => $token
+            ], 200);
+
+        }catch (Exception $e) {
+            return response()->json([
+                'message' => 'Les informations de connexion sont invalides.',
+                'errors' => [
+                    'email' => ['Email ou mot de passe incorrect.']
+                ]
+            ], 422);
         }
     }
 

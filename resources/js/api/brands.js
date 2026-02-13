@@ -1,6 +1,21 @@
-import { axios } from "./axios";
+import api from "./axios";
 
-export const getBrands = () => axios.get("/admin/brand");
-export const createBrand = (data) => axios.post("/admin/brand", data);
-export const updateBrand = (id, data) => axios.put(`/admin/brand/${id}`, data);
-export const deleteBrand = (id) => axios.delete(`/admin/brand/${id}`);
+export async function getBrands(params = {}) {
+  const { data } = await api.get("/brands", { params });
+  return data;
+}
+
+export async function createBrand(payload) {
+  const { data } = await api.post("/brands", payload);
+  return data;
+}
+
+export async function updateBrand(id, payload) {
+  const { data } = await api.put(`/brands/${id}`, payload);
+  return data;
+}
+
+export async function deleteBrand(id) {
+  const { data } = await api.delete(`/brands/${id}`);
+  return data;
+}

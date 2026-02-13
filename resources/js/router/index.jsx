@@ -15,13 +15,15 @@ import SearchResults from "../pages/public/SearchResults";
 import Account from "../pages/public/Account";
 
 import Login from "../pages/Login";
-import ProtectedRoute from "../Components/website/ProtectedRoute";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import VerifyCode from "../pages/VerifyCode";
 import ResetPassword from "../pages/ResetPassword";
 import GalleryClients from "../pages/public/GalleryClients";
 import TestimonialsPage from "../pages/public/TestimonialsPage";
+import AdminLayout from "../layouts/AdminLayout";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import RoleRoute from "../Components/website/RoleRoute";
 
 export const router = createBrowserRouter([
   {
@@ -50,11 +52,30 @@ export const router = createBrowserRouter([
       {
         path: "account",
         element: (
-          <ProtectedRoute>
+          <RoleRoute allow={["customer"]}>
             <Account />
-          </ProtectedRoute>
+          </RoleRoute>
         ),
       },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <RoleRoute allow={["admin"]}>
+        <AdminLayout />
+      </RoleRoute>
+    ),
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      // { path: "products", element: <ProductsPage /> },
+      // { path: "brands", element: <BrandsPage /> },
+      // { path: "categories", element: <CategoriesPage /> },
+      // { path: "orders", element: <OrdersPage /> },
+      // { path: "coupons", element: <CouponsPage /> },
+      // { path: "sliders", element: <SlidersPage /> },
+      // { path: "users", element: <UsersPage /> },
+      // { path: "settings", element: <SettingsPage /> },
     ],
   },
 ]);

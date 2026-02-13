@@ -11,18 +11,20 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function PublicLayout() {
 return (
-<CartProvider>
-    <FavoritesProvider>
-        <AuthProvider>
-            <div className="d-flex flex-column min-vh-100">
-                <Header />
-                <main className="flex-grow-1">
-                    <Outlet />
-                </main>
-                <Footer />
-            </div>
-        </AuthProvider>
-    </FavoritesProvider>
-</CartProvider>
+    <AuthProvider>
+        <CartProvider>
+            <FavoritesProvider>
+                <AuthProvider>
+                    <div className="d-flex flex-column min-vh-100">
+                        <Header />
+                        <main className="flex-grow-1">
+                            <Outlet />
+                        </main>
+                        <Footer />
+                    </div>
+                </AuthProvider>
+            </FavoritesProvider>
+        </CartProvider>
+    </AuthProvider>
 );
 }

@@ -1,15 +1,31 @@
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:8000/api";
-axios.defaults.withCredentials = true;
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://192.168.98.154:8000/api",
+  withCredentials: true, // mets true seulement si tu utilises Sanctum cookies
+  headers: {
+    Accept: "application/json",
+  },
+});
 
-axios.interceptors.request.use((config) => {
-  const token = document
-    .querySelector('meta[name="csrf-token"]')
-    ?.getAttribute("content");
-
-  if (token) config.headers["X-CSRF-TOKEN"] = token;
+// ✅ Ajoute automatiquement le token si présent
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-export default axios;
+// ✅ Gestion erreurs 401 (optionnel)
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 401) {
+      // token invalide → logout client
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
+    return Promise.reject(err);
+  }
+);
+
+export default api;
