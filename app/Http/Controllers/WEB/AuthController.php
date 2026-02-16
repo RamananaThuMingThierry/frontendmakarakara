@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -68,6 +69,23 @@ public function __construct(private AuthService $auth) {}
             201
         );
     }
+
+    public function me()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Non authentifié'
+            ], 401);
+        }
+
+        return response()->json([
+            'user' => $user,
+            'roles' => $user->getRoleNames()
+        ], 200);
+    }
+
 
     public function logout(Request $request)
     {

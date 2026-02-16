@@ -1,11 +1,48 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/website/AuthContext";
 
 export default function Login() {
-  const { isAuth, login, loading, roles } = useAuth();
-  const nav = useNavigate();
+  const { isAuth, login, loading, hydrating, roles } = useAuth();
   const location = useLocation();
+
+  // si session en cours de restauration, on attend
+  if (hydrating) {
+    return (
+      <div className="d-flex justify-content-center py-5">
+        <div className="spinner-border" role="status" />
+      </div>
+    );
+  }
+
+  // déjà connecté
+  if (isAuth) {
+    console.log("Je suis connecté-->login.jsx");
+    const r = Array.isArray(roles) ? roles : [];
+    const from = location.state?.from?.pathname;
+
+    // si tu dépends des roles pour admin/delivery
+    if (r.length === 0) {
+      return (
+        <div className="d-flex justify-content-center py-5">
+          <div className="spinner-border" role="status" />
+        </div>
+      );
+    }
+
+    let target = from;
+    if (!target) {
+      if (r.includes("admin")) target = "/admin";
+      else if (r.includes("delivery")) target = "/delivery";
+      else target = "/";
+    }
+
+    console.log("Je veux naviger vers target");
+    console.log(target);
+
+    return <Navigate to={target} replace />;
+  }
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,54 +52,28 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
 
-  useEffect(() => {
-    if (!isAuth) return;
-
-    const r = Array.isArray(roles) ? roles : [];
-
-    if (r.includes("admin")) nav("/admin", { replace: true });
-    else if (r.includes("delivery")) nav("/delivery", { replace: true });
-    else nav("/account", { replace: true });
-
-  }, [isAuth, roles, nav]);
-
-
   const submit = async (e) => {
     e.preventDefault();
-
     setErrors({});
     setGlobalError("");
 
     const res = await login({ email, password, rememberMe });
 
     if (!res.ok) {
-      // erreurs validation Laravel
       if (res.errors) setErrors(res.errors);
       else setGlobalError(res.message || "Connexion échouée");
-      return;
     }
-
-    const roles = res.roles || [];
-
-    if (roles.includes("admin")) nav("/admin", { replace: true });
-    else if (roles.includes("delivery")) nav("/delivery", { replace: true });
-    else nav("/account", { replace: true });
   };
 
   return (
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
         <h2 className="fw-bold mb-1">Connexion</h2>
-
         <p className="text-secondary mb-3">Accédez à votre compte.</p>
 
-        {/* ✅ Global error */}
-        {globalError && (
-          <div className="alert alert-danger py-2">{globalError}</div>
-        )}
+        {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
 
         <form onSubmit={submit} className="d-flex flex-column gap-3">
-          {/* EMAIL */}
           <div>
             <label className="form-label">Email</label>
             <input
@@ -71,17 +82,11 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@gmail.com"
             />
-            {errors.email && (
-              <span className="text-danger small">
-                {errors.email[0]}
-              </span>
-            )}
+            {errors.email && <span className="text-danger small">{errors.email[0]}</span>}
           </div>
 
-          {/* PASSWORD */}
           <div>
             <label className="form-label">Mot de passe</label>
-
             <div style={{ position: "relative" }}>
               <input
                 type={showPassword ? "text" : "password"}
@@ -90,7 +95,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
               />
-
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
@@ -109,15 +113,9 @@ export default function Login() {
                 {showPassword ? "🙈" : "👁"}
               </button>
             </div>
-
-            {errors.password && (
-              <span className="text-danger small">
-                {errors.password[0]}
-              </span>
-            )}
+            {errors.password && <span className="text-danger small">{errors.password[0]}</span>}
           </div>
 
-          {/* Remember */}
           <div className="d-flex align-items-center justify-content-between">
             <label className="d-flex align-items-center gap-2 small text-secondary m-0">
               <input

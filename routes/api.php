@@ -28,19 +28,23 @@ Route::middleware('auth:sanctum')->group(function(){
     
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::middleware(['role:admin'])->group(function () {
-        // Route::get('/admin/dashboard', ...);
+    Route::get('/me', [AuthController::class, 'me']);    
+
+    Route::middleware(['role:admin'])->prefix('admin')->group(function () {
+
         Route::get('admin/account', function(Request $request){
             return response()->json($request->user());
         });
         
-        Route::apiResource('/admin/categories', CategoryController::class);
+        Route::apiResource('categories', CategoryController::class);
 
-        Route::apiResource('/admin/brand', BrandController::class);
+        Route::apiResource('brand', BrandController::class);
 
-        Route::apiResource('/admin/city', CityController::class);
+        Route::apiResource('city', CityController::class);
 
-        Route::apiResource('/admin/activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+        Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+
+        Route::post('logout', [AuthController::class, 'logout']);
     });
 
     Route::middleware(['role:delivery'])->group(function () {

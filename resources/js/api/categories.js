@@ -1,21 +1,19 @@
 import api from "./axios";
 
-export async function getCategories(params = {}) {
-  const { data } = await api.get("/categories", { params });
-  return data;
-}
-
-export async function createCategory(payload) {
-  const { data } = await api.post("/categories", payload);
-  return data;
-}
-
-export async function updateCategory(id, payload) {
-  const { data } = await api.put(`/categories/${id}`, payload);
-  return data;
-}
-
-export async function deleteCategory(id) {
-  const { data } = await api.delete(`/categories/${id}`);
-  return data;
-}
+export const categoriesApi = {
+  async list() {
+    const res = await api.get("/admin/categories");
+    return res.data.data ?? res.data; // selon ton format
+  },
+  async create(payload) {
+    const res = await api.post("/admin/categories", payload);
+    return res.data.data ?? res.data;
+  },
+  async update(id, payload) {
+    const res = await api.put(`/admin/categories/${id}`, payload);
+    return res.data.data ?? res.data;
+  },
+  async remove(id) {
+    await api.delete(`/admin/categories/${id}`);
+  },
+};

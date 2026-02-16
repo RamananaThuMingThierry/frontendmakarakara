@@ -8,14 +8,21 @@ const api = axios.create({
   },
 });
 
-// ✅ Ajoute automatiquement le token si présent
+// ✅ Token en mémoire (évite le bug timing localStorage)
+let inMemoryToken = localStorage.getItem("token") || "";
+
+export const setApiToken = (t) => {
+  inMemoryToken = t || "";
+};
+
+// ✅ Ajoute automatiquement le token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = inMemoryToken || localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ✅ Gestion erreurs 401 (optionnel)
+// ✅ Gestion erreurs 401
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -23,6 +30,8 @@ api.interceptors.response.use(
       // token invalide → logout client
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("roles");
+      setApiToken("");
     }
     return Promise.reject(err);
   }
