@@ -28,8 +28,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   const [hydrating, setHydrating] = useState(() => !!localStorage.getItem("token"));
-  
+
   const isAuth = !!token;
+
+  console.log("AuthProvider instance token:", token);
 
   const clearClientAuth = () => {
     setApiToken("");
@@ -66,43 +68,47 @@ export function AuthProvider({ children }) {
   }, []);
 
 
-  // ✅ Hydrate session: token existe mais roles/user pas prêts
-  useEffect(() => {
-    console.log("hydrate");
-    const run = async () => {
-        console.log(token);
-      if (!token) {
-        setHydrating(false);
-        return;
-      }
+useEffect(() => {
+  let cancelled = false;
 
-      
-      const r = Array.isArray(roles) ? roles : [];
-      const needHydrate = !user || r.length === 0;
+  const run = async () => {
+    if (!token) {
+      if (!cancelled) setHydrating(false);
+      return;
+    }
 
-      if (!needHydrate) {
-        setHydrating(false);
-        return;
-      }
+    const r = Array.isArray(roles) ? roles : [];
+    const needHydrate = !user || r.length === 0;
 
-      setHydrating(true);
-      
-      try {
-        setApiToken(token);           // ✅ force header
-        const data = await meApi();   // ✅ fetch roles
-        setUser(data.user || null);
-        setRoles(Array.isArray(data.roles) ? data.roles : []);
-      } catch (e) {
-        console.log("meApi failed:", e?.response?.status, e?.response?.data);
-        clearClientAuth();
-      } finally {
-        setHydrating(false);
-      }
-    };
+    if (!needHydrate) {
+      if (!cancelled) setHydrating(false);
+      return;
+    }
 
-    run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+    if (!cancelled) setHydrating(true);
+
+    try {
+      setApiToken(token);
+      const data = await meApi();
+      if (cancelled) return;
+
+      setUser(data.user || null);
+      setRoles(Array.isArray(data.roles) ? data.roles : []);
+    } catch {
+      if (cancelled) return;
+      clearClientAuth();
+    } finally {
+      if (!cancelled) setHydrating(false);
+    }
+  };
+
+  run();
+  return () => {
+    cancelled = true;
+  };
+}, [token]);
+
+
 
 
   const login = async ({ email, password, rememberMe }) => {

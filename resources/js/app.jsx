@@ -6,6 +6,7 @@ import { AuthProvider } from "./hooks/website/AuthContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 
 createRoot(document.getElementById("app")).render(
   <React.StrictMode>

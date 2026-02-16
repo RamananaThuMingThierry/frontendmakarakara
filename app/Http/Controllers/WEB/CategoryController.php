@@ -13,19 +13,21 @@ class CategoryController extends Controller{
     public function __construct(private CategoryService $categoryService, private ActivityLogService $activityLogService){}
 
     public function index(){
+
         $categories = $this->categoryService->getAllCategories('parent_id', null, ['*'], ['children'], null);
-        
+
         return response()->json([
             'data' => $categories
         ]);
     }
 
     public function store(CategoryRequest $request){
+
         $data = $request->validated();
 
         try{
             $category = $this->categoryService->createCategory($data);
-    
+
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'create_category',
@@ -34,10 +36,11 @@ class CategoryController extends Controller{
                 'metadata' => [
                     "name" => $category->name,
                     "slug" => $category->slug,
+                    "is_active" => $category->is_active,
                     "parent_id" => $category->parent_id
                 ],
             ]);
-    
+
             return response()->json([
                 'message' => 'Catégorie créée avec succès.',
                 'data' => $category
@@ -55,7 +58,7 @@ class CategoryController extends Controller{
                     'error' => $e->getMessage(),
                 ],
             ]);
-            
+
             return response()->json([
                 'message' => 'Erreur lors de la création de la catégorie.',
                 'error' => $e->getMessage()
@@ -109,6 +112,7 @@ class CategoryController extends Controller{
                 'metadata' => [
                     "name" => $category->name,
                     "slug" => $category->slug,
+                    "is_active" => $category->is_active,
                     "parent_id" => $category->parent_id
                 ],
             ]);
@@ -129,7 +133,7 @@ class CategoryController extends Controller{
                     'error' => $e->getMessage(),
                 ],
             ]);
-            
+
             return response()->json([
                 'message' => 'Erreur lors de la mise à jours de la catégorie.',
                 'error' => $e->getMessage()
@@ -162,6 +166,7 @@ class CategoryController extends Controller{
                 'metadata' => [
                     "name" => $category->name,
                     "slug" => $category->slug,
+                    "is_active" => $category->is_active,
                     "parent_id" => $category->parent_id
                 ],
             ]);
@@ -178,7 +183,7 @@ class CategoryController extends Controller{
                 'metadata' => [
                    'payload' => $category,
                     'error' => $e->getMessage(),
-                ],    
+                ],
             ]);
 
             return response()->json(['message' => $e->getMessage()], 400);

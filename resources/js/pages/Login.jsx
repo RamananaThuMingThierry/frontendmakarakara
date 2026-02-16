@@ -17,7 +17,6 @@ export default function Login() {
 
   // déjà connecté
   if (isAuth) {
-    console.log("Je suis connecté-->login.jsx");
     const r = Array.isArray(roles) ? roles : [];
     const from = location.state?.from?.pathname;
 
@@ -36,9 +35,6 @@ export default function Login() {
       else if (r.includes("delivery")) target = "/delivery";
       else target = "/";
     }
-
-    console.log("Je veux naviger vers target");
-    console.log(target);
 
     return <Navigate to={target} replace />;
   }

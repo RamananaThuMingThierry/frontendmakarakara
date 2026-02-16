@@ -14,7 +14,7 @@ class CategoryRequest extends FormRequest
 
     public function rules(): array
     {
-        $categoryId = $this->route('category'); 
+        $categoryId = $this->route('category');
         // si route model binding → /categories/{category}
 
         return [
@@ -37,6 +37,10 @@ class CategoryRequest extends FormRequest
                 'integer',
                 'exists:categories,id',
                 'not_in:' . $categoryId, // empêcher parent = soi-même
+            ],
+
+            'is_active' => [
+                'boolean',
             ],
         ];
     }

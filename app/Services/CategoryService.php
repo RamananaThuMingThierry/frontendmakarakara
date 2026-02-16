@@ -8,7 +8,7 @@ use Illuminate\Validation\ValidationException;
 
 class CategoryService{
 
-    public function __construct(private CategoryRepository $categoryRepository){} 
+    public function __construct(private CategoryRepository $categoryRepository){}
 
     public function getAllCategories(string|array $keys, mixed $values, array $fields = ['*'], array $relations = ['children'], ?int $paginate = null)
     {
@@ -16,7 +16,7 @@ class CategoryService{
             $keys = 'parent_id';
             $values = $fields['parent_id'];
         }
-        
+
         return $this->categoryRepository->getAll($keys, $values, $fields, $relations, $paginate);
     }
 
@@ -33,17 +33,18 @@ class CategoryService{
     public function createCategory(array $data)
     {
         $name = trim((string)($data['name'] ?? ''));
-        
+
         $payload = [
             'name' => $name,
             'slug' => $data['slug'] ?? Str::slug($name),
             'parent_id' => $data['parent_id'] ?? null,
+            'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
         ];
 
         // (Optionnel) vérifie parent_id si fourni
         if (!is_null($payload['parent_id'])) {
             $parent = $this->categoryRepository->getById((int)$payload['parent_id']);
-            
+
             if (!$parent) {
                 throw ValidationException::withMessages([
                     'parent_id' => 'Le parent_id est invalide.',
@@ -85,6 +86,11 @@ class CategoryService{
 
         if (array_key_exists('slug', $data)) {
             $payload['slug'] = trim((string)$data['slug']);
+        }
+
+        // is_active
+        if (array_key_exists('is_active', $data)) {
+            $payload['is_active'] = (bool) $data['is_active'];
         }
 
         if (array_key_exists('parent_id', $data)) {

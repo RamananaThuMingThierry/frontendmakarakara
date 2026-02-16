@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../hooks/website/AuthContext";
+import { useAuth } from "@/hooks/website/AuthContext";
 
 export default function RoleRoute({ children, allow = [] }) {
   const { isAuth, roles, hydrating } = useAuth();
@@ -19,7 +19,7 @@ export default function RoleRoute({ children, allow = [] }) {
 
   const r = Array.isArray(roles) ? roles : [];
 
-  // ✅ IMPORTANT : si route protégée par rôle, attendre les rôles
+  // si route basée sur rôle, attendre roles si pas encore chargés
   if (allow.length > 0 && r.length === 0) {
     return (
       <div className="d-flex justify-content-center py-5">

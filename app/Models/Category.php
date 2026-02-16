@@ -15,7 +15,16 @@ class Category extends Model
 
     public $table = 'categories';
 
-    protected $fillable = ['name', 'slug', 'parent_id'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'parent_id',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     protected $appends = ['encrypted_id'];
 
