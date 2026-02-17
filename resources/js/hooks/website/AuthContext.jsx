@@ -30,8 +30,7 @@ export function AuthProvider({ children }) {
   const [hydrating, setHydrating] = useState(() => !!localStorage.getItem("token"));
 
   const isAuth = !!token;
-
-  console.log("AuthProvider instance token:", token);
+  // const isAuth = token ? true : false;
 
   const clearClientAuth = () => {
     setApiToken("");
@@ -112,7 +111,9 @@ useEffect(() => {
 
 
   const login = async ({ email, password, rememberMe }) => {
+    
     setLoading(true);
+    
     try {
       const data = await loginApi({ email, password, remember: !!rememberMe });
 

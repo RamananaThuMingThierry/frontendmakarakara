@@ -1,0 +1,54 @@
+{
+  "title": "Kategorien",
+  "subtitle": "Shop-Kategorien verwalten",
+
+  "refresh": "Aktualisieren",
+  "refreshing": "Aktualisierung...",
+  "new": "Neue Kategorie",
+
+  "loading": "Laden...",
+
+  "table": {
+    "index": "#",
+    "name": "Name",
+    "slug": "Slug",
+    "status": "Status",
+    "parent": "Übergeordnet",
+    "children": "Unterkategorien",
+    "actions": "Aktionen"
+  },
+
+  "modal": {
+    "createTitle": "Neue Kategorie",
+    "editTitle": "Kategorie bearbeiten",
+    "name": "Name",
+    "slug": "Slug",
+    "parent": "Übergeordnet",
+    "active": "Aktiv",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "slugHelp": "Wenn leer, kann das Backend ihn automatisch generieren.",
+    "parentHelp": "Optional. Ermöglicht das Erstellen einer Unterkategorie.",
+    "placeholderName": "Bsp: Shoes",
+    "placeholderSlug": "Bsp: shoes (optional)",
+    "noParent": "Kein übergeordnetes Element"
+  },
+
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Kategorie löschen",
+    "message2": "Diese Kategorie löschen?",
+    "btn": "Löschen",
+    "deleting": "Löschen..."
+  },
+
+  "toast": {
+    "created": "Kategorie erstellt.",
+    "updated": "Kategorie aktualisiert.",
+    "deleted": "Kategorie erfolgreich gelöscht.",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "deleteFailed": "Löschen fehlgeschlagen.",
+    "nameRequired": "Name ist erforderlich."
+  }
+}

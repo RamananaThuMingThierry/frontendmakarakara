@@ -1,0 +1,54 @@
+{
+  "title": "Catégories",
+  "subtitle": "Gérer les catégories du shop",
+
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "new": "Nouvelle catégorie",
+
+  "loading": "Chargement...",
+
+  "table": {
+    "index": "#",
+    "name": "Nom",
+    "slug": "Slug",
+    "status": "Statut",
+    "parent": "Parent",
+    "children": "Sous-catégories",
+    "actions": "Actions"
+  },
+
+  "modal": {
+    "createTitle": "Nouvelle catégorie",
+    "editTitle": "Modifier catégorie",
+    "name": "Nom",
+    "slug": "Slug",
+    "parent": "Parent",
+    "active": "Active",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "slugHelp": "Si vide, le backend peut le générer automatiquement.",
+    "parentHelp": "Optionnel. Permet de créer une sous-catégorie.",
+    "placeholderName": "Ex: Shoes",
+    "placeholderSlug": "Ex: shoes (optionnel)",
+    "noParent": "Aucun parent"
+  },
+
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer la catégorie",
+    "message2": "Supprimer cette catégorie ?",
+    "btn": "Supprimer",
+    "deleting": "Suppression..."
+  },
+
+  "toast": {
+    "created": "Catégorie créée.",
+    "updated": "Catégorie mise à jour.",
+    "deleted": "Catégorie supprimée avec succès.",
+    "saveFailed": "Enregistrement échoué",
+    "deleteFailed": "Suppression échouée.",
+    "nameRequired": "Le nom est obligatoire."
+  }
+}

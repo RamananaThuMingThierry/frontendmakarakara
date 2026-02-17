@@ -1,0 +1,54 @@
+{
+  "title": "Categories",
+  "subtitle": "Manage shop categories",
+
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "new": "New category",
+
+  "loading": "Loading...",
+
+  "table": {
+    "index": "#",
+    "name": "Name",
+    "slug": "Slug",
+    "status": "Status",
+    "parent": "Parent",
+    "children": "Subcategories",
+    "actions": "Actions"
+  },
+
+  "modal": {
+    "createTitle": "New category",
+    "editTitle": "Edit category",
+    "name": "Name",
+    "slug": "Slug",
+    "parent": "Parent",
+    "active": "Active",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "slugHelp": "If empty, the backend may generate it automatically.",
+    "parentHelp": "Optional. Allows creating a subcategory.",
+    "placeholderName": "Ex: Shoes",
+    "placeholderSlug": "Ex: shoes (optional)",
+    "noParent": "No parent"
+  },
+
+  "delete": {
+    "title": "Confirmation",
+    "message": "Delete category",
+    "message2": "Delete this category?",
+    "btn": "Delete",
+    "deleting": "Deleting..."
+  },
+
+  "toast": {
+    "created": "Category created.",
+    "updated": "Category updated.",
+    "deleted": "Category deleted successfully.",
+    "saveFailed": "Save failed",
+    "deleteFailed": "Delete failed.",
+    "nameRequired": "Name is required."
+  }
+}

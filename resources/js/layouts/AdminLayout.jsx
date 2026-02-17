@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../../css/admin.css";
 import { useAuth } from "../hooks/website/AuthContext";
+import { useI18n } from "../hooks/website/I18nContext";
 
 const NAV = [
   { to: "/admin", icon: "bi-speedometer2", label: "Dashboard" },
@@ -142,6 +143,8 @@ function ConfirmModal({ open, title, message, confirmText, loading, onCancel, on
 }
 
 export default function AdminLayout() {
+  const { lang, setLang } = useI18n();
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -299,6 +302,34 @@ export default function AdminLayout() {
                 <button className="btn btn-outline-dark btn-sm" type="button">
                   <i className="bi bi-bell" />
                 </button>
+
+                <div className="dropdown">
+                    <button
+                      className="btn btn-outline-dark btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      title="Langue"
+                    >
+                      <i className="bi bi-translate me-2" />
+                      {lang.toUpperCase()}
+                    </button>
+
+                    <ul className="dropdown-menu dropdown-menu-end">
+                      {["fr", "en", "es", "de"].map((l) => (
+                        <li key={l}>
+                          <button
+                            className={`dropdown-item ${lang === l ? "active" : ""}`}
+                            onClick={() => setLang(l)}
+                            type="button"
+                          >
+                            {l.toUpperCase()}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
                 <button className="btn btn-dark btn-sm" type="button">
                   <i className="bi bi-person-circle me-2" />
                   Mon compte

@@ -14,7 +14,7 @@ class CategoryController extends Controller{
 
     public function index(){
 
-        $categories = $this->categoryService->getAllCategories('parent_id', null, ['*'], ['children'], null);
+        $categories = $this->categoryService->getAllCategories('parent_id', null, ['*'], ['children', 'parent'], null);
 
         return response()->json([
             'data' => $categories
