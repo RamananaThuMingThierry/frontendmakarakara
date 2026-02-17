@@ -20,12 +20,12 @@ function deepMerge(target, source) {
 
 async function loadLang(lang) {
   // Vite / modern bundlers
-  const modules = import.meta.glob("../../resources/lang/*/*.json");
+  const modules = import.meta.glob("../../../lang/*/*.json");
 
   const result = {};
 
   const entries = Object.entries(modules).filter(([path]) =>
-    path.includes(`/lang/datatables/${lang}/`)
+    path.includes(`/lang/${lang}/`)
   );
 
   for (const [path, loader] of entries) {

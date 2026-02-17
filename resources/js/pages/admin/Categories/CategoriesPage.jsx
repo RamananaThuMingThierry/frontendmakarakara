@@ -173,10 +173,10 @@ export default function CategoriesPage() {
           className: "text-end",
           render: (d, t, row) => `
             <button class="btn btn-sm btn-outline-dark me-2 js-edit" data-id="${row.id}">
-              <i class="bi bi-pencil-square me-1"></i>Edit
+              <i class="bi bi-pencil-square"></i>
             </button>
             <button class="btn btn-sm btn-outline-danger js-del" data-id="${row.id}">
-              <i class="bi bi-trash3 me-1"></i>Delete
+              <i class="bi bi-trash3"></i>
             </button>
           `,
         },
