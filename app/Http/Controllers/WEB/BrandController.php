@@ -4,10 +4,8 @@ namespace App\Http\Controllers\WEB;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BrandRequest;
-use App\Models\Brand;
 use App\Services\ActivityLogService;
 use App\Services\BrandService;
-use Illuminate\Http\Request;
 use Throwable;
 
 class BrandController extends Controller
@@ -16,16 +14,35 @@ class BrandController extends Controller
     
     public function index()
     {
-        $constraints = [];
+        try{
+            $constraints = [];
 
-        $brand = $this->brandService->getAllBrands(
-            array_keys($constraints),
-            array_values($constraints)
-        );
+            $brand = $this->brandService->getAllBrands(
+                array_keys($constraints),
+                array_values($constraints)
+            );
 
-        return response()->json([
-            'data' => $brand
-        ]);
+            return response()->json([
+                'data' => $brand
+            ]);
+        }catch(Throwable $e){
+            // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'index_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => null,
+                'metadata' => [
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+            
+            return response()->json([
+                'message' => 'Erreur lors du chargement des brands.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
     }
 
     /**
@@ -85,6 +102,8 @@ class BrandController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
+
+        
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
 
@@ -177,12 +196,36 @@ class BrandController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
+
+            // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'destroy_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => $id,
+                'metadata' => [
+                    'error' => "ID de brand invalide.",
+                ],
+            ]);
+
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
 
         $brand = $this->brandService->getBrandById($id, ['id']);
 
         if(!$brand){
+
+            // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'destroy_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => $id,
+                'metadata' => [
+                    'error' => "Brand non trouvé.",
+                ],
+            ]);
+
             return response()->json(['message' => 'Brand non trouvé.'], 404);
         }
 

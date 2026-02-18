@@ -4,9 +4,10 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Repositories\ProductImageRepository;
-use Illuminate\Support\Str;
-use Illuminate\Http\UploadedFile;
 use App\Repositories\ProductRepository;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ProductService
@@ -30,68 +31,76 @@ class ProductService
 
     public function createProduct(array $data)
     {
-        $name = trim((string) ($data['name'] ?? ''));
+        return DB::transaction(function () use ($data) {
 
-        $payload = [
-            'name' => $name,
-            'slug' => !empty($data['slug']) ? $data['slug'] : Str::slug($name),
-            'description' => $data['description'] ?? '',
-            'price' => $data['price'] ?? 0,
-            'compare_price' => $data['compare_price'] ?? null,
-            'sku' => $data['sku'] ?? null,
-            'barcode' => $data['barcode'] ?? null,
-            'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
-        ];
+            $name = trim((string) ($data['name'] ?? ''));
 
-        if (isset($data['category_id'])) {
-            $payload['category_id'] = $data['category_id'];
-        }else {
-            throw ValidationException::withMessages([
-                'category_id' => 'Le champ category_id est requis.',
-            ]);
-        }
+            if ($name === '') {
+                throw ValidationException::withMessages([
+                    'name' => 'Le champ name est requis.',
+                ]);
+            }
 
-        if(isset($data['brand_id'])) {
-            $payload['brand_id'] = $data['brand_id'];
-        }
+            if (!isset($data['category_id'])) {
+                throw ValidationException::withMessages([
+                    'category_id' => 'Le champ category_id est requis.',
+                ]);
+            }
 
-        $product = $this->productRepository->create($payload);
+            $payload = [
+                'category_id'   => (int) $data['category_id'],
+                'brand_id'      => isset($data['brand_id']) ? (int) $data['brand_id'] : null,
+                'name'          => $name,
+                'slug'          => !empty($data['slug']) ? $data['slug'] : Str::slug($name),
+                'description'   => $data['description'] ?? null,
+                'price'         => $data['price'] ?? 0,
+                'compare_price' => $data['compare_price'] ?? null,
+                'sku'           => $data['sku'] ?? null,
+                'barcode'       => $data['barcode'] ?? null,
+                'is_active'     => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : true,
+            ];
 
-        if(isset($data['images']) && is_array($data['images'])) {
-            $i = 0;
-            foreach($data['images'] as $image) {
-                if ($image instanceof UploadedFile) {
-                    $extension = $image->getClientOriginalExtension();
-                    $filename = Str::slug($name) . '-' . time() . '-' . Str::random(5) . '.' . $extension;
+            $product = $this->productRepository->create($payload);
 
-                    $destination = public_path('images/products');
+            if (!$product) {
+                throw ValidationException::withMessages([
+                    'product' => 'Création échouée.',
+                ]);
+            }
 
-                    // crée le dossier s'il n'existe pas
-                    if (!file_exists($destination)) {
-                        mkdir($destination, 0755, true);
+            // ✅ Images uploadées
+            $files = [];
+            if (isset($data['images']) && is_array($data['images'])) {
+                foreach ($data['images'] as $image) {
+                    if ($image instanceof UploadedFile) {
+                        $files[] = $image;
                     }
+                }
+            }
+
+            if (!empty($files)) {
+                $destination = public_path('images/products');
+
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0755, true);
+                }
+
+                foreach ($files as $i => $image) {
+                    $extension = $image->getClientOriginalExtension();
+                    $filename  = Str::slug($name) . '-' . time() . '-' . Str::random(6) . '.' . $extension;
 
                     $image->move($destination, $filename);
 
-                    // chemin enregistré en DB
-                    $payload['image_url'] = 'images/products/' . $filename;
-
                     $this->productImageRepository->create([
                         'product_id' => $product->id,
-                        'image_url' => $payload['image_url'],
-                        'position' => $i++,
+                        'url'        => 'images/products/' . $filename, // ✅ champ correct
+                        'position'   => $i,
                     ]);
                 }
             }
-        }
 
-        if (!$product) {
-            throw ValidationException::withMessages([
-                'Product' => 'Création échouée.',
-            ]);
-        }
-
-        return $product;
+            return $product;
+        });
     }
 
     public function updateProduct(int|string $id, array $data)
@@ -191,50 +200,50 @@ class ProductService
             }
         }
 
-            // 3) Ajouter nouvelles images (si fournies)
-    $newFiles = $data['images'] ?? [];
-    $newCount = 0;
+        // 3) Ajouter nouvelles images (si fournies)
+        $newFiles = $data['images'] ?? [];
+        $newCount = 0;
 
-        if (is_array($newFiles)) {
-        $destination = public_path('images/products');
-        if (!file_exists($destination)) {
-            mkdir($destination, 0755, true);
-        }
-
-        foreach ($newFiles as $file) {
-            if (!($file instanceof UploadedFile)) {
-                continue;
+            if (is_array($newFiles)) {
+            $destination = public_path('images/products');
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
             }
 
-            $extension = $file->getClientOriginalExtension();
-            $filename = Str::slug($payload['name']) . '-' . time() . '-' . Str::random(5) . '.' . $extension;
+            foreach ($newFiles as $file) {
+                if (!($file instanceof UploadedFile)) {
+                    continue;
+                }
 
-            $file->move($destination, $filename);
+                $extension = $file->getClientOriginalExtension();
+                $filename = Str::slug($payload['name']) . '-' . time() . '-' . Str::random(5) . '.' . $extension;
 
-            $imageUrl = 'images/products/' . $filename;
+                $file->move($destination, $filename);
 
-            $this->productImageRepository->create([
-                'product_id' => $product->id,
-                'image_url'  => $imageUrl,
-                'position'   => 0, // option: recalculer positions après
+                $imageUrl = 'images/products/' . $filename;
+
+                $this->productImageRepository->create([
+                    'product_id' => $product->id,
+                    'image_url'  => $imageUrl,
+                    'position'   => 0, // option: recalculer positions après
+                ]);
+
+                $newCount++;
+    
+            }
+            }
+
+                // 4) Validation finale: il doit rester au moins 1 image
+        if (($currentCount + $newCount) < 1) {
+            throw ValidationException::withMessages([
+                'images' => 'Le produit doit avoir au moins une image.',
             ]);
-
-            $newCount++;
-  
         }
-        }
-
-            // 4) Validation finale: il doit rester au moins 1 image
-    if (($currentCount + $newCount) < 1) {
-        throw ValidationException::withMessages([
-            'images' => 'Le produit doit avoir au moins une image.',
-        ]);
-    }
 
         $this->productImageRepository->reorderPositions($product->id);
 
-            return $updated;
-        }
+        return $updated;
+    }
 
     public function deleteProduct(Product $product): void
     {

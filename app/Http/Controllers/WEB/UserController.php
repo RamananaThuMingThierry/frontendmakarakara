@@ -19,16 +19,34 @@ class UserController extends Controller
      */
     public function index()
     {
-        $constraints = [];
-        $users = $this->userService->getAllUsers(
-            array_keys($constraints),
-            array_values($constraints),
-            ['*'],
-            ['roles.permissions']
-        );
-        return response()->json([
-            'data' => $users
-        ]);
+        try{
+            $constraints = [];
+            $users = $this->userService->getAllUsers(
+                array_keys($constraints),
+                array_values($constraints),
+                ['*'],
+                ['roles.permissions']
+            );
+            return response()->json([
+                'data' => $users
+            ]);
+        }catch(Throwable $e){
+            // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'index_user_failed',
+                'entity_type' => 'User',
+                'entity_id' => null,
+                'metadata' => [
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Erreur lors du chargement des utilisateurs.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -52,7 +70,7 @@ class UserController extends Controller
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'create_user',
-                'entity_type' => 'user',
+                'entity_type' => 'User',
                 'entity_id' => $user->id,
                 'metadata' => [
                     "name" => $user->name,
@@ -70,8 +88,8 @@ class UserController extends Controller
             // Log échec (entity_id peut être null)
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
-                'action' => 'create_category_failed',
-                'entity_type' => 'Category',
+                'action' => 'create_user_failed',
+                'entity_type' => 'User',
                 'entity_id' => null,
                 'metadata' => [
                     'payload' => $data,
@@ -182,8 +200,8 @@ class UserController extends Controller
             // Log échec (entity_id peut être null)
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
-                'action' => 'update_category_failed',
-                'entity_type' => 'Category',
+                'action' => 'update_user_failed',
+                'entity_type' => 'User',
                 'entity_id' => $id,
                 'metadata' => [
                     'payload' => $data,

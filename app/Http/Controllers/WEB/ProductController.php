@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\WEB;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
 use App\Services\ActivityLogService;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -62,9 +63,54 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        try{
+
+            $data['images'] = $request->file('images');
+
+            $product = $this->productService->createProduct($data);
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'create_product',
+                'entity_type' => 'Product',
+                'entity_id' => $product->id,
+                'metadata' => [
+                    "name" => $product->name,
+                    "slug" => $product->slug,
+                    "is_active" => $product->is_active,
+                    "price" => $product->price,
+                    "sku" => $product->sku,
+                    "barcode" => $product->barcode,
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Produit créée avec succès.',
+                'data' => $product->load('images')
+            ], 201);
+
+        }catch(Throwable $e){
+                        // Log échec (entity_id peut être null)
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'create_procut_failed',
+                'entity_type' => 'Product',
+                'entity_id' => null,
+                'metadata' => [
+                    'payload' => $data,
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Erreur lors de la création du produit.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
