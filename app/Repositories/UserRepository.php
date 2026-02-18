@@ -61,7 +61,7 @@ class UserRepository extends BaseRepository implements UserInterface
     {
         $user = User::withTrashed()->find($id);
         if ($user && $user->trashed()) $user->restore();
-        return $user;
+        return $user->fresh();
     }
 
     public function forceDelete(int $id): void

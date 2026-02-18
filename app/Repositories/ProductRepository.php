@@ -8,34 +8,37 @@ use App\Repositories\BaseRepository;
 
 class ProductRepository extends BaseRepository implements ProductInterface
 {   
-    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null)
+    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false, ?int $paginate = null)
     {
         $fields = $this->withRequiredColumns($fields);
 
         $query = Product::query();
         $query = $this->applyFilter($query, $keys, $values);
         $query = $this->applyRelation($query, $relations);
+        $query = $this->applyTrashed($query, $withTrashed, $onlyTrashed);
 
         return $paginate ? $query->paginate($paginate, $fields) : $query->get($fields);
     }
 
-    public function getById(int|string $id, array $fields = [], array $relations = []): ?Product
+    public function getById(int|string $id, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false,): ?Product
     {
         $fields = $this->withRequiredColumns($fields);
 
         $query = Product::query();
         $query = $this->applyRelation($query, $relations);
+        $query = $this->applyTrashed($query, $withTrashed, $onlyTrashed);
 
         return empty($fields) ? $query->find($id) : $query->select($fields)->where('id', $id)->first();
     }
 
-    public function getByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = []): ?Product
+    public function getByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false,): ?Product
     {
         $fields = $this->withRequiredColumns($fields);
 
         $query = Product::query();
         $query = $this->applyFilter($query, $keys, $values);
         $query = $this->applyRelation($query, $relations);
+        $query = $this->applyTrashed($query, $withTrashed, $onlyTrashed);
 
         return empty($fields) ? $query->first() : $query->select($fields)->first();
     }
@@ -54,5 +57,18 @@ class ProductRepository extends BaseRepository implements ProductInterface
     public function delete(Product $product): void
     {
         $product->delete();
+    }
+
+    public function restore(int $id): ?Product
+    {
+        $product = Product::withTrashed()->find($id);
+        if ($product && $product->trashed()) $product->restore();
+        return $product->fresh();
+    }
+
+    public function forceDelete(int $id): void
+    {
+        $product = Product::withTrashed()->find($id);
+        if ($product) $product->forceDelete();
     }
 }

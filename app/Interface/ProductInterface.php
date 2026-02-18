@@ -6,11 +6,11 @@ use App\Models\Product;
 
 interface ProductInterface{
 
-    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null);
+    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false, ?int $paginate = null);
 
-    public function getById(int|string $id, array $fields = [], array $relations = []): ?Product;
+    public function getById(int|string $id, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false,): ?Product;
 
-    public function getByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = []): ?Product;
+    public function getByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false,): ?Product;
 
     public function create(array $data): ?Product;
 

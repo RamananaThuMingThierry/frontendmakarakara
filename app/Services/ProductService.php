@@ -13,19 +13,19 @@ class ProductService
 {
     public function __construct(private ProductRepository $productRepository, private ProductImageRepository $productImageRepository) {}
 
-    public function getAllProducts(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null)
+    public function getAllProducts(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false, ?int $paginate = null)
     {
-        return $this->productRepository->getAll($keys, $values, $fields, $relations, $paginate);
+        return $this->productRepository->getAll($keys, $values, $fields, $relations, $withTrashed, $onlyTrashed, $paginate);
     }
 
-    public function getProductById(int|string $id, array $fields = [], array $relations = [])
+    public function getProductById(int|string $id, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false)
     {
-        return $this->productRepository->getById($id, $fields, $relations);
+        return $this->productRepository->getById($id, $fields, $relations, $withTrashed, $onlyTrashed);
     }
 
-    public function getProductByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = [])
+    public function getProductByKeys(string|array $keys, mixed $values, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false)
     {
-        return $this->productRepository->getByKeys($keys, $values, $fields, $relations);
+        return $this->productRepository->getByKeys($keys, $values, $fields, $relations, $withTrashed, $onlyTrashed);
     }
 
     public function createProduct(array $data)

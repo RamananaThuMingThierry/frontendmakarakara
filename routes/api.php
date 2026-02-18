@@ -7,6 +7,8 @@ use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\BrandController;
 use App\Http\Controllers\WEB\CityController;
+use App\Http\Controllers\WEB\ProductController;
+use App\Http\Controllers\WEB\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +38,19 @@ Route::middleware('auth:sanctum')->group(function(){
             return response()->json($request->user());
         });
         
+        Route::apiResource('users', UserController::class);
+        
+        Route::post('users/{encryptedId}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+        Route::delete('users/{encryptedId}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
+            
         Route::apiResource('categories', CategoryController::class);
+        
+        Route::apiResource('products', ProductController::class);
+
+        Route::post('products/{encryptedId}/restore', [ProductController::class, 'restore'])->name('products.restore');
+
+        Route::delete('products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 
         Route::apiResource('brand', BrandController::class);
 

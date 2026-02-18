@@ -14,8 +14,7 @@ class CategoryRequest extends FormRequest
 
     public function rules(): array
     {
-        $categoryId = $this->route('category');
-        // si route model binding → /categories/{category}
+        $categoryId = decrypt_to_int_or_null($this->route('category'));
 
         return [
             'name' => [

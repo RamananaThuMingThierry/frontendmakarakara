@@ -32,6 +32,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['category_id', 'brand_id']);
+
+            $table->softDeletes();
         });
     }
 

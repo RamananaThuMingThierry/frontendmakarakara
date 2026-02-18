@@ -26,6 +26,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import RoleRoute from "../Components/website/RoleRoute";
 import RootLayout from "../layouts/RooteLayout";
 import CategoriesPage from "../pages/admin/Categories/CategoriesPage";
+import UsersPage from "../pages/admin/users/UsersPage";
 
 export const router = createBrowserRouter([
   {
@@ -79,7 +80,7 @@ export const router = createBrowserRouter([
           // { path: "orders", element: <OrdersPage /> },
           // { path: "coupons", element: <CouponsPage /> },
           // { path: "sliders", element: <SlidersPage /> },
-          // { path: "users", element: <UsersPage /> },
+          { path: "users", element: <UsersPage /> },
           // { path: "settings", element: <SettingsPage /> },
         ],
       },

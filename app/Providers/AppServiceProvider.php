@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Product;
 use App\Interface\CityInterface;
 use App\Interface\UserInterface;
 use App\Interface\BrandInterface;
@@ -19,7 +18,9 @@ use Illuminate\Support\ServiceProvider;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ActivityLogRepository;
 use App\Interface\PasswordResetCodeInterface;
+use App\Interface\ProductImageInterface;
 use App\Repositories\PasswordResetCodeRepository;
+use App\Repositories\ProductImageRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserInterface::class, UserRepository::class);
         $this->app->bind(SlideInterface::class, SlideRepository::class);
         $this->app->bind(ProductInterface::class, ProductRepository::class);
+        $this->app->bind(ProductImageInterface::class, ProductImageRepository::class);
         $this->app->bind(UserInterface::class, UserRepository::class);
     }
 

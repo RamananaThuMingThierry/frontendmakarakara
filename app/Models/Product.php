@@ -5,15 +5,15 @@ namespace App\Models;
 use App\Models\Brand;
 use App\Models\Review;
 use App\Models\Category;
-use Illuminate\Support\Str;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -28,10 +28,13 @@ class Product extends Model
         'is_active',
     ];
 
+    protected $dates = ['deleted_at'];
+    
     protected $casts = [
         'price' => 'decimal:2',
         'compare_price' => 'decimal:2',
         'is_active' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     protected $appends = ['encrypted_id'];
