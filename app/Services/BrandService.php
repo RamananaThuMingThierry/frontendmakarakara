@@ -148,14 +148,6 @@ class BrandService
 
     public function deleteBrand(Brand $brand): void
     {
-        $brand = $this->getBrandById($brand->id, ['id','logo']);
-
-        if (!$brand) {
-            throw ValidationException::withMessages([
-                'Brand' => 'Brand non trouvée.',
-            ]);
-        }
-
         // supprimer ancien logo si existe
         if (!empty($brand->logo)) {
             $oldPath = public_path($brand->logo);

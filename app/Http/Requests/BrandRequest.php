@@ -9,33 +9,19 @@ class BrandRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // adapte si tu as une logique d'autorisation
+        return true;
     }
 
     public function rules(): array
     {
-        // Ton paramètre de route est "encryptedId" (ou le nom exact dans ta route)
-        $encryptedId = $this->route('encryptedId');
-
-        $brandId = null;
+        $brandId = decrypt_to_int_or_null($this->route('brand'));
         
-        if ($encryptedId) {
-            $brandId = decrypt_to_int_or_null($encryptedId);
-        }
-
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('brands', 'name')->ignore($brandId),
-            ],
-
-            'slug' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('brands', 'slug')->ignore($brandId),
             ],
 
             'logo' => [

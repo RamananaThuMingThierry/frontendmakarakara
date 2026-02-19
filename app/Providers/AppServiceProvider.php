@@ -2,25 +2,29 @@
 
 namespace App\Providers;
 
-use App\Interface\CityInterface;
-use App\Interface\UserInterface;
-use App\Interface\BrandInterface;
-use App\Interface\SlideInterface;
-use App\Interface\ProductInterface;
-use App\Interface\CategoryInterface;
-use App\Repositories\CityRepository;
-use App\Repositories\UserRepository;
-use App\Repositories\BrandRepository;
-use App\Repositories\SlideRepository;
 use App\Interface\ActivityLogInterface;
-use App\Repositories\ProductRepository;
-use Illuminate\Support\ServiceProvider;
-use App\Repositories\CategoryRepository;
-use App\Repositories\ActivityLogRepository;
+use App\Interface\BrandInterface;
+use App\Interface\CategoryInterface;
+use App\Interface\CityInterface;
+use App\Interface\CityProductInterface;
+use App\Interface\InventoryInterface;
 use App\Interface\PasswordResetCodeInterface;
 use App\Interface\ProductImageInterface;
+use App\Interface\ProductInterface;
+use App\Interface\SlideInterface;
+use App\Interface\UserInterface;
+use App\Repositories\ActivityLogRepository;
+use App\Repositories\BrandRepository;
+use App\Repositories\CategoryRepository;
+use App\Repositories\CityProductRepository;
+use App\Repositories\CityRepository;
+use App\Repositories\InventoryRepository;
 use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\ProductImageRepository;
+use App\Repositories\ProductRepository;
+use App\Repositories\SlideRepository;
+use App\Repositories\UserRepository;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductInterface::class, ProductRepository::class);
         $this->app->bind(ProductImageInterface::class, ProductImageRepository::class);
         $this->app->bind(UserInterface::class, UserRepository::class);
+        $this->app->bind(CityProductInterface::class, CityProductRepository::class);
+        $this->app->bind(InventoryInterface::class, InventoryRepository::class);
+
     }
 
     /**

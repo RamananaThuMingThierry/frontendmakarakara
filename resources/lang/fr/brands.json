@@ -1,0 +1,58 @@
+{
+  "brands": {
+    "title": "Marques",
+    "subtitle": "Gérer les marques",
+
+    "loading": "Chargement...",
+    "refresh": "Rafraîchir",
+    "refreshing": "Rafraîchissement...",
+    "new": "Nouvelle marque",
+
+    "table": {
+      "index": "#",
+      "logo": "Logo",
+      "name": "Nom",
+      "slug": "Slug",
+      "status": "Statut",
+      "description": "Description",
+      "actions": "Actions"
+    },
+
+    "modal": {
+      "createTitle": "Créer",
+      "editTitle": "Modifier",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "active": "Actif",
+
+      "name": "Nom",
+      "slug": "Slug",
+      "logo": "Logo (URL)",
+      "description": "Description",
+
+      "placeholderName": "Ex : Nike",
+      "placeholderSlug": "Ex : nike",
+      "placeholderLogo": "https://.../logo.png",
+      "placeholderDescription": "Courte description",
+      "logoPreview": "Aperçu"
+    },
+
+    "delete": {
+      "title": "Confirmation",
+      "message": "Supprimer la marque",
+      "message2": "Supprimer cette marque ?",
+      "btn": "Supprimer",
+      "deleting": "Suppression..."
+    },
+
+    "toast": {
+      "nameRequired": "Le nom est obligatoire",
+      "created": "Créé.",
+      "updated": "Mis à jour.",
+      "deleted": "Supprimé.",
+      "saveFailed": "Échec de l'enregistrement",
+      "deleteFailed": "Échec de la suppression."
+    }
+  }
+}

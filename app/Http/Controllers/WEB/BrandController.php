@@ -211,7 +211,7 @@ class BrandController extends Controller
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
 
-        $brand = $this->brandService->getBrandById($id, ['id']);
+        $brand = $this->brandService->getBrandById($id, ['*']);
 
         if(!$brand){
 

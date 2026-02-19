@@ -69,7 +69,7 @@ class ProductController extends Controller
 
         try{
 
-            $data['images'] = $request->file('images');
+            $data['images'] = $request->file('images', []);
 
             $product = $this->productService->createProduct($data);
 

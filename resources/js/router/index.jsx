@@ -27,6 +27,7 @@ import RoleRoute from "../Components/website/RoleRoute";
 import RootLayout from "../layouts/RooteLayout";
 import CategoriesPage from "../pages/admin/Categories/CategoriesPage";
 import UsersPage from "../pages/admin/users/UsersPage";
+import BrandsPage from "../pages/admin/Brands/BrandsPage";
 
 export const router = createBrowserRouter([
   {
@@ -75,7 +76,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           // { path: "products", element: <ProductsPage /> },
-          // { path: "brands", element: <BrandsPage /> },
+          { path: "brands", element: <BrandsPage /> },
           { path: "categories", element: <CategoriesPage /> },
           // { path: "orders", element: <OrdersPage /> },
           // { path: "coupons", element: <CouponsPage /> },

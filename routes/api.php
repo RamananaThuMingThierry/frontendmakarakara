@@ -1,14 +1,15 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WEB\AuthController;
-use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\ActivityLogController;
+use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\BrandController;
+use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
+use App\Http\Controllers\WEB\CityProductController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,9 +53,11 @@ Route::middleware('auth:sanctum')->group(function(){
 
         Route::delete('products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 
-        Route::apiResource('brand', BrandController::class);
+        Route::apiResource('brands', BrandController::class);
 
         Route::apiResource('city', CityController::class);
+
+        Route::apiResource('city-products', CityProductController::class);
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
 

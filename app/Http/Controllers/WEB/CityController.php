@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\WEB;
 
 use Throwable;
-use Illuminate\Http\Request;
 use App\Services\CityService;
 use App\Http\Requests\CityRequest;
 use App\Http\Controllers\Controller;
-use App\Models\City;
 use App\Services\ActivityLogService;
 
 class CityController extends Controller

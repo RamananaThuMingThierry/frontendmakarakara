@@ -1,0 +1,58 @@
+{
+  "brands": {
+    "title": "Marken",
+    "subtitle": "Marken verwalten",
+
+    "loading": "Lädt...",
+    "refresh": "Aktualisieren",
+    "refreshing": "Wird aktualisiert...",
+    "new": "Neue Marke",
+
+    "table": {
+      "index": "#",
+      "logo": "Logo",
+      "name": "Name",
+      "slug": "Slug",
+      "status": "Status",
+      "description": "Beschreibung",
+      "actions": "Aktionen"
+    },
+
+    "modal": {
+      "createTitle": "Erstellen",
+      "editTitle": "Bearbeiten",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "active": "Aktiv",
+
+      "name": "Name",
+      "slug": "Slug",
+      "logo": "Logo (URL)",
+      "description": "Beschreibung",
+
+      "placeholderName": "Z. B.: Nike",
+      "placeholderSlug": "Z. B.: nike",
+      "placeholderLogo": "https://.../logo.png",
+      "placeholderDescription": "Kurze Beschreibung",
+      "logoPreview": "Vorschau"
+    },
+
+    "delete": {
+      "title": "Bestätigen",
+      "message": "Marke löschen",
+      "message2": "Diese Marke löschen?",
+      "btn": "Löschen",
+      "deleting": "Wird gelöscht..."
+    },
+
+    "toast": {
+      "nameRequired": "Name ist erforderlich",
+      "created": "Erstellt.",
+      "updated": "Aktualisiert.",
+      "deleted": "Gelöscht.",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "deleteFailed": "Löschen fehlgeschlagen."
+    }
+  }
+}

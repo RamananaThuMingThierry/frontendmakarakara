@@ -45,7 +45,7 @@ class ProductRequest extends FormRequest
 
             // ✅ Upload fichiers
             'images'        => ['sometimes', 'array'],
-            'images.*'      => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'images.*'      => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 

@@ -3,16 +3,19 @@
 namespace App\Services;
 
 use App\Models\Product;
-use App\Repositories\ProductImageRepository;
-use App\Repositories\ProductRepository;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Repositories\ProductRepository;
+use App\Repositories\ProductImageRepository;
 use Illuminate\Validation\ValidationException;
 
 class ProductService
 {
-    public function __construct(private ProductRepository $productRepository, private ProductImageRepository $productImageRepository) {}
+    public function __construct(
+        private ProductRepository $productRepository, 
+        private ProductImageRepository $productImageRepository
+    ) {}
 
     public function getAllProducts(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false, ?int $paginate = null)
     {
@@ -105,144 +108,132 @@ class ProductService
 
     public function updateProduct(int|string $id, array $data)
     {
-        $product = $this->getProductById($id, ['*']);
-        
-        $payload = [
-            'name' => trim((string) ($data['name'] ?? $product->name)),
-            'slug' => !empty($data['slug']) ? $data['slug'] : Str::slug(trim((string) ($data['name'] ?? $product->name))),
-            'description' => $data['description'] ?? $product->description,
-            'price' => $data['price'] ?? $product->price,
-            'compare_price' => $data['compare_price'] ?? $product->compare_price,
-            'sku' => $data['sku'] ?? $product->sku,
-            'barcode' => $data['barcode'] ?? $product->barcode,
-        ];
+        return DB::transaction(function () use ($id, $data) {
 
-        if(isset($data['category_id'])) {
-            $payload['category_id'] = $data['category_id'];
-        }else{
-            $payload['category_id'] = $product->category_id ?? null;
+            $product = $this->getProductById($id, ['*']);
 
-            if(empty($payload['category_id'])) {
+            if (!$product) {
                 throw ValidationException::withMessages([
-                    'category_id' => 'Le champ category_id est requis.',
+                    'product' => 'Produit non trouvé.',
                 ]);
             }
-        }
-        
-        // brand_id
-        $payload['brand_id'] = $data['brand_id'] ?? ($product->brand_id ?? null);
 
-        // is_active
-        if (array_key_exists('is_active', $data)) {
-            $payload['is_active'] = (bool) $data['is_active'];
-        }
+            $newName = trim((string) ($data['name'] ?? $product->name));
 
-        // rien à update ?
-        if (empty($payload)) {
-            throw ValidationException::withMessages([
-                'product' => 'Aucune donnée à mettre à jour.',
-            ]);
-        }
-
-        $updated = $this->productRepository->update($product, $payload);
-        
-        if (!$updated) {
-            throw ValidationException::withMessages([
-                'product' => 'Mise à jour échouée.',
-            ]);
-        }
-
-        // --- IMAGES ---
-        // 1) Charger les images actuelles
-        $constraints = [
-            'product_id' => $product->id,
-        ];
-
-        $currentImages = $this->productImageRepository->getAll(
-            array_keys($constraints),
-            array_values($constraints),
-            ['*']
-        );
-
-        $currentCount  = count($currentImages);
-
-        // 2) Supprimer celles demandées
-        $deletedIds = $data['deleted_image_ids'] ?? [];
-        if (!is_array($deletedIds)) {
-            $deletedIds = [];
-        }
-
-        if (!empty($deletedIds)) {
-        
-            // contraintes pour récupérer les images à supprimer
-            $constraints = [
-                'product_id' => $product->id,
-                'id' => $deletedIds
+            $payload = [
+                'name'          => $newName,
+                'slug'          => !empty($data['slug']) ? $data['slug'] : Str::slug($newName),
+                'description'   => $data['description'] ?? $product->description,
+                'price'         => $data['price'] ?? $product->price,
+                'compare_price' => $data['compare_price'] ?? $product->compare_price,
+                'sku'           => $data['sku'] ?? $product->sku,
+                'barcode'       => $data['barcode'] ?? $product->barcode,
+                'brand_id'      => $data['brand_id'] ?? ($product->brand_id ?? null),
             ];
 
-            // récupérer les images à supprimer
-            $toDelete = $this->productImageRepository->getAll(
-                array_keys($constraints),
-                array_values($constraints),
+            // category_id obligatoire
+            if (array_key_exists('category_id', $data)) {
+                $payload['category_id'] = $data['category_id'];
+            } else {
+                $payload['category_id'] = $product->category_id ?? null;
+                if (empty($payload['category_id'])) {
+                    throw ValidationException::withMessages([
+                        'category_id' => 'Le champ category_id est requis.',
+                    ]);
+                }
+            }
+
+            if (array_key_exists('is_active', $data)) {
+                $payload['is_active'] = (bool) $data['is_active'];
+            }
+
+            $updated = $this->productRepository->update($product, $payload);
+            if (!$updated) {
+                throw ValidationException::withMessages([
+                    'product' => 'Mise à jour échouée.',
+                ]);
+            }
+
+            // --- IMAGES ---
+            // 1) images actuelles
+            $currentImages = $this->productImageRepository->getAll(
+                ['product_id'],
+                [$product->id],
                 ['*']
             );
+            $currentCount = count($currentImages);
 
-            // suppression physique des fichiers + suppression en DB    
-            foreach ($toDelete as $img) {
-                if (!empty($img->image_url)) {
-                    $path = public_path($img->image_url);
-                    if (file_exists($path)) {
-                        $this->productImageRepository->delete($img);
+            // 2) suppression demandée
+            $deletedIds = $data['deleted_image_ids'] ?? [];
+            if (!is_array($deletedIds)) {
+                $deletedIds = [];
+            }
+
+            $deletedCount = 0;
+
+            if (!empty($deletedIds)) {
+                $toDelete = $this->productImageRepository->getAll(
+                    ['product_id', 'id'],
+                    [$product->id, $deletedIds],
+                    ['*']
+                );
+
+                foreach ($toDelete as $img) {
+                    // ✅ supprimer DB même si fichier absent
+                    $this->productImageRepository->delete($img);
+
+                    $path = !empty($img->image_url) ? public_path($img->image_url) : null;
+                    if ($path && file_exists($path)) {
                         @unlink($path);
-                    
                     }
+
+                    $deletedCount++;
                 }
             }
-        }
 
-        // 3) Ajouter nouvelles images (si fournies)
-        $newFiles = $data['images'] ?? [];
-        $newCount = 0;
+            // 3) ajout nouvelles images
+            $newFiles = $data['images'] ?? [];
+            $newCount = 0;
 
-            if (is_array($newFiles)) {
-            $destination = public_path('images/products');
-            if (!file_exists($destination)) {
-                mkdir($destination, 0755, true);
-            }
-
-            foreach ($newFiles as $file) {
-                if (!($file instanceof UploadedFile)) {
-                    continue;
+            if (is_array($newFiles) && !empty($newFiles)) {
+                $destination = public_path('images/products');
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0755, true);
                 }
 
-                $extension = $file->getClientOriginalExtension();
-                $filename = Str::slug($payload['name']) . '-' . time() . '-' . Str::random(5) . '.' . $extension;
+                foreach ($newFiles as $file) {
+                    if (!($file instanceof UploadedFile)) {
+                        continue;
+                    }
 
-                $file->move($destination, $filename);
+                    $extension = $file->getClientOriginalExtension();
+                    $filename  = Str::slug($payload['name']) . '-' . time() . '-' . Str::random(6) . '.' . $extension;
 
-                $imageUrl = 'images/products/' . $filename;
+                    $file->move($destination, $filename);
 
-                $this->productImageRepository->create([
-                    'product_id' => $product->id,
-                    'image_url'  => $imageUrl,
-                    'position'   => 0, // option: recalculer positions après
+                    $this->productImageRepository->create([
+                        'product_id' => $product->id,
+                        'image_url'  => 'images/products/' . $filename,
+                        'position'   => 0, // sera réordonné après
+                    ]);
+
+                    $newCount++;
+                }
+            }
+
+            // 4) ✅ Validation finale correcte : images restantes
+            $remaining = ($currentCount - $deletedCount) + $newCount;
+
+            if ($remaining < 1) {
+                throw ValidationException::withMessages([
+                    'images' => 'Le produit doit avoir au moins une image.',
                 ]);
-
-                $newCount++;
-    
-            }
             }
 
-                // 4) Validation finale: il doit rester au moins 1 image
-        if (($currentCount + $newCount) < 1) {
-            throw ValidationException::withMessages([
-                'images' => 'Le produit doit avoir au moins une image.',
-            ]);
-        }
+            $this->productImageRepository->reorderPositions($product->id);
 
-        $this->productImageRepository->reorderPositions($product->id);
-
-        return $updated;
+            return $updated;
+        });
     }
 
     public function deleteProduct(Product $product): void

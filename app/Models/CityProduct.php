@@ -24,33 +24,23 @@ class CityProduct extends Model
 
     protected $appends = ['encrypted_id'];
 
-    /**
-     * encrypted_id pour API
-     */
     public function getEncryptedIdAttribute()
     {
         return Crypt::encryptString($this->id);
     }
 
-    /**
-     * Relations
-     */
+    // ✅ Relations correctes pour un pivot model
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     public function city()
     {
         return $this->belongsTo(City::class);
     }
 
-    public function products()
-    {
-        return $this->belongsToMany(Product::class, 'city_products')
-            ->withPivot('is_available')
-            ->withTimestamps();
-    }
-
-    /**
-     * Scope: disponible
-     */
+    // ✅ Scope: disponible
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true);
