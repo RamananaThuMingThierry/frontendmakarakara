@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Models\Brand;
-use App\Models\Review;
 use App\Models\Category;
+use App\Models\City;
+use App\Models\Inventory;
+use App\Models\OrderItem;
 use App\Models\ProductImage;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Crypt;
 
 class Product extends Model
 {
@@ -87,7 +90,7 @@ class Product extends Model
     // Stock par ville (inventories)
     public function inventories()
     {
-        return $this->hasMany(Inventory::class);
+        return $this->hasMany(Inventory::class, 'product_id');
     }
 
     // Items de commande (historique ventes)
@@ -126,9 +129,9 @@ class Product extends Model
         });
     }
 
-    public function stockMovements()
+    public function stockMouvements()
     {
-        return $this->hasMany(StockMovement::class);
+        return $this->hasMany(StockMouvement::class);
     }
 
 }

@@ -6,10 +6,12 @@ export const productsApi = {
     return res.data;
   },
 
-  async create(payload) {
-    const res = await api.post("/admin/products", payload);
-    return { data: res.data, message: res.data.message };
-  },
+async create(payload) {
+  const res = await api.post("/admin/products", payload, {
+    headers: payload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
+  });
+  return { data: res.data, message: res.data.message };
+},
 
   async show(id) {
     console.log(id);

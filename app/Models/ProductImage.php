@@ -21,7 +21,7 @@ class ProductImage extends Model
         'position' => 'integer',
     ];
 
-    protected $appends = ['encrypted_id'];
+    protected $appends = ['encrypted_id', 'full_url'];
 
     /**
      * encrypted_id pour API
@@ -29,6 +29,11 @@ class ProductImage extends Model
     public function getEncryptedIdAttribute()
     {
         return Crypt::encryptString($this->id);
+    }
+
+    public function getFullUrlAttribute()
+    {
+        return asset($this->url);
     }
 
     /**

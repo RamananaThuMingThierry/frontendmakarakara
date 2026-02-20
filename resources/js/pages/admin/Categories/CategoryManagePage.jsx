@@ -3,6 +3,12 @@ import { categoriesApi } from "../../../api/categories";
 import { useParams, useNavigate } from "react-router-dom";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
+const DEFAULT_IMG = "/images/box.png"; // mets ton vrai chemin (public)
+
+function getProductThumb(product) {
+  const img = product?.images?.[0];
+  return img?.full_url || (img?.url ? `/${img.url}` : DEFAULT_IMG);
+}
 /* -------------------- Produits UI -------------------- */
 
 function ProductCard({ p, onEdit, onDelete, onDetails }) {
@@ -12,12 +18,15 @@ function ProductCard({ p, onEdit, onDelete, onDetails }) {
         <div className="d-flex align-items-start justify-content-between gap-3">
           {/* Image à droite */}
           <div className="rounded bg-light overflow-hidden flex-shrink-0" style={{ width: 86, height: 86 }}>
-            <img
-              src={p.image_url || "/images/box.png"}
-              alt={p.name}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              onError={(e) => (e.currentTarget.src = "/images/box.png")}
-            />
+          <img
+            src={getProductThumb(p)}
+            alt={p.name}
+            className="rounded border"
+            style={{ width: 64, height: 64, objectFit: "cover" }}
+            onError={(e) => {
+              e.currentTarget.src = DEFAULT_IMG;
+            }}
+          />
           </div>
 
           {/* Infos */}
@@ -79,7 +88,7 @@ function ProductsGrid({ products, onEditProduct, onDeleteProduct, onDetailsProdu
   return (
     <div className="row g-3">
       {products.map((p) => (
-        <div className="col-12 col-md-6 col-xl-4" key={p.id}>
+        <div className="col-12 col-md-6 col-xl-4" key={p.encrypted_id}>
           <ProductCard p={p} onEdit={onEditProduct} onDelete={onDeleteProduct} onDetails={onDetailsProduct} />
         </div>
       ))}
@@ -97,6 +106,9 @@ function CategoryNodeAccordion({
   onAskDeleteCategory,
   onAddProduct,
   onOpenCreateSubCategoryModal,
+  onDetailsProduct,
+  onEditProduct,
+  onDeleteProduct
 }) {
   const accordionId = `${parentAccordionId}-L${level}-N${node.id}`;
   const headingId = `heading-${accordionId}`;
@@ -118,7 +130,13 @@ function CategoryNodeAccordion({
             <div className="d-flex flex-column">
               <span className="fw-semibold">
                 <i className="bi bi-folder-fill text-warning me-2" />
-                {node.name} <span className="text-muted small fw-normal">({node.slug || "-"})</span>
+                {node.is_active ? (
+                  <i className="bi bi-check-circle-fill p-0 me-2 text-success" />
+                ) : (
+                    <i className="bi bi-x-circle-fill p-0 me-2 text-danger" />
+                )} 
+                {node.name} 
+                <span className="text-muted small fw-normal">({node.slug || "-"})</span>
               </span>
 
               <div className="text-muted small">
@@ -127,16 +145,7 @@ function CategoryNodeAccordion({
             </div>
 
             <div className="ms-auto d-flex align-items-center gap-2">
-              {node.is_active ? (
-                <span className="badge text-bg-success">
-                  <i className="bi bi-check-circle-fill me-1" /> Active
-                </span>
-              ) : (
-                <span className="badge text-bg-secondary">
-                  <i className="bi bi-x-circle-fill me-1" /> Inactive
-                </span>
-              )}
-
+              
               {/* ✅ Ajouter sous-catégorie (modal) */}
               <button
                 className="btn btn-sm btn-outline-primary"
@@ -167,7 +176,7 @@ function CategoryNodeAccordion({
 
               {/* ✅ Supprimer => modal confirm */}
               <button
-                className="btn btn-sm btn-outline-danger"
+                className="btn btn-sm btn-outline-danger me-4"
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
@@ -198,8 +207,12 @@ function CategoryNodeAccordion({
                 <i className="bi bi-plus-lg me-1" /> Ajouter un produit
               </button>
             </div>
-
-            <ProductsGrid products={node.products} />
+            <ProductsGrid
+              products={node.products}
+              onDetailsProduct={onDetailsProduct}
+              onEditProduct={onEditProduct}
+              onDeleteProduct={onDeleteProduct}
+            />
           </div>
 
           {/* Sous catégories */}
@@ -218,6 +231,9 @@ function CategoryNodeAccordion({
                     onAskDeleteCategory={onAskDeleteCategory}
                     onAddProduct={onAddProduct}
                     onOpenCreateSubCategoryModal={onOpenCreateSubCategoryModal}
+                    onDetailsProduct={onDetailsProduct}  
+                    onEditProduct={onEditProduct}
+                    onDeleteProduct={onDeleteProduct}
                   />
                 ))}
               </div>
@@ -339,6 +355,22 @@ function onEditCategory(cat) {
     setDeleteOpen(true);
   }
 
+    function onDetailsProduct(p) {
+    if (!p?.encrypted_id) return;
+    navigate(`/admin/products/${p.encrypted_id}`);
+}
+
+
+function onEditProduct(p) {
+  if (!p?.encrypted_id) return;
+  navigate(`/admin/products/${p.encrypted_id}/edit`);
+}
+
+function onDeleteProduct(p) {
+  console.log("delete", p);
+  // ici tu peux ouvrir un modal + appeler productsApi.remove(p.encrypted_id)
+}
+
   async function confirmDeleteCategory() {
     if (!deleteTarget || deleting) return;
     setDeleting(true);
@@ -421,30 +453,6 @@ function onEditCategory(cat) {
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="d-flex justify-content-between my-3">
-        <h4>Gestion des produits</h4>
-
-        <div className="d-flex gap-2">
-          {/* ✅ 1) Ajouter une catégorie => modal (parent = current root data) */}
-          <button
-            className="btn btn-dark"
-            onClick={() => onOpenCreateSubCategoryModal(data)}
-            title="Ajouter une catégorie"
-            type="button"
-          >
-            <i className="bi bi-plus-circle" />
-            <span className="d-none d-md-inline ms-2">Ajouter une sous-catégorie</span>
-          </button>
-
-          {/* ✅ 2) Ajouter un produit => redirect */}
-          <button className="btn btn-outline-dark" onClick={() => onAddProduct(data)} title="Ajouter un produit" type="button">
-            <i className="bi bi-plus-circle" />
-            <span className="d-none d-md-inline ms-2">Ajouter un produit</span>
-          </button>
-        </div>
-      </div>
-
       {/* tree */}
       <div className="card border-0 shadow-sm">
         <div className="card-body">
@@ -459,6 +467,9 @@ function onEditCategory(cat) {
               onAskDeleteCategory={onAskDeleteCategory}
               onAddProduct={onAddProduct}
               onOpenCreateSubCategoryModal={onOpenCreateSubCategoryModal}
+              onDetailsProduct={onDetailsProduct}  
+              onEditProduct={onEditProduct}
+              onDeleteProduct={onDeleteProduct}
             />
           </div>
         </div>

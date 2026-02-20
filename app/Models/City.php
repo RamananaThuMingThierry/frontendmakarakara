@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Inventory;
+use App\Models\Order;
 use App\Models\Product;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class City extends Model
 {
@@ -66,9 +69,9 @@ class City extends Model
         return $query->where('is_active', true);
     }
 
-    public function stockMovements()
+    public function stockMouvements()
     {
-        return $this->hasMany(StockMovement::class);
+        return $this->hasMany(StockMouvement::class);
     }
 
 }

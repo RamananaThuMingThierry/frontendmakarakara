@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { categoriesApi } from "../../../api/categories";
 import { productsApi } from "../../../api/products";
@@ -26,8 +26,26 @@ export default function CreateProductPage() {
     is_active: true,
   });
 
+  // ✅ images sélectionnées
+  const [images, setImages] = useState([]); // File[]
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
+
+  const imagePreviews = useMemo(() => {
+    return images.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images]);
+
+  useEffect(() => {
+    // cleanup previews
+    return () => {
+      imagePreviews.forEach((p) => URL.revokeObjectURL(p.url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imagePreviews]);
 
   async function loadCategory() {
     setLoading(true);
@@ -52,6 +70,39 @@ export default function CreateProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryEncryptedId]);
 
+  function setField(key, value) {
+    setForm((p) => ({ ...p, [key]: value }));
+  }
+
+  function firstError(key) {
+    const v = errors?.[key];
+    return Array.isArray(v) ? v[0] : typeof v === "string" ? v : null;
+  }
+
+  function onPickImages(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    // reset input pour pouvoir re-sélectionner le même fichier
+    e.target.value = "";
+
+    // Optionnel : limite localement (Laravel: 2MB / image)
+    const maxBytes = 2 * 1024 * 1024;
+
+    const valid = [];
+    for (const f of files) {
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > maxBytes) continue;
+      valid.push(f);
+    }
+
+    setImages((prev) => [...prev, ...valid]);
+  }
+
+  function removeImageAt(idx) {
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+  }
+
   async function onSubmit(e) {
     e.preventDefault();
     if (saving) return;
@@ -64,28 +115,41 @@ export default function CreateProductPage() {
       return;
     }
 
-    const payload = {
-      name: form.name.trim(),
-      sku: form.sku.trim() || null,
-      barcode: form.barcode.trim() || null,
-      price: form.price === "" ? null : Number(form.price),
-      description: form.description.trim() || null,
-      is_active: !!form.is_active,
+    if (!categoryEncryptedId) {
+      setGlobalError("category_id manquant dans l'URL");
+      return;
+    }
 
-      // ✅ IMPORTANT: on envoie category_id = encrypted id (comme ton URL)
-      category_id: categoryEncryptedId,
-    };
+    // ✅ FormData pour envoyer images[]
+    const fd = new FormData();
+    fd.append("name", form.name.trim());
+    if (form.sku.trim()) fd.append("sku", form.sku.trim());
+    if (form.barcode.trim()) fd.append("barcode", form.barcode.trim());
+
+    // price: Laravel attend numeric requis -> si vide, on n’envoie pas et Laravel renverra l’erreur
+    if (form.price !== "") fd.append("price", String(Number(form.price)));
+
+    if (form.description.trim()) fd.append("description", form.description.trim());
+    fd.append("is_active", form.is_active ? "1" : "0");
+
+    // ✅ IMPORTANT: category_id = encrypted id (comme ton URL)
+    fd.append("category_id", categoryEncryptedId);
+
+    // ✅ images[]
+    images.forEach((file) => fd.append("images[]", file));
 
     setSaving(true);
     try {
-      await productsApi.create(payload);
+      await productsApi.create(fd); // doit accepter FormData (voir note plus bas)
 
       // retour sur la page manage catégorie
       navigate(`/admin/categories/${categoryEncryptedId}`);
     } catch (e2) {
       const d = e2?.response?.data;
+
+      // Laravel Validation: { message, errors: { field: [..] } }
       if (d?.errors) setErrors(d.errors);
-      else setGlobalError(d?.message || "Création échouée.");
+      setGlobalError(d?.message || "Création échouée.");
     } finally {
       setSaving(false);
     }
@@ -140,11 +204,11 @@ export default function CreateProductPage() {
               <input
                 className={`form-control ${errors.name ? "is-invalid" : ""}`}
                 value={form.name}
-                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                onChange={(e) => setField("name", e.target.value)}
                 placeholder="Ex: Karting GT4 270cc"
                 autoFocus
               />
-              {errors.name ? <div className="invalid-feedback">{errors.name[0]}</div> : null}
+              {firstError("name") ? <div className="invalid-feedback">{firstError("name")}</div> : null}
             </div>
 
             {/* SKU + Barcode */}
@@ -155,10 +219,10 @@ export default function CreateProductPage() {
                   <input
                     className={`form-control ${errors.sku ? "is-invalid" : ""}`}
                     value={form.sku}
-                    onChange={(e) => setForm((p) => ({ ...p, sku: e.target.value }))}
+                    onChange={(e) => setField("sku", e.target.value)}
                     placeholder="Ex: SKU-0001"
                   />
-                  {errors.sku ? <div className="invalid-feedback">{errors.sku[0]}</div> : null}
+                  {firstError("sku") ? <div className="invalid-feedback">{firstError("sku")}</div> : null}
                 </div>
               </div>
 
@@ -168,10 +232,12 @@ export default function CreateProductPage() {
                   <input
                     className={`form-control ${errors.barcode ? "is-invalid" : ""}`}
                     value={form.barcode}
-                    onChange={(e) => setForm((p) => ({ ...p, barcode: e.target.value }))}
+                    onChange={(e) => setField("barcode", e.target.value)}
                     placeholder="Ex: 123456789"
                   />
-                  {errors.barcode ? <div className="invalid-feedback">{errors.barcode[0]}</div> : null}
+                  {firstError("barcode") ? (
+                    <div className="invalid-feedback">{firstError("barcode")}</div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -183,10 +249,12 @@ export default function CreateProductPage() {
                 type="number"
                 className={`form-control ${errors.price ? "is-invalid" : ""}`}
                 value={form.price}
-                onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
+                onChange={(e) => setField("price", e.target.value)}
                 placeholder="Ex: 25000"
+                min="0"
+                step="1"
               />
-              {errors.price ? <div className="invalid-feedback">{errors.price[0]}</div> : null}
+              {firstError("price") ? <div className="invalid-feedback">{firstError("price")}</div> : null}
             </div>
 
             {/* Description */}
@@ -195,10 +263,69 @@ export default function CreateProductPage() {
               <textarea
                 className={`form-control ${errors.description ? "is-invalid" : ""}`}
                 value={form.description}
-                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                onChange={(e) => setField("description", e.target.value)}
                 rows={4}
               />
-              {errors.description ? <div className="invalid-feedback">{errors.description[0]}</div> : null}
+              {firstError("description") ? (
+                <div className="invalid-feedback">{firstError("description")}</div>
+              ) : null}
+            </div>
+
+            {/* Images */}
+            <div className="mb-3">
+              <label className="form-label">Images</label>
+              <input
+                type="file"
+                className={`form-control ${
+                  errors.images || Object.keys(errors || {}).some((k) => k.startsWith("images.")) ? "is-invalid" : ""
+                }`}
+                accept="image/*"
+                multiple
+                onChange={onPickImages}
+              />
+
+              {/* erreur "images" (array) */}
+              {firstError("images") ? <div className="invalid-feedback d-block">{firstError("images")}</div> : null}
+
+              {/* erreurs "images.0", "images.1"... */}
+              {Object.keys(errors || {})
+                .filter((k) => k.startsWith("images."))
+                .slice(0, 3)
+                .map((k) => (
+                  <div key={k} className="invalid-feedback d-block">
+                    {Array.isArray(errors[k]) ? errors[k][0] : errors[k]}
+                  </div>
+                ))}
+
+              <div className="form-text">Formats: jpg, jpeg, png, webp. Max 2MB / image.</div>
+
+              {imagePreviews.length ? (
+                <div className="mt-2 d-flex flex-wrap gap-2">
+                  {imagePreviews.map((p, idx) => (
+                    <div
+                      key={p.url}
+                      className="border rounded position-relative"
+                      style={{ width: 110, height: 110, overflow: "hidden" }}
+                    >
+                      <img
+                        src={p.url}
+                        alt={`preview-${idx}`}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-danger position-absolute"
+                        style={{ top: 6, right: 6 }}
+                        onClick={() => removeImageAt(idx)}
+                        disabled={saving}
+                        title="Retirer"
+                      >
+                        <i className="bi bi-x-lg" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {/* Active */}
@@ -208,7 +335,7 @@ export default function CreateProductPage() {
                 type="checkbox"
                 id="active"
                 checked={!!form.is_active}
-                onChange={(e) => setForm((p) => ({ ...p, is_active: e.target.checked }))}
+                onChange={(e) => setField("is_active", e.target.checked)}
               />
               <label className="form-check-label" htmlFor="active">
                 Active

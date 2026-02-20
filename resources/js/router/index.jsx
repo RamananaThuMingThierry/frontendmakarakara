@@ -31,6 +31,7 @@ import BrandsPage from "../pages/admin/Brands/BrandsPage";
 import CategoryManagePage from "../pages/admin/Categories/CategoryManagePage";
 import UpdateCategoryPage from "../pages/admin/Categories/UpdateCategoryPage";
 import CreateProductPage from "../pages/admin/products/CreateProductPage";
+import ProductManagePage from "../pages/admin/products/ProductManagePage";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,7 @@ export const router = createBrowserRouter([
           { path: "categories/:encryptedId", element: <CategoryManagePage /> },
           { path: "categories/:encryptedId/edit", element: <UpdateCategoryPage /> },
           { path: "products/create", element: <CreateProductPage /> },
+          { path: "products/:encryptedId", element: <ProductManagePage /> },
           // { path: "orders", element: <OrdersPage /> },
           // { path: "coupons", element: <CouponsPage /> },
           // { path: "sliders", element: <SlidersPage /> },

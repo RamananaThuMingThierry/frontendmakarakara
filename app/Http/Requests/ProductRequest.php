@@ -18,40 +18,40 @@ class ProductRequest extends FormRequest
         $productId = decrypt_to_int_or_null($this->route('product'));
 
         return [
-            'category_id'   => ['required', 'integer', 'exists:categories,id'],
-            'brand_id'      => ['nullable', 'integer', 'exists:brands,id'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'brand_id' => ['nullable', 'integer', 'exists:brands,id'],
 
-            'name'          => ['required', 'string', 'max:255'],
-            'slug'          => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('products', 'slug')->ignore($productId),
-            ],
-            'description'   => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($productId)],
+            'description' => ['nullable', 'string'],
 
-            'price'         => ['required', 'numeric', 'min:0'],
+            'price' => ['required', 'numeric', 'min:0'],
             'compare_price' => ['nullable', 'numeric', 'min:0', 'gte:price'],
 
-            'sku'           => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('products', 'sku')->ignore($productId),
-            ],
-            'barcode'       => ['nullable', 'string', 'max:255'],
+            'sku' => ['nullable', 'string', 'max:255', Rule::unique('products', 'sku')->ignore($productId)],
+            'barcode' => ['nullable', 'string', 'max:255'],
 
-            'is_active'     => ['sometimes', 'boolean'],
+            'is_active' => ['sometimes', 'boolean'],
 
             // ✅ Upload fichiers
-            'images'        => ['sometimes', 'array'],
-            'images.*'      => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'images' => ['sometimes', 'array'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        // slug auto si absent
+        // ✅ Décrypte category_id (encrypted) -> int
+        if ($this->filled('category_id')) {
+            $categoryId = decrypt_to_int_or_null($this->input('category_id'));
+
+            // remplace la valeur chiffrée par l'id réel pour passer integer + exists
+            $this->merge([
+                'category_id' => $categoryId,
+            ]);
+        }
+
+        // ✅ slug auto si absent
         if (!$this->filled('slug') && $this->filled('name')) {
             $this->merge([
                 'slug' => Str::slug($this->input('name')),
@@ -63,12 +63,13 @@ class ProductRequest extends FormRequest
     {
         return [
             'category_id.required' => 'La catégorie est obligatoire.',
-            'category_id.exists'   => 'Catégorie invalide.',
-            'brand_id.exists'      => 'Marque invalide.',
-            'compare_price.gte'    => 'Le prix barré doit être supérieur ou égal au prix.',
-            'images.*.image'       => 'Chaque fichier doit être une image.',
-            'images.*.mimes'       => 'Formats acceptés: jpg, jpeg, png, webp.',
-            'images.*.max'         => 'Chaque image ne doit pas dépasser 2MB.',
+            'category_id.exists' => 'Catégorie invalide.',
+            'brand_id.exists' => 'Marque invalide.',
+            'compare_price.gte' => 'Le prix barré doit être supérieur ou égal au prix.',
+            'images.*.file' => 'Fichier invalide.',
+            'images.*.image' => 'Chaque fichier doit être une image.',
+            'images.*.mimes' => 'Formats acceptés: jpg, jpeg, png, webp.',
+            'images.*.max' => 'Chaque image ne doit pas dépasser 2MB.',
         ];
     }
 

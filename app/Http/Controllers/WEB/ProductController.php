@@ -65,6 +65,7 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
+        
         $data = $request->validated();
 
         try{
@@ -116,9 +117,23 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $encrryptedId)
     {
-        //
+        $id = decrypt_to_int_or_null($encrryptedId);
+
+        if(is_null($id)){
+            return response()->json(['message' => 'ID de produit invalide.'], 400);
+        }
+
+        $product = $this->productService->getProductById($id, ['*'], ['category', 'brand', 'images','cities','inventories.city', 'stockMouvements']);
+
+        if(!$product){
+            return response()->json(['message' => 'Produit non trouvé.'], 404);
+        }
+
+        return response()->json([
+            'data' => $product
+        ]);
     }
 
     /**

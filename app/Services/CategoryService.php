@@ -22,7 +22,7 @@ class CategoryService{
             'parent_id',
             $parentId,
             ['*'],
-            ['products'],
+            ['products.images'],
             null
         );
 
@@ -35,7 +35,7 @@ class CategoryService{
 
     public function getCategoryTreeWithProducts(int|string $id)
     {
-        $category = $this->categoryRepository->getById($id, ['*'], ['parent', 'products']);
+        $category = $this->categoryRepository->getById($id, ['*'], ['parent', 'products.images']);
 
         if (!$category) return null;
 
