@@ -5,9 +5,8 @@ import { useAuth } from "../hooks/website/AuthContext";
 import { useI18n } from "../hooks/website/I18nContext";
 
 const NAV = [
-  { to: "/admin", icon: "bi-speedometer2", label: "Dashboard" },
+  { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Dashboard" },
   { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
-  { to: "/admin/products", icon: "bi-box-seam", label: "Products" },
   { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
   { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
   { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },

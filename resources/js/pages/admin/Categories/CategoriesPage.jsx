@@ -1,24 +1,31 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { categoriesApi } from "../../../api/categories";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
-import $ from "jquery";
-import "datatables.net";
-import "datatables.net-bs5";
-
 export default function CategoriesPage() {
-  const { lang, t } = useI18n();
+  const { t } = useI18n();
 
-  // DataTables JSON dans public/lang/{lang}.json
-  const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+  const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const [saving, setSaving] = useState(false);
-
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
+
+  // modal create/edit
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState("");
+  const [form, setForm] = useState({ name: "", slug: "", parent_id: "", is_active: true });
+
+  // delete modal
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   function showToast(type, message) {
     setToast({ open: true, type, message });
@@ -26,49 +33,16 @@ export default function CategoriesPage() {
     showToast._t = window.setTimeout(() => setToast((x) => ({ ...x, open: false })), 3500);
   }
 
-  function flattenCategories(tree, level = 0, parent = null) {
-    const out = [];
-    (tree || []).forEach((node) => {
-      out.push({
-        ...node,
-        level,
-        parent_name: parent?.name ?? null,
-        children: node.children ?? [],
-      });
-      if (node.children?.length) out.push(...flattenCategories(node.children, level + 1, node));
-    });
-    return out;
-  }
-
-  // modal
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [globalError, setGlobalError] = useState("");
-
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const [form, setForm] = useState({ name: "", slug: "", parent_id: "", is_active: true });
-
-  const tableRef = useRef(null);
-  const dtRef = useRef(null);
-
-  // items ref pour handlers jquery
-  const itemsRef = useRef(items);
-  useEffect(() => {
-    itemsRef.current = items;
-  }, [items]);
-
   async function load({ mode = "refresh" } = {}) {
     if (mode === "initial") setInitialLoading(true);
     else setRefreshing(true);
 
     try {
       const res = await categoriesApi.list();
-      const tree = Array.isArray(res) ? res : res?.data ?? [];
-      setItems(flattenCategories(tree));
+      const list = Array.isArray(res) ? res : res?.data ?? [];
+      setItems(list);
+    } catch (e) {
+      showToast("danger", e?.response?.data?.message || t("categories.toast.loadFailed", "Load failed"));
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -116,112 +90,13 @@ export default function CategoriesPage() {
     setDeleteTarget(null);
   }
 
+  function onView(encrypted_id) {
+    navigate(`/admin/categories/${encrypted_id}`);
+  }
+
+  // options parent (si tu veux toujours parent dans modal)
   const parentOptions = useMemo(() => {
-    return items.map((c) => ({ id: c.id, label: `${"— ".repeat(c.level || 0)}${c.name}` }));
-  }, [items]);
-
-  // ✅ (Re)Init DataTable à chaque changement de langue (et après initialLoading)
-  useEffect(() => {
-    if (initialLoading) return;
-    if (!tableRef.current) return;
-
-    const $table = $(tableRef.current);
-
-    // destroy si existe
-    if (dtRef.current) {
-      try {
-        $table.off("click", ".js-edit");
-        $table.off("click", ".js-del");
-      } catch {}
-      dtRef.current.destroy();
-      dtRef.current = null;
-      $table.find("tbody").empty();
-    }
-
-    dtRef.current = $table.DataTable({
-      data: itemsRef.current,
-      pageLength: 10,
-      lengthMenu: [10, 15, 25, 50, 100],
-      ordering: true,
-      searching: true,
-      responsive: true,
-      language: { url: DT_LANG_URL },
-      columns: [
-        { data: null, render: (d, t, row, meta) => meta.row + 1 },
-        {
-          data: "name",
-          render: (data, type, row) => {
-            const pad = (row.level || 0) * 18;
-            const arrow = row.level > 0 ? "↳ " : "";
-            const safe = (data ?? "").toString();
-            return `<span style="padding-left:${pad}px">${arrow}${safe}</span>`;
-          },
-        },
-        { data: "slug", defaultContent: "" },
-        {
-          data: "is_active",
-          render: (v) =>
-            v
-              ? `<span class="badge text-bg-success">Active</span>`
-              : `<span class="badge text-bg-secondary">Inactive</span>`,
-        },
-        { data: "parent_name", defaultContent: "-" },
-        { data: "children", render: (arr) => (arr?.length ? `${arr.length}` : "-") },
-        {
-          data: null,
-          orderable: false,
-          className: "text-end",
-          render: (d, t, row) => `
-            <button class="btn btn-sm btn-outline-dark me-2 js-edit" data-id="${row.id}">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger js-del" data-id="${row.id}">
-              <i class="bi bi-trash3"></i>
-            </button>
-          `,
-        },
-      ],
-    });
-
-    // handlers
-    $table.on("click", ".js-edit", (e) => {
-      const id = Number($(e.currentTarget).data("id"));
-      const cat = itemsRef.current.find((x) => x.id === id);
-      if (cat) openEdit(cat);
-    });
-
-    $table.on("click", ".js-del", (e) => {
-      const id = Number($(e.currentTarget).data("id"));
-      const cat = itemsRef.current.find((x) => x.id === id);
-      if (cat) onDeleteAsk(cat);
-    });
-
-    return () => {
-      try {
-        $table.off("click", ".js-edit");
-        $table.off("click", ".js-del");
-      } catch {}
-      dtRef.current?.destroy();
-      dtRef.current = null;
-    };
-  }, [initialLoading, DT_LANG_URL]);
-
-  // ✅ Update rows quand items change (sans toucher langue)
-  useEffect(() => {
-    if (!dtRef.current) return;
-    const dt = dtRef.current;
-
-    const page = dt.page();
-    const search = dt.search();
-    const order = dt.order();
-
-    dt.clear();
-    dt.rows.add(items);
-    dt.draw(false);
-
-    dt.order(order).draw(false);
-    dt.search(search).draw(false);
-    dt.page(page).draw(false);
+    return items.map((c) => ({ id: c.id, label: c.name }));
   }, [items]);
 
   async function onSubmit(e) {
@@ -262,7 +137,9 @@ export default function CategoriesPage() {
 
     setDeleting(true);
     try {
+      // si ton API delete attend encrypted_id, remplace par deleteTarget.encrypted_id
       await categoriesApi.remove(deleteTarget.id);
+
       await load({ mode: "refresh" });
 
       setDeleteOpen(false);
@@ -310,34 +187,82 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          {initialLoading ? (
-            <div className="d-flex align-items-center gap-2 text-muted mb-3">
-              <div className="spinner-border spinner-border-sm" />
-              {t("categories.loading", "Loading...")}
-            </div>
-          ) : null}
-
-          <div className="table-responsive">
-            <table ref={tableRef} className="table align-middle mb-0">
-              <thead>
-                <tr className="text-muted small">
-                  <th style={{ width: 70 }}>{t("categories.table.index", "#")}</th>
-                  <th>{t("categories.table.name", "Name")}</th>
-                  <th>{t("categories.table.slug", "Slug")}</th>
-                  <th>{t("categories.table.status", "Status")}</th>
-                  <th>{t("categories.table.parent", "Parent")}</th>
-                  <th>{t("categories.table.children", "Children")}</th>
-                  <th style={{ width: 180 }} className="text-end">
-                    {t("categories.table.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody />
-            </table>
-          </div>
+      {initialLoading ? (
+        <div className="d-flex align-items-center gap-2 text-muted mb-3">
+          <div className="spinner-border spinner-border-sm" />
+          {t("categories.loading", "Loading...")}
         </div>
+      ) : null}
+
+      {/* Cards */}
+      <div className="row g-3">
+        {items.length === 0 && !initialLoading ? (
+          <div className="col-12">
+            <div className="alert alert-light border">
+              {t("categories.empty", "No categories found.")}
+            </div>
+          </div>
+        ) : null}
+
+        {items.map((cat) => (
+          <div className="col-12 col-md-6 col-xl-4" key={cat.encrypted_id}>
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <h5 className="mb-1">{cat.name}</h5>
+                    <div className="text-muted small">
+                      <span className="me-2">
+                        <i className="bi bi-link-45deg me-1" />
+                        {cat.slug || "-"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    {cat.is_active ? (
+                      <span className="badge text-bg-success">{t("categories.active", "Active")}</span>
+                    ) : (
+                      <span className="badge text-bg-secondary">{t("categories.inactive", "Inactive")}</span>
+                    )}
+                  </div>
+                </div>
+
+                <hr className="my-3" />
+
+                <div className="d-flex flex-wrap gap-2">
+                  <span className="badge text-bg-light border">
+                    {t("categories.subcats", "Sub-categories")}:{" "}
+                    <b>{Number(cat.subcategories_total ?? 0)}</b>
+                  </span>
+
+                  <span className="badge text-bg-light border">
+                    {t("categories.products", "Products")}:{" "}
+                    <b>{Number(cat.products_total ?? 0)}</b>
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="d-flex justify-content-end gap-2 mt-3">
+                  <button className="btn btn-sm btn-outline-primary" onClick={() => onView(cat.encrypted_id)}>
+                    <i className="bi bi-eye me-1" />
+                    {t("categories.btn.view", "Gérer")}
+                  </button>
+
+                  <button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(cat.encrypted_id)}>
+                    <i className="bi bi-pencil-square me-1" />
+                    {t("categories.btn.edit", "Modifier")}
+                  </button>
+
+                  <button className="btn btn-sm btn-outline-danger" onClick={() => onDeleteAsk(cat.encrypted_id)}>
+                    <i className="bi bi-trash3 me-1" />
+                    {t("categories.btn.delete", "Supprimer")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Modal create/edit */}
@@ -377,7 +302,6 @@ export default function CategoriesPage() {
                         onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))}
                         placeholder={t("categories.modal.placeholderSlug", "Ex: shoes")}
                       />
-                      <div className="form-text">{t("categories.modal.slugHelp", "")}</div>
                     </div>
 
                     <div className="mb-3">
@@ -396,7 +320,6 @@ export default function CategoriesPage() {
                             </option>
                           ))}
                       </select>
-                      <div className="form-text">{t("categories.modal.parentHelp", "")}</div>
                     </div>
 
                     <div className="form-check">

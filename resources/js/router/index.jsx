@@ -28,6 +28,9 @@ import RootLayout from "../layouts/RooteLayout";
 import CategoriesPage from "../pages/admin/Categories/CategoriesPage";
 import UsersPage from "../pages/admin/users/UsersPage";
 import BrandsPage from "../pages/admin/Brands/BrandsPage";
+import CategoryManagePage from "../pages/admin/Categories/CategoryManagePage";
+import UpdateCategoryPage from "../pages/admin/Categories/UpdateCategoryPage";
+import CreateProductPage from "../pages/admin/products/CreateProductPage";
 
 export const router = createBrowserRouter([
   {
@@ -78,6 +81,9 @@ export const router = createBrowserRouter([
           // { path: "products", element: <ProductsPage /> },
           { path: "brands", element: <BrandsPage /> },
           { path: "categories", element: <CategoriesPage /> },
+          { path: "categories/:encryptedId", element: <CategoryManagePage /> },
+          { path: "categories/:encryptedId/edit", element: <UpdateCategoryPage /> },
+          { path: "products/create", element: <CreateProductPage /> },
           // { path: "orders", element: <OrdersPage /> },
           // { path: "coupons", element: <CouponsPage /> },
           // { path: "sliders", element: <SlidersPage /> },

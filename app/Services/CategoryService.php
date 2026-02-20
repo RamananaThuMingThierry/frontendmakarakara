@@ -10,6 +10,40 @@ class CategoryService{
 
     public function __construct(private CategoryRepository $categoryRepository){}
 
+    public function getRootListForIndex()
+    {
+        return $this->categoryRepository->getRootCategoriesWithTotals();
+    }
+
+    private function loadChildrenWithProducts(int $parentId)
+    {
+        // enfants directs + leurs produits
+        $children = $this->categoryRepository->getAll(
+            'parent_id',
+            $parentId,
+            ['*'],
+            ['products'],
+            null
+        );
+
+        // récursif
+        return $children->map(function ($child) {
+            $child->setRelation('children', $this->loadChildrenWithProducts($child->id));
+            return $child;
+        });
+    }
+
+    public function getCategoryTreeWithProducts(int|string $id)
+    {
+        $category = $this->categoryRepository->getById($id, ['*'], ['parent', 'products']);
+
+        if (!$category) return null;
+
+        $category->setRelation('children', $this->loadChildrenWithProducts($category->id));
+
+        return $category;
+    }
+
     public function getAllCategories(string|array $keys, mixed $values, array $fields = ['*'], array $relations = ['children'], ?int $paginate = null)
     {
         if(array_key_exists('parent_id', $fields)){

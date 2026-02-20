@@ -6,6 +6,8 @@ use App\Models\Category;
 
 interface CategoryInterface{
 
+    public function getRootCategoriesWithTotals();
+
     public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null);
 
     public function getById(int|string $id, array $fields = [], array $relations = []): ?Category;

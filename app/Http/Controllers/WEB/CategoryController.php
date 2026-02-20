@@ -12,15 +12,12 @@ class CategoryController extends Controller{
 
     public function __construct(private CategoryService $categoryService, private ActivityLogService $activityLogService){}
 
-    public function index(){
-
-        $categories = $this->categoryService->getAllCategories('parent_id', null, ['*'], ['children', 'parent'], null);
-
+    public function index()
+    {
         return response()->json([
-            'data' => $categories
+            'data' => $this->categoryService->getRootListForIndex()
         ]);
     }
-
     public function store(CategoryRequest $request){
 
         $data = $request->validated();
@@ -74,7 +71,7 @@ class CategoryController extends Controller{
             return response()->json(['message' => 'ID de catégorie invalide.'], 400);
         }
 
-        $category = $this->categoryService->getCategoryById($id, ['*'], ['parent', 'children']);
+        $category = $this->categoryService->getCategoryTreeWithProducts($id);
 
         if(!$category){
             return response()->json(['message' => 'Catégorie non trouvée.'], 404);

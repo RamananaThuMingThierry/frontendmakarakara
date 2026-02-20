@@ -1,29 +1,29 @@
 import api from './axios';
 
-export const categoriesApi = {
+export const productsApi = {
   async list() {
-    const res = await api.get("/admin/categories");
+    const res = await api.get("/admin/products");
     return res.data;
   },
 
   async create(payload) {
-    const res = await api.post("/admin/categories", payload);
+    const res = await api.post("/admin/products", payload);
     return { data: res.data, message: res.data.message };
   },
 
   async show(id) {
     console.log(id);
-    const res = await api.get(`/admin/categories/${id}`);
+    const res = await api.get(`/admin/products/${id}`);
     return res.data;
   },
 
   async update(id, payload) {
-    const res = await api.put(`/admin/categories/${id}`, payload);
+    const res = await api.put(`/admin/products/${id}`, payload);
     return { data: res.data, message: res.data.message };
   },
 
   async remove(id) {
-    const res = await api.delete(`/admin/categories/${id}`);
+    const res = await api.delete(`/admin/products/${id}`);
     return { message: res.data.message };
   },
 };
