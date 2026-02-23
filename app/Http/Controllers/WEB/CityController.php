@@ -17,16 +17,35 @@ class CityController extends Controller
      */
     public function index()
     {
-        $constraints = [];
+        try{
+            $constraints = [];
 
-        $cities = $this->cityService->getAllCities(
-            array_keys($constraints),
-            array_values($constraints)
-        );
+            $cities = $this->cityService->getAllCities(
+                array_keys($constraints),
+                array_values($constraints)
+            );
 
-        return response()->json([
-            'data' => $cities
-        ]);
+            return response()->json([
+                'data' => $cities
+            ]);
+
+        }catch(Throwable $e){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'index_city_failed',
+                'entity_type' => 'City',
+                'entity_id' => null,
+                'metadata' => [
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Erreur lors du chargement des produits.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -43,7 +62,7 @@ class CityController extends Controller
     public function store(CityRequest $request)
     {
         $data = $request->validated();
-        
+
         try{
             $city = $this->cityService->createCity($data);
 
@@ -100,7 +119,7 @@ class CityController extends Controller
             ]);
 
             return response()->json(['message' => 'ID de ville invalide.'], 400);
-        }   
+        }
 
         $city = $this->cityService->getCityById($id, ['*']);
 
@@ -232,7 +251,7 @@ class CityController extends Controller
             ]);
 
             return response()->json(['message' => 'Ville supprimée avec succès.']);
-            
+
         }catch(Throwable $e){
 
             $this->activityLogService->createActivityLog([

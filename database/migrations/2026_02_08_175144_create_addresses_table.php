@@ -33,6 +33,8 @@ return new class extends Migration {
 
             $table->timestamps();
 
+            $table->softDeletes();
+
             $table->index(['user_id', 'is_default']);
             $table->index(['latitude', 'longitude']);
         });

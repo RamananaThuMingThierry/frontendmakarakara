@@ -15,7 +15,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     protected $guard_name = 'web';
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -52,6 +52,7 @@ class User extends Authenticatable
         'status' => 'string',
     ];
 
+    protected $dates = ['deleted_at'];
     /**
      * encrypted_id pour API (sécurité)
      */

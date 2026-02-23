@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WEB\ActivityLogController;
+use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\BrandController;
 use App\Http\Controllers\WEB\CategoryController;
@@ -48,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('users/{encryptedId}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
 
         Route::apiResource('slides', SlideController::class);
+
+        Route::apiResource('addresses', AddressController::class);
 
         Route::apiResource('testimonials', TestimonialController::class);
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interface\ActivityLogInterface;
+use App\Interface\AddressInterface;
 use App\Interface\BrandInterface;
 use App\Interface\CategoryInterface;
 use App\Interface\CityInterface;
@@ -15,6 +16,7 @@ use App\Interface\SlideInterface;
 use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
 use App\Repositories\ActivityLogRepository;
+use App\Repositories\AddressRepository;
 use App\Repositories\BrandRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CityProductRepository;
@@ -48,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CityProductInterface::class, CityProductRepository::class);
         $this->app->bind(InventoryInterface::class, InventoryRepository::class);
         $this->app->bind(TestimonialInterface::class, TestimonialRepository::class);
-
+        $this->app->bind(AddressInterface::class, AddressRepository::class);
     }
 
     /**
