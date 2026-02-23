@@ -8,6 +8,7 @@ use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\CityProductController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\SlideController;
+use App\Http\Controllers\WEB\TestimonialController;
 use App\Http\Controllers\WEB\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('users/{encryptedId}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
 
         Route::apiResource('slides', SlideController::class);
+
+        Route::apiResource('testimonials', TestimonialController::class);
 
         Route::apiResource('categories', CategoryController::class);
 
