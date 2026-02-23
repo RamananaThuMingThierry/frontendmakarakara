@@ -69,7 +69,7 @@ class Product extends Model
     // Images produit
     public function images()
     {
-        return $this->hasMany(ProductImage::class)->orderBy('position');
+        return $this->hasMany(ProductImage::class, 'product_id')->orderBy('position');
     }
 
     // Avis
@@ -131,7 +131,7 @@ class Product extends Model
 
     public function stockMouvements()
     {
-        return $this->hasMany(StockMouvement::class);
+        return $this->hasMany(StockMovement::class);
     }
 
 }

@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('city_products', function (Blueprint $table) {
+        Schema::create('inventory_price_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->boolean('is_available')->default(true);
+            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
+
+            $table->decimal('old_price', 12, 2)->nullable();
+            $table->decimal('new_price', 12, 2);
+
+            $table->foreignId('changed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['city_id', 'product_id']);
             $table->index(['product_id', 'city_id']);
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('city_products');
+        Schema::dropIfExists('inventory_price_histories');
     }
 };

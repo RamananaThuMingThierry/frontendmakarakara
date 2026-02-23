@@ -1,4 +1,4 @@
-export default function StockMovements({ product }) {
+export default function StockMouvements({ product }) {
   return (
     <div className="card border-0 shadow-sm">
       <div className="card-body">

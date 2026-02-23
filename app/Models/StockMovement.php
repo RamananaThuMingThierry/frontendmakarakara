@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
-class StockMouvement extends Model
+class StockMovement extends Model
 {
     use HasFactory;
 
-    protected $table = 'stock_mouvements';
+    protected $table = 'stock_movements';
 
     protected $fillable = [
         'product_id',

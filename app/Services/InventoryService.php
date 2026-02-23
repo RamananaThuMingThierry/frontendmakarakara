@@ -37,16 +37,28 @@ class InventoryService{
             throw new ValidationException("Le champ 'city_id' est requis.");
         }
 
+        if(array_key_exists('price', $data)){
+            $payload['price'] = $data['price'];
+        }
+
+        if(array_key_exists('compare_price', $data)){
+            $payload['compare_price'] = $data['compare_price'];
+        }
+
+        if(array_key_exists('is_available', $data)){
+            $payload['is_available'] = $data['is_available'];
+        }
+
         if(array_key_exists('quantity', $data)){
             $payload['quantity'] = $data['quantity'];
         }else{
             throw new ValidationException("Le champ 'quantity' est requis.");
         }
 
-        if(array_key_exists('low_stock_threshold', $data)){
-            $payload['low_stock_threshold'] = $data['low_stock_threshold'] ?? 0;
+        if(array_key_exists('min_stock', $data)){
+            $payload['min_stock'] = $data['min_stock'] ?? 0;
         }else{
-            $payload['low_stock_threshold'] = 0;
+            $payload['min_stock'] = 0;
         
         }
 

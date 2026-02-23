@@ -4,7 +4,7 @@ import ProductHeader from "./components/ProductHeader";
 import ProductInfo from "./components/ProductInfo";
 import CityAvailability from "./components/CityAvailability";
 import InventoryTable from "./components/InventoryTable";
-import StockMovements from "./components/StockMovements";
+import StockMouvements from "./components/StockMouvements";
 import { productsApi } from "../../../api/products";
 
 export default function ProductManagePage() {
@@ -39,7 +39,7 @@ export default function ProductManagePage() {
       <InventoryTable product={product} reload={loadProduct} />
 
       {/* STOCK MOVEMENTS */}
-      <StockMovements product={product} />
+      <StockMouvements product={product} />
 
     </div>
   );

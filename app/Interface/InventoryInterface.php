@@ -4,8 +4,8 @@ namespace App\Interface;
 
 use App\Models\Inventory;
 
-interface InventoryInterface{
-
+interface InventoryInterface
+{
     public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null);
 
     public function getById(int|string $id, array $fields = [], array $relations = []): ?Inventory;

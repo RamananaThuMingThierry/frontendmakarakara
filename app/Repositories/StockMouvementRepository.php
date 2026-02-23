@@ -6,7 +6,7 @@ use App\Interface\StockMovementInterface;
 use App\Models\StockMovement;
 use App\Repositories\BaseRepository;
 
-class StockMouvementRepository extends BaseRepository implements StockMovementInterface
+class StockMovementRepository extends BaseRepository implements StockMovementInterface
 {   
     public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null)
     {

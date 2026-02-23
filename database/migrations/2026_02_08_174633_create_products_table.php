@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('compare_price', 12, 2)->nullable();
 
             $table->string('sku')->nullable()->unique();
-            $table->string('barcode')->nullable();
+            $table->string('barcode')->nullable()->unique();
 
             $table->boolean('is_active')->default(true);
 
