@@ -11,7 +11,19 @@ class ActivityLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'action', 'entity_type', 'entity_id', 'metadata'];
+    protected $fillable = [
+        'user_id', 
+        'action', 
+        'level',
+        'entity_type', 
+        'entity_id', 
+        'method',
+        'url',
+        'route',
+        'status_code',
+        'message',
+        'metadata'
+    ];
 
     protected $casts = [
         'metadata' => 'array',

@@ -61,8 +61,15 @@ class ActivityLogController extends Controller
             return response()->json(['message' => 'ID de log d\'activité invalide.'], 400);
         }
 
+        $activityLog = $this->activityLogService->getByIdActivityLog($id, ['id']);
+        
+        if(!$activityLog){
+            return response()->json(['message' => 'Log d\'activité non trouvé.'], 404);
+        }
+
         try {
-            $this->activityLogService->deleteActivityLog($id);
+            $this->activityLogService->deleteActivityLog($activityLog);
+            
             return response()->json(['message' => 'Log d\'activité supprimé avec succès.'], 200);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);

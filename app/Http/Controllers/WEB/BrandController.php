@@ -32,6 +32,11 @@ class BrandController extends Controller
                 'action' => 'index_brand_failed',
                 'entity_type' => 'Brand',
                 'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'brands.index',
+                'status_code' => 500,
+                'message' => 'Erreur lors du chargement des brands.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -60,6 +65,11 @@ class BrandController extends Controller
                 'action' => 'create_brand',
                 'entity_type' => 'Brand',
                 'entity_id' => $brand->id,
+                'level' => 'success',
+                'method' => 'POST',
+                'route' => 'brands.store',
+                'status_code' => 201,
+                'message' => 'Brand créée avec succès.',
                 'metadata' => [
                     "name" => $brand->name,
                     "slug" => $brand->slug,
@@ -81,6 +91,11 @@ class BrandController extends Controller
                 'action' => 'create_brand_failed',
                 'entity_type' => 'Brand',
                 'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'POST',
+                'route' => 'brands.store',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la création de la brand.',
                 'metadata' => [
                     'payload' => $data,
                     'error' => $e->getMessage(),
@@ -102,7 +117,20 @@ class BrandController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
-
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'view_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'brands.show',
+                'status_code' => 400,
+                'message' => 'ID de brand invalide.',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);    
         
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
@@ -110,6 +138,23 @@ class BrandController extends Controller
         $brand = $this->brandService->getBrandById($id, ['*']);
 
         if(!$brand){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'view_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'brands.show',
+                'status_code' => 404,
+                'message' => 'Brand non trouvé.',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                    'decrypted_id' => $id
+                ],
+            ]);
+
             return response()->json(['message' => 'Brand non trouvé.'], 404);
         }
 
@@ -134,12 +179,45 @@ class BrandController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'brands.update',
+                'status_code' => 400,
+                'message' => 'ID de brand invalide.',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);
+
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
 
         $brand = $this->brandService->getBrandById($id, ['id']);
 
         if(!$brand){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_brand_failed',
+                'entity_type' => 'Brand',
+                'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'brands.update',
+                'status_code' => 404,
+                'message' => 'Brand non trouvé.',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                    'decrypted_id' => $id
+                ],
+            ]);    
+
             return response()->json(['message' => 'Brand non trouvé.'], 404);
         }
 
@@ -147,13 +225,18 @@ class BrandController extends Controller
 
         try{
 
-            $brand = $this->brandService->updateBrand($id, $data);
+            $brand = $this->brandService->updateBrand($brand, $data);
 
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'update_brand',
                 'entity_type' => 'Brand',
                 'entity_id' => $brand->id,
+                'level' => 'success',
+                'method' => 'PUT',
+                'route' => 'brands.update',
+                'status_code' => 200,
+                'message' => 'Brand mise à jour avec succès.',
                 'metadata' => [
                     "name" => $brand->name,
                     "slug" => $brand->slug,
@@ -174,7 +257,12 @@ class BrandController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'update_brand_failed',
                 'entity_type' => 'Brand',
-                'entity_id' => $brand->id,      
+                'entity_id' => $brand->id,  
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'brands.update',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la mise à jour de la brand.',
                 'metadata' => [
                     'payload' => $data,
                     'error' => $e->getMessage(),
@@ -203,6 +291,11 @@ class BrandController extends Controller
                 'action' => 'destroy_brand_failed',
                 'entity_type' => 'Brand',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'brands.destroy',
+                'status_code' => 400,
+                'message' => 'ID de brand invalide.',
                 'metadata' => [
                     'error' => "ID de brand invalide.",
                 ],
@@ -221,6 +314,11 @@ class BrandController extends Controller
                 'action' => 'destroy_brand_failed',
                 'entity_type' => 'Brand',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'brands.destroy',
+                'status_code' => 404,
+                'message' => 'Brand non trouvé.',
                 'metadata' => [
                     'error' => "Brand non trouvé.",
                 ],
@@ -237,6 +335,11 @@ class BrandController extends Controller
                 'action' => 'delete_brand',
                 'entity_type' => 'Brand',
                 'entity_id' => $brand->id,
+                'level' => 'success',
+                'method' => 'DELETE',
+                'route' => 'brands.destroy',
+                'status_code' => 200,
+                'message' => 'Brand supprimée avec succès.',
                 'metadata' => [
                     "name" => $brand->name,
                     "slug" => $brand->slug,
@@ -256,6 +359,11 @@ class BrandController extends Controller
                 'action' => 'delete_brand_failed',
                 'entity_type' => 'Brand',
                 'entity_id' => $brand->id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'brands.destroy',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la suppression de la brand.',
                 'metadata' => [
                     "error" => $e->getMessage()
                 ],

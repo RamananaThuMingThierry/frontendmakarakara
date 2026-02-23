@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use Illuminate\Support\Str;
 use App\Repositories\CategoryRepository;
 use Illuminate\Validation\ValidationException;
@@ -97,10 +98,8 @@ class CategoryService{
         return $category;
     }
 
-    public function updateCategory(int|string $id, array $data)
+    public function updateCategory(Category $category, array $data)
     {
-        $category = $this->getCategoryById($id, ['id']);
-
         $payload = [];
 
         if (array_key_exists('name', $data)) {
@@ -166,16 +165,8 @@ class CategoryService{
         return $updated;
     }
 
-    public function deleteCategory(int|string $id): void
+    public function deleteCategory(Category $category): void
     {
-        $category = $this->getCategoryById($id, ['id']);
-
-        if(!$category) {
-            throw ValidationException::withMessages([
-                'category' => 'Catégorie non trouvée.',
-            ]);
-        }
-
         // Optionnel: empêcher suppression si elle a des enfants
         if ($category->children()->exists()) {
             throw ValidationException::withMessages([

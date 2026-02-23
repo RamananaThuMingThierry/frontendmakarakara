@@ -41,13 +41,8 @@ class CityService{
         return $city;
     }
 
-    public function updateCity(int|string $id, array $data){
-        $city = $this->getCityById($id, ['*']);
-
-        if(!$city){
-            throw new \Exception("Ville non trouvée.");
-        }
-
+    public function updateCity(City $city, array $data){
+ 
         $payload = [];
 
         if(array_key_exists('name', $data)){

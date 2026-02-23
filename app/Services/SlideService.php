@@ -66,10 +66,8 @@ class SlideService
         return $slide;
     }
 
-    public function updateSlide(int|string $id, array $data)
+    public function updateSlide(Slide $slide, array $data)
     {
-        $slide = $this->getSlideById($id, ['*']);
-
         $payload = [
             'title' => trim((string) ($data['title'] ?? $slide->title)),
             'subtitle' => trim((string) ($data['subtitle'] ?? $slide->subtitle)),

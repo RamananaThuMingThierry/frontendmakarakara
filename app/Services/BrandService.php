@@ -67,10 +67,8 @@ class BrandService
         return $brand;
     }
 
-    public function updateBrand(int|string $id, array $data)
+    public function updateBrand(Brand $brand, array $data)
     {
-        $brand = $this->getBrandById($id, ['*']);
-
         $payload = [];
 
         if (array_key_exists('name', $data)) {

@@ -36,13 +36,18 @@ class CityController extends Controller
                 'action' => 'index_city_failed',
                 'entity_type' => 'City',
                 'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'admin.cities.index',
+                'status_code' => 500,
+                'message' => 'Erreur lors du chargement des villes.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
             ]);
 
             return response()->json([
-                'message' => 'Erreur lors du chargement des produits.',
+                'message' => 'Erreur lors du chargement des villes.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -71,6 +76,11 @@ class CityController extends Controller
                 'action' => 'create_city',
                 'entity_type' => 'City',
                 'entity_id' => $city->id,
+                'level' => 'success',
+                'method' => 'POST',
+                'route' => 'admin.cities.store',
+                'status_code' => 201,
+                'message' => 'Ville créée avec succès.',
                 'metadata' => [
                     "name" => $city->name,
                     "region" => $city->region,
@@ -89,6 +99,12 @@ class CityController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'create_city_failed',
                 'entity_type' => 'City',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'POST',
+                'route' => 'admin.cities.store',
+                'status_code' => 500,
+                'message' => 'Échec de la création de la ville.',
                 'metadata' => [
                     "error" => $e->getMessage()
                 ],
@@ -113,6 +129,12 @@ class CityController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'view_city_failed',
                 'entity_type' => 'City',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'admin.cities.show',
+                'status_code' => 400,
+                'message' => 'ID de ville invalide.',
                 'metadata' => [
                     "error" => "ID de ville invalide: $encryptedId"
                 ],
@@ -130,6 +152,11 @@ class CityController extends Controller
                 'action' => 'view_city_failed',
                 'entity_type' => 'City',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'admin.cities.show',
+                'status_code' => 404,
+                'message' => 'Ville non trouvée.',
                 'metadata' => [
                     "error" => "Ville non trouvée pour ID: $id"
                 ],
@@ -159,19 +186,62 @@ class CityController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_city_failed',
+                'entity_type' => 'City',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'admin.cities.update',
+                'status_code' => 400,
+                'message' => 'ID de ville invalide.',
+                'metadata' => [
+                    "error" => "ID de ville invalide: $encryptedId"
+                ],
+            ]);
+
             return response()->json(['message' => 'ID de ville invalide.'], 400);
         }
 
-        $data = $request->validated();
+        $city = $this->cityService->getCityById($id, ['*']);
+
+        if(!$city){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_city_failed',
+                'entity_type' => 'City',
+                'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'admin.cities.update',
+                'status_code' => 404,
+                'message' => 'Ville non trouvée.',
+                'metadata' => [
+                    "error" => "Ville non trouvée pour ID: $id"
+                ],
+            ]);
+
+            return response()->json(['message' => 'Ville non trouvée.'], 404);
+        }
 
         try{
-            $city = $this->cityService->updateCity($id, $data);
+            $data = $request->validated();
+
+            $city = $this->cityService->updateCity($city, $data);
 
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'update_city',
                 'entity_type' => 'City',
                 'entity_id' => $city->id,
+                'level' => 'success',
+                'method' => 'PUT',
+                'route' => 'admin.cities.update',
+                'status_code' => 200,
+                'message' => 'Ville mise à jour avec succès.',
                 'metadata' => [
                     "name" => $city->name,
                     "region" => $city->region,
@@ -191,6 +261,11 @@ class CityController extends Controller
                 'action' => 'update_city_failed',
                 'entity_type' => 'City',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'admin.cities.update',
+                'status_code' => 500,
+                'message' => 'Échec de la mise à jour de la ville.',
                 'metadata' => [
                     "error" => $e->getMessage()
                 ],
@@ -215,6 +290,12 @@ class CityController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'delete_city_failed',
                 'entity_type' => 'City',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'admin.cities.destroy',
+                'status_code' => 400,
+                'message' => 'ID de ville invalide.',
                 'metadata' => [
                     "error" => "ID de ville invalide: $encryptedId"
                 ],
@@ -232,6 +313,11 @@ class CityController extends Controller
                 'action' => 'delete_city_failed',
                 'entity_type' => 'City',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'admin.cities.destroy',
+                'status_code' => 404,
+                'message' => 'Ville non trouvée.',
                 'metadata' => [
                     "error" => "Ville non trouvée pour ID: $id"
                 ],
@@ -248,6 +334,11 @@ class CityController extends Controller
                 'action' => 'delete_city',
                 'entity_type' => 'City',
                 'entity_id' => $id,
+                'level' => 'success',
+                'method' => 'DELETE',
+                'route' => 'admin.cities.destroy',
+                'status_code' => 200,
+                'message' => 'Ville supprimée avec succès.',
             ]);
 
             return response()->json(['message' => 'Ville supprimée avec succès.']);
@@ -259,6 +350,11 @@ class CityController extends Controller
                 'action' => 'delete_city_failed',
                 'entity_type' => 'City',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'admin.cities.destroy',
+                'status_code' => 500,
+                'message' => 'Échec de la suppression de la ville.',
                 'metadata' => [
                     "error" => $e->getMessage()
                 ],

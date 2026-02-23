@@ -37,6 +37,11 @@ class UserController extends Controller
                 'action' => 'index_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
+                'level' => 'danger',
+                'status_code' => 500,
+                'message' => 'Erreur lors du chargement des utilisateurs.',
+                'method' => 'GET',
+                'route' => 'admin.users.index',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -71,6 +76,11 @@ class UserController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'create_user',
                 'entity_type' => 'User',
+                'level' => 'success',
+                'status_code' => 201,
+                'method' => 'POST',
+                'message' => 'Utilisateur créée avec succès.',
+                'route' => 'admin.users.store',
                 'entity_id' => $user->id,
                 'metadata' => [
                     "name" => $user->name,
@@ -91,6 +101,11 @@ class UserController extends Controller
                 'action' => 'create_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
+                'level' => 'danger',
+                'status_code' => 500,
+                'method' => 'POST',
+                'message' => 'Erreur lors de la création de l\'utilisateur.',
+                'route' => 'admin.users.store',
                 'metadata' => [
                     'payload' => $data,
                     'error' => $e->getMessage(),
@@ -112,6 +127,22 @@ class UserController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
  
         if(is_null($id)){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'show_user_failed',
+                'entity_type' => 'User',
+                'entity_id' => null,
+                'level' => 'warning',
+                'status_code' => 400,
+                'method' => 'GET',
+                'message' => 'ID de l\'utilisateur invalide.',
+                'route' => 'admin.users.show',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);
+
             return response()->json([
                 'message' => 'ID de l\'utilisateur invalide.'
             ], 400);
@@ -134,6 +165,11 @@ class UserController extends Controller
                 'action' => 'show_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => $id,
+                'level' => 'warning',
+                'status_code' => 404,
+                'method' => 'GET',
+                'message' => 'Utilisateur non trouvé.',
+                'route' => 'admin.users.show',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -161,6 +197,22 @@ class UserController extends Controller
         $id = decrypt_to_int_or_null($encryptedId);
 
         if(is_null($id)){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_user_failed',
+                'entity_type' => 'User',
+                'entity_id' => null,
+                'level' => 'warning',
+                'status_code' => 400,
+                'method' => 'PUT',
+                'message' => 'ID de l\'utilisateur invalide.',
+                'route' => 'admin.users.update',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);
+
             return response()->json([
                 'message' => 'ID de l\'utilisateur invalide.'
             ], 400);
@@ -173,16 +225,37 @@ class UserController extends Controller
             $user = $this->userService->getUserById($id);
 
             if(!$user){
+
+                $this->activityLogService->createActivityLog([
+                    'user_id' => auth()->id(),
+                    'action' => 'update_user_failed',
+                    'entity_type' => 'User',
+                    'entity_id' => $id,
+                    'level' => 'warning',
+                    'status_code' => 404,
+                    'method' => 'PUT',
+                    'message' => 'Utilisateur non trouvée.',
+                    'route' => 'admin.users.update',
+                    'metadata' => [
+                        'encrypted_id' => $encryptedId,
+                    ],
+                ]);
+
                 return response()->json(['message' => 'Utilisateur non trouvée.'], 404);
             }
 
-            $user = $this->userService->updateUser($id, $data);
+            $user = $this->userService->updateUser($user, $data);
 
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'update_user',
                 'entity_type' => 'User',
                 'entity_id' => $user->id,
+                'level' => 'success',
+                'status_code' => 200,
+                'method' => 'PUT',
+                'message' => 'Utilisateur mise à jour avec succès.',
+                'route' => 'admin.users.update',
                 'metadata' => [
                     "name" => $user->name,
                     "email" => $user->email,
@@ -203,6 +276,11 @@ class UserController extends Controller
                 'action' => 'update_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => $id,
+                'level' => 'PUT',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la mise à jours de la catégorie.',
+                'route' => 'admin.users.update',
+                'method' => 'PUT',
                 'metadata' => [
                     'payload' => $data,
                     'error' => $e->getMessage(),
@@ -226,19 +304,40 @@ class UserController extends Controller
         $user = $this->userService->getUserById($id, ['id']);
 
         if(!$user){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'delete_user_failed',
+                'entity_type' => 'User',
+                'entity_id' => $id,
+                'level' => 'warning',
+                'status_code' => 404,
+                'method' => 'DELETE',
+                'message' => 'Utilisateur non trouvée.',
+                'route' => 'admin.users.destroy',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);
+
             return response()->json([
                 'message' => 'Utilisateur non trouvée.'
             ], 404);
         }
 
         try {
-            $this->userService->deleteUser($id);
+            $this->userService->deleteUser($user);
 
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'delete_user',
                 'entity_type' => 'User',
                 'entity_id' => $user->id,
+                'level' => 'success',
+                'status_code' => 200,
+                'method' => 'DELETE',
+                'message' => 'Utilisateur supprimée avec succès.',
+                'route' => 'admin.users.destroy',
                 'metadata' => [
                     "name" => $user->name,
                     "email" => $user->email,
@@ -267,55 +366,71 @@ class UserController extends Controller
     }
 
     public function restore(string $encryptedId)
-{
-    $id = decrypt_to_int_or_null($encryptedId);
+    {
+        $id = decrypt_to_int_or_null($encryptedId);
 
-    if (is_null($id)) {
-        return response()->json(['message' => "ID de l'utilisateur invalide."], 400);
+        if (is_null($id)) {
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'restore_user_failed',
+                'entity_type' => 'User',
+                'entity_id' => null,
+                'level' => 'warning',
+                'status_code' => 400,
+                'method' => 'POST',
+                'route' => 'admin.users.restore',
+                'message' => 'ID de l\'utilisateur invalide.',
+                'metadata' => [
+                    'encrypted_id' => $encryptedId,
+                ],
+            ]);
+
+            return response()->json(['message' => "ID de l'utilisateur invalide."], 400);
+        }
+
+        try {
+            // restore dans service / repo (withTrashed)
+            $user = $this->userService->restoreUser($id);
+
+            return response()->json([
+                'message' => "Utilisateur restauré.",
+                'data' => $user,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => "Utilisateur non trouvé."], 404);
+        }
     }
 
-    try {
-        // restore dans service / repo (withTrashed)
-        $user = $this->userService->restoreUser($id);
+    public function forceDelete(string $encryptedId)
+    {
+        $id = decrypt_to_int_or_null($encryptedId);
 
+        if (is_null($id)) {
+            return response()->json(['message' => "ID de l'utilisateur invalide."], 400);
+        }
+
+        try {
+            $this->userService->forceDeleteUser($id);
+
+            return response()->json([
+                'message' => "Utilisateur supprimé définitivement.",
+            ]);
+
+        } catch (ValidationException $e) {
+            
         return response()->json([
-            'message' => "Utilisateur restauré.",
-            'data' => $user,
-        ]);
-    } catch (ValidationException $e) {
-        return response()->json([
-            'message' => $e->getMessage(),
-            'errors' => $e->errors(),
-        ], 422);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => "Utilisateur non trouvé."], 404);
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => "Utilisateur non trouvé."], 404);
+        }
     }
-}
-
-public function forceDelete(string $encryptedId)
-{
-    $id = decrypt_to_int_or_null($encryptedId);
-
-    if (is_null($id)) {
-        return response()->json(['message' => "ID de l'utilisateur invalide."], 400);
-    }
-
-    try {
-        $this->userService->forceDeleteUser($id);
-
-        return response()->json([
-            'message' => "Utilisateur supprimé définitivement.",
-        ]);
-
-    } catch (ValidationException $e) {
-        
-    return response()->json([
-            'message' => $e->getMessage(),
-            'errors' => $e->errors(),
-        ], 422);
-
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => "Utilisateur non trouvé."], 404);
-    }
-}
 }

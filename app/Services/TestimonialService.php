@@ -74,15 +74,8 @@ class TestimonialService
         return $testimonial;
     }
 
-    public function updateTestimonial(int|string $id, array $data)
+    public function updateTestimonial(Testimonial $testimonial, array $data)
     {
-        $testimonial = $this->getTestimonialById($id, ['*']);
-
-        if(!$testimonial) {
-            throw ValidationException::withMessages([
-                'testimonial' => 'Témoignage non trouvé.',
-            ]);
-        }
 
         $payload = [];
 

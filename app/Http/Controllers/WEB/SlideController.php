@@ -28,6 +28,10 @@ class SlideController extends Controller
                 'action' => 'index_slide_failed',
                 'entity_type' => 'Slide',
                 'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'status_code' => 500,
+                'message' => 'Erreur lors du chargement des slides.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -54,6 +58,10 @@ class SlideController extends Controller
                 'action' => 'create_slide',
                 'entity_type' => 'Slide',
                 'entity_id' => $slide->id,
+                'level' => 'success',
+                'route' => 'admin.slides.store',
+                'status_code' => 201,
+                'message' => 'Slide créé avec succès.',
                 'metadata' => [
                     'title' => $slide->title,
                     'position' => $slide->position,
@@ -72,6 +80,11 @@ class SlideController extends Controller
                 'user_id' => Auth::id(),
                 'action' => 'create_slide_failed',
                 'entity_type' => 'Slide',
+                'entity_id' => null,
+                'level' => 'danger',
+                'route' => 'admin.slides.store',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la création du slide.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -94,6 +107,12 @@ class SlideController extends Controller
                 'user_id' => Auth::id(),
                 'action' => 'view_slide_failed',
                 'entity_type' => 'Slide',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'admin.slides.show',
+                'status_code' => 400,
+                'message' => 'ID de slide invalide.',
                 'metadata' => [
                     'error' => "ID de slide invalide: $encryptedId",
                 ],
@@ -105,9 +124,25 @@ class SlideController extends Controller
         }
 
         try{
-            $slide = $this->slideService->getSlideById($id, ['id', 'title', 'subtitle', 'image_url', 'position', 'is_active']);
+            $slide = $this->slideService->getSlideById($id, ['*']);
 
             if(!$slide){
+
+                $this->activityLogService->createActivityLog([
+                    'user_id' => Auth::id(),
+                    'action' => 'view_slide_failed',
+                    'entity_type' => 'Slide',
+                    'entity_id' => $id,
+                    'level' => 'warning',
+                    'method' => 'GET',
+                    'route' => 'admin.slides.show',
+                    'status_code' => 404,
+                    'message' => 'Slide non trouvé.',
+                    'metadata' => [
+                        'error' => "Slide non trouvée: $id",
+                    ],
+                ]);
+
                 return response()->json([
                     'message' => 'Slide non trouvé.'
                 ], 404);
@@ -124,6 +159,11 @@ class SlideController extends Controller
                 'action' => 'view_slide_failed',
                 'entity_type' => 'Slide',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'GET',
+                'route' => 'admin.slides.show',
+                'status_code' => 500,
+                'message' => 'Erreur lors du chargement du slide.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -147,6 +187,12 @@ class SlideController extends Controller
                 'user_id' => Auth::id(),
                 'action' => 'update_slide_failed',
                 'entity_type' => 'Slide',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'admin.slides.update',
+                'status_code' => 400,
+                'message' => 'ID de slide invalide.',
                 'metadata' => [
                     'error' => "ID de slide invalide: $encryptedId",
                 ],
@@ -157,10 +203,35 @@ class SlideController extends Controller
             ], 400);
         }
 
+
+        $slide = $this->slideService->getSlideById($id, ['*']);
+
+        if(!$slide){
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => Auth::id(),
+                'action' => 'update_slide_failed',
+                'entity_type' => 'Slide',
+                'entity_id' => $id,
+                'level' => 'warning',
+                'method' => 'PUT',
+                'route' => 'admin.slides.update',
+                'status_code' => 404,
+                'message' => 'Slide non trouvé.',
+                'metadata' => [
+                    'error' => "Slide non trouvée: $id",
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Slide non trouvé.'
+            ], 404);
+        }
+
         try{
             $data = $request->validated();
 
-            $slide = $this->slideService->updateSlide($id, $data);
+            $slide = $this->slideService->updateSlide($slide, $data);
 
             if(!$slide){
                 return response()->json([
@@ -173,6 +244,11 @@ class SlideController extends Controller
                 'action' => 'update_slide',
                 'entity_type' => 'Slide',
                 'entity_id' => $slide->id,
+                'level' => 'success',
+                'method' => 'PUT',
+                'route' => 'admin.slides.update',
+                'status_code' => 200,
+                'message' => 'Slide mis à jour avec succès.',
                 'metadata' => [
                     'title' => $slide->title,
                     'position' => $slide->position,
@@ -191,6 +267,11 @@ class SlideController extends Controller
                 'action' => 'update_slide_failed',
                 'entity_type' => 'Slide',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'PUT',
+                'route' => 'admin.slides.update',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la mise à jour du slide.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
@@ -214,6 +295,12 @@ class SlideController extends Controller
                 'user_id' => Auth::id(),
                 'action' => 'delete_slide_failed',
                 'entity_type' => 'Slide',
+                'entity_id' => null,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'admin.slides.destroy',
+                'status_code' => 400,
+                'message' => 'ID de slide invalide.',
                 'metadata' => [
                     'error' => "ID de slide invalide: $encryptedId",
                 ],
@@ -233,6 +320,10 @@ class SlideController extends Controller
                 'action' => 'delete_slide_failed',
                 'entity_type' => 'Slide',
                 'entity_id' => $id,
+                'method' => 'DELETE',
+                'route' => 'admin.slides.destroy',
+                'status_code' => 404,
+                'message' => 'Slide non trouvé.',
                 'metadata' => [
                     'error' => "Slide non trouvée: $id",
                 ],
@@ -251,6 +342,16 @@ class SlideController extends Controller
                 'action' => 'delete_slide',
                 'entity_type' => 'Slide',
                 'entity_id' => $id,
+                'level' => 'success',
+                'method' => 'DELETE',
+                'route' => 'admin.slides.destroy',
+                'status_code' => 200,
+                'message' => 'Slide supprimé avec succès.',
+                'metadata' => [
+                    'title' => $slide->title,
+                    'position' => $slide->position,
+                    'is_active' => $slide->is_active
+                ],
             ]);
 
             return response()->json([
@@ -264,6 +365,11 @@ class SlideController extends Controller
                 'action' => 'delete_slide_failed',
                 'entity_type' => 'Slide',
                 'entity_id' => $id,
+                'level' => 'danger',
+                'method' => 'DELETE',
+                'route' => 'admin.slides.destroy',
+                'status_code' => 500,
+                'message' => 'Erreur lors de la suppression du slide.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -63,10 +64,8 @@ class UserService{
         return $user;
     }
 
-    public function updateUser(int|string $id, array $data){
+    public function updateUser(User $user, array $data){
         
-        $user = $this->userRepository->getById($id);
-
         $payload = [];
 
         if(array_key_exists('name', $data)){
@@ -145,16 +144,8 @@ class UserService{
         return $updated;
     }
 
-    public function deleteUser(int|string $id): void
+    public function deleteUser(User $user): void
     {
-        $user = $this->getUserById($id, ['id']);
-
-        if(!$user) {
-            throw ValidationException::withMessages([
-                'user' => 'Utilisateur non trouvée.',
-            ]);
-        }
-
         $this->userRepository->delete($user);
     }
 

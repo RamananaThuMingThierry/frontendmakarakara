@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class AuthController extends Controller
 {
-public function __construct(private AuthService $auth) {}
+public function __construct(private AuthService $auth, private ActivityLogService $activityLogService) {}
 
     public function login(LoginRequest $request)
     {
@@ -26,6 +28,23 @@ public function __construct(private AuthService $auth) {}
             // ✅ récupérer le rôle spatie
             $roles = $user->getRoleNames(); // "admin" | "customer" | "delivery"
 
+            $this->activityLogService->createActivityLog([
+                'user_id' => $user->id,
+                'action' => 'login',
+                'level' => 'success',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'POST',
+                'route' => 'login',
+                'message' => 'Connexion réussie.',
+                'status_code' => 200,
+                'metadata' => [
+                    'pseudo' => $user->name,
+                    'email' => $data['email'],
+                    'roles' => $roles,
+                ]
+            ]);
+
             return response()->json([
                 'message' => 'Connexion réussie',
                 'user' => $user,
@@ -34,6 +53,22 @@ public function __construct(private AuthService $auth) {}
             ], 200);
 
         }catch (Exception $e) {
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => null,
+                'action' => 'login_failed',
+                'level' => 'danger',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'POST',
+                'route' => 'login',
+                'message' => 'Échec de la connexion.',
+                'status_code' => 422,
+                'metadata' => [
+                    "error" => $e->getMessage()
+                ],
+            ]);
+
             return response()->json([
                 'message' => 'Les informations de connexion sont invalides.',
                 'errors' => [
@@ -52,22 +87,60 @@ public function __construct(private AuthService $auth) {}
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = $this->auth->register($data);
+        try{
+            $user = $this->auth->register($data);
 
-        $user->assignRole('admin');
+            $user->assignRole('admin');
 
-        // token direct après register (pratique pour React)
-        $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
+            // token direct après register (pratique pour React)
+            $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
 
-
-        return response()->json(
-            [
+            $this->activityLogService->createActivityLog([
+                'user_id' => $user->id,
+                'action' => 'register',
+                'level' => 'success',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'POST',
+                'route' => 'register',
                 'message' => 'Compte créé avec succès.',
-                'user' => $user,
-                'token' => $token,
-            ],
-            201
-        );
+                'status_code' => 201,
+                'metadata' => [
+                    'pseudo' => $user->name,
+                    'email' => $user->email,
+                    'roles' => $user->getRoleNames(),
+                ]
+            ]);
+
+            return response()->json(
+                [
+                    'message' => 'Compte créé avec succès.',
+                    'user' => $user,
+                    'token' => $token,
+                ],
+                201
+            );
+        }catch(Throwable $e){
+            $this->activityLogService->createActivityLog([
+                'user_id' => null,
+                'action' => 'register_failed',
+                'level' => 'danger',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'POST',
+                'route' => 'register',
+                'message' => 'Échec de la création du compte.',
+                'status_code' => 500,
+                'metadata' => [
+                    "error" => $e->getMessage()
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Une erreur est survenue lors de la création du compte.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function me()
@@ -75,6 +148,19 @@ public function __construct(private AuthService $auth) {}
         $user = Auth::user();
 
         if (!$user) {
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => null,
+                'action' => 'fetch_me_failed',
+                'level' => 'danger',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'GET',
+                'route' => 'me',
+                'message' => 'Utilisateur non authentifié.',
+                'status_code' => 401,
+            ]);
+            
             return response()->json([
                 'message' => 'Non authentifié'
             ], 401);
@@ -89,6 +175,22 @@ public function __construct(private AuthService $auth) {}
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        
+        if ($user) {
+            $this->activityLogService->createActivityLog([
+                'user_id' => $user->id,
+                'action' => 'logout',
+                'level' => 'info',
+                'entity_type' => null,
+                'entity_id' => null,
+                'method' => 'POST',
+                'route' => 'logout',
+                'message' => 'Déconnexion réussie.',
+                'status_code' => 200,
+            ]);
+        }
+
         $this->auth->logout($request);
 
         return response()->json([

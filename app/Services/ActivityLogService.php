@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Repositories\ActivityLogRepository;
-use Illuminate\Validation\ValidationException;
-
 class ActivityLogService{
 
     public function __construct(private ActivityLogRepository $activitiyLogRepository){}
@@ -29,16 +28,8 @@ class ActivityLogService{
         return $this->activitiyLogRepository->create($data);
     }
 
-    public function deleteActivityLog(int|string $id)
-    {
-        $log = $this->getByIdActivityLog($id, ['id']);
-
-        if (!$log) {
-            throw ValidationException::withMessages([
-                'activity_log' => 'Activity log not found.',
-            ]);
-        }
-        
-        $this->activitiyLogRepository->delete($log);
+    public function deleteActivityLog(ActivityLog $activityLog)
+    {    
+        $this->activitiyLogRepository->delete($activityLog);
     }
 }
