@@ -2,54 +2,54 @@
 
 namespace App\Repositories;
 
-use App\Interface\SlideInterface;
-use App\Models\Slide;
+use App\Interface\TestimonialInterface;
+use App\Models\Testimonial;
 use App\Repositories\BaseRepository;
 
-class SlideRepository extends BaseRepository implements SlideInterface
+class TestimonialRepository extends BaseRepository implements TestimonialInterface
 {
     public function getAll(string|array $keys, mixed $values, array $fields = ['*'], ?int $paginate = null)
     {
         $fields = $this->withRequiredColumns($fields);
 
-        $query = Slide::query();
+        $query = Testimonial::query();
         $query = $this->applyFilter($query, $keys, $values);
 
         return $paginate ? $query->paginate($paginate, $fields) : $query->get($fields);
     }
 
-    public function getById(int|string $id, array $fields = []): ?Slide
+    public function getById(int|string $id, array $fields = []): ?Testimonial
     {
         $fields = $this->withRequiredColumns($fields);
 
-        $query = Slide::query();
+        $query = Testimonial::query();
 
         return empty($fields) ? $query->find($id) : $query->select($fields)->where('id', $id)->first();
     }
 
-    public function getByKeys(string|array $keys, mixed $values, array $fields = []): ?Slide
+    public function getByKeys(string|array $keys, mixed $values, array $fields = []): ?Testimonial
     {
         $fields = $this->withRequiredColumns($fields);
 
-        $query = Slide::query();
+        $query = Testimonial::query();
         $query = $this->applyFilter($query, $keys, $values);
 
         return empty($fields) ? $query->first() : $query->select($fields)->first();
     }
 
-    public function create(array $data): ?Slide
+    public function create(array $data): ?Testimonial
     {
-        return Slide::create($data);
+        return Testimonial::create($data);
     }
 
-    public function update(Slide $slide, array $data): ?Slide
+    public function update(Testimonial $testimonial, array $data): ?Testimonial
     {
-        $slide->update($data);
-        return $slide;
+        $testimonial->update($data);
+        return $testimonial;
     }
 
-    public function delete(Slide $slide): void
+    public function delete(Testimonial $testimonial): void
     {
-        $slide->delete();
+        $testimonial->delete();
     }
 }

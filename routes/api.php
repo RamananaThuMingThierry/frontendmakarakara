@@ -7,6 +7,7 @@ use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\CityProductController;
 use App\Http\Controllers\WEB\ProductController;
+use App\Http\Controllers\WEB\SlideController;
 use App\Http\Controllers\WEB\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,25 +29,27 @@ Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/reset-password', [AuthController::class, 'rest']);
 
 Route::middleware('auth:sanctum')->group(function(){
-    
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/me', [AuthController::class, 'me']);    
+    Route::get('/me', [AuthController::class, 'me']);
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
         Route::get('admin/account', function(Request $request){
             return response()->json($request->user());
         });
-        
+
         Route::apiResource('users', UserController::class);
-        
+
         Route::post('users/{encryptedId}/restore', [UserController::class, 'restore'])->name('users.restore');
 
         Route::delete('users/{encryptedId}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
-            
+
+        Route::apiResource('slides', SlideController::class);
+
         Route::apiResource('categories', CategoryController::class);
-        
+
         Route::apiResource('products', ProductController::class);
 
         Route::post('products/{encryptedId}/restore', [ProductController::class, 'restore'])->name('products.restore');

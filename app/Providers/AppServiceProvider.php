@@ -12,6 +12,7 @@ use App\Interface\PasswordResetCodeInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
 use App\Interface\SlideInterface;
+use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\BrandRepository;
@@ -23,6 +24,7 @@ use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\SlideRepository;
+use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserInterface::class, UserRepository::class);
         $this->app->bind(CityProductInterface::class, CityProductRepository::class);
         $this->app->bind(InventoryInterface::class, InventoryRepository::class);
+        $this->app->bind(TestimonialInterface::class, TestimonialRepository::class);
 
     }
 
