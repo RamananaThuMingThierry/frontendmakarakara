@@ -3,28 +3,28 @@
 namespace App\Providers;
 
 use App\Interface\ActivityLogInterface;
+use App\Interface\AddressInterface;
 use App\Interface\BrandInterface;
 use App\Interface\CategoryInterface;
 use App\Interface\CityInterface;
 use App\Interface\InventoryInterface;
-use App\Interface\InventoryPriceHistoryInterface;
 use App\Interface\PasswordResetCodeInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
 use App\Interface\SlideInterface;
-use App\Interface\StockReservationInterface;
+use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
 use App\Repositories\ActivityLogRepository;
+use App\Repositories\AddressRepository;
 use App\Repositories\BrandRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CityRepository;
-use App\Repositories\InventoryPriceHistoryRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\SlideRepository;
-use App\Repositories\StockReservationRepository;
+use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -46,8 +46,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductImageInterface::class, ProductImageRepository::class);
         $this->app->bind(UserInterface::class, UserRepository::class);
         $this->app->bind(InventoryInterface::class, InventoryRepository::class);
-        $this->app->bind(InventoryPriceHistoryInterface::class, InventoryPriceHistoryRepository::class);
-        $this->app->bind(StockReservationInterface::class, StockReservationRepository::class);
+        $this->app->bind(TestimonialInterface::class, TestimonialRepository::class);
+        $this->app->bind(AddressInterface::class, AddressRepository::class);
     }
 
     /**

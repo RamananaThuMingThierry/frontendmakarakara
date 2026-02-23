@@ -161,13 +161,13 @@ export default function BrandsPage() {
         $table.off("click", ".js-edit");
         $table.off("click", ".js-del");
       } catch {}
-      dtRef.current.destroy();
+      dtRef.current.destroy(true);
       dtRef.current = null;
       $table.find("tbody").empty();
     }
 
     dtRef.current = $table.DataTable({
-      data: itemsRef.current,
+      data: [],
       pageLength: 10,
       lengthMenu: [10, 15, 25, 50, 100],
       ordering: true,
@@ -304,9 +304,9 @@ export default function BrandsPage() {
     setSaving(true);
     try {
       if (editing) {
-        await brandsApi.update(getRowId(editing), fd); 
+        await brandsApi.update(getRowId(editing), fd);
       } else {
-        await brandsApi.create(fd); 
+        await brandsApi.create(fd);
       }
 
       await load({ mode: "refresh" });

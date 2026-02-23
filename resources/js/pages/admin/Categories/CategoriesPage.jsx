@@ -249,12 +249,12 @@ export default function CategoriesPage() {
                     {t("categories.btn.view", "Gérer")}
                   </button>
 
-                  <button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(cat.encrypted_id)}>
+                  <button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(cat)}>
                     <i className="bi bi-pencil-square me-1" />
                     {t("categories.btn.edit", "Modifier")}
                   </button>
 
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => onDeleteAsk(cat.encrypted_id)}>
+                  <button className="btn btn-sm btn-outline-danger" onClick={() => onDeleteAsk(cat)}>
                     <i className="bi bi-trash3 me-1" />
                     {t("categories.btn.delete", "Supprimer")}
                   </button>

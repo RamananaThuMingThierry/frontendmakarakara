@@ -6,15 +6,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Address extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
         'label',
         'full_name',
+        'landmark',
         'phone',
         'address_line1',
         'address_line2',
@@ -27,9 +29,12 @@ class Address extends Model
         'is_default',
     ];
 
+    protected $dates = ['deleted_at'];
+
     protected $casts = [
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
+        'deleted_at' => 'datetime',
         'is_default' => 'boolean',
     ];
 
@@ -49,26 +54,6 @@ class Address extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Scope: adresse par défaut
-     */
-    public function scopeDefault($query)
-    {
-        return $query->where('is_default', true);
-    }
-
-    /**
-     * Définir comme adresse principale
-     * (désactive les autres)
-     */
-    public function setAsDefault()
-    {
-        self::where('user_id', $this->user_id)
-            ->update(['is_default' => false]);
-
-        $this->update(['is_default' => true]);
     }
 
     /**

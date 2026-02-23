@@ -1,0 +1,54 @@
+{
+  "title": "Journaux d’activité",
+  "subtitle": "Suivre les actions d’administration",
+  "total": "Total",
+  "page": "Page",
+  "search": "Rechercher (local)",
+  "refresh": "Rafraîchir",
+  "refreshing": "Rafraîchissement…",
+  "loading": "Chargement…",
+  "empty": "Aucun journal trouvé.",
+
+  "errors": {
+    "load": "Impossible de charger les journaux."
+  },
+
+  "toast": {
+    "deleted": "Supprimé.",
+    "deleteFailed": "Échec de la suppression."
+  },
+
+  "actions": {
+    "show": "Voir",
+    "delete": "Supprimer"
+  },
+
+  "card": {
+    "id": "Journal",
+    "entity": "Entité",
+    "user": "Utilisateur",
+    "date": "Date"
+  },
+
+  "show": {
+    "title": "Détails du journal",
+    "action": "Action",
+    "entity": "Entité",
+    "user": "Utilisateur",
+    "date": "Date",
+    "metadata": "Métadonnées"
+  },
+
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer ce journal",
+    "message2": "Supprimer ce journal ?",
+    "deleting": "Suppression…",
+    "btn": "Supprimer"
+  },
+
+  "modal": {
+    "close": "Fermer",
+    "cancel": "Annuler"
+  }
+}

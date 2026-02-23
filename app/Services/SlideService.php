@@ -90,19 +90,13 @@ class SlideService
                     @unlink($oldPath);
                 }
             }
-            if (!empty($brand->logo)) {
-                $oldPath = public_path($brand->logo);
-                if (file_exists($oldPath)) {
-                    @unlink($oldPath);
-                }
-            }
-
-            $nameForFile = $payload['title'] ?? $slide->title;
 
             $extension = $data['image_url']->getClientOriginalExtension();
-            $filename = 'slide-' . time() . '.' . $extension;
+
+            $filename =  'slide-' . time() . '.' . $extension;
 
             $destination = public_path('images/slides');
+
             if (!file_exists($destination)) {
                 mkdir($destination, 0755, true);
             }
@@ -132,14 +126,6 @@ class SlideService
 
     public function deleteSlide(Slide $slide): void
     {
-        $slide = $this->getSlideById($slide->id, ['id','image_url']);
-
-        if (!$slide) {
-            throw ValidationException::withMessages([
-                'Slide' => 'Slide non trouvée.',
-            ]);
-        }
-
         // supprimer ancienne image si existe
         if (!empty($slide->image_url)) {
             $oldPath = public_path($slide->image_url);

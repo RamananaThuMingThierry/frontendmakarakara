@@ -13,6 +13,7 @@ const NAV = [
   { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
   { to: "/admin/users", icon: "bi-people", label: "Users" },
   { to: "/admin/settings", icon: "bi-gear", label: "Settings" },
+  { to: "/admin/activity-logs", icon: "bi-file-earmark-text", label: "Activity Logs" },
 
   // ✅ Logout action (pas une route)
   { action: "logout", icon: "bi-box-arrow-left", label: "Logout" },

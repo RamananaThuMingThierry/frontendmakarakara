@@ -1,0 +1,54 @@
+{
+  "title": "Registros de actividad",
+  "subtitle": "Rastrear acciones de administración",
+  "total": "Total",
+  "page": "Página",
+  "search": "Buscar (local)",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "loading": "Cargando...",
+  "empty": "No se encontraron registros.",
+
+  "errors": {
+    "load": "No se pudieron cargar los registros."
+  },
+
+  "toast": {
+    "deleted": "Eliminado.",
+    "deleteFailed": "Error al eliminar."
+  },
+
+  "actions": {
+    "show": "Ver",
+    "delete": "Eliminar"
+  },
+
+  "card": {
+    "id": "Registro",
+    "entity": "Entidad",
+    "user": "Usuario",
+    "date": "Fecha"
+  },
+
+  "show": {
+    "title": "Detalles del registro",
+    "action": "Acción",
+    "entity": "Entidad",
+    "user": "Usuario",
+    "date": "Fecha",
+    "metadata": "Metadatos"
+  },
+
+  "delete": {
+    "title": "Confirmar",
+    "message": "Eliminar este registro",
+    "message2": "¿Eliminar este registro?",
+    "deleting": "Eliminando...",
+    "btn": "Eliminar"
+  },
+
+  "modal": {
+    "close": "Cerrar",
+    "cancel": "Cancelar"
+  }
+}

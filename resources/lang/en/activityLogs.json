@@ -1,0 +1,54 @@
+{
+  "title": "Activity logs",
+  "subtitle": "Track admin actions",
+  "total": "Total",
+  "page": "Page",
+  "search": "Search (local)",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "loading": "Loading...",
+  "empty": "No logs found.",
+
+  "errors": {
+    "load": "Unable to load logs."
+  },
+
+  "toast": {
+    "deleted": "Deleted.",
+    "deleteFailed": "Delete failed."
+  },
+
+  "actions": {
+    "show": "Show",
+    "delete": "Delete"
+  },
+
+  "card": {
+    "id": "Log",
+    "entity": "Entity",
+    "user": "User",
+    "date": "Date"
+  },
+
+  "show": {
+    "title": "Log details",
+    "action": "Action",
+    "entity": "Entity",
+    "user": "User",
+    "date": "Date",
+    "metadata": "Metadata"
+  },
+
+  "delete": {
+    "title": "Confirm",
+    "message": "Delete this log",
+    "message2": "Delete this log?",
+    "deleting": "Deleting...",
+    "btn": "Delete"
+  },
+
+  "modal": {
+    "close": "Close",
+    "cancel": "Cancel"
+  }
+}

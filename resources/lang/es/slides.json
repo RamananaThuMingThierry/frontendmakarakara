@@ -1,0 +1,68 @@
+{
+  "title": "Slides",
+  "subtitle": "Administrar imágenes del slider",
+  "total": "Total",
+  "active": "Activos",
+  "loading": "Cargando…",
+  "empty": "No se encontraron slides.",
+
+  "errors": {
+    "load": "No se pudieron cargar los slides.",
+    "save": "No se pudo guardar.",
+    "delete": "No se pudo eliminar."
+  },
+
+  "toast": {
+    "created": "Slide creado.",
+    "updated": "Slide actualizado.",
+    "deleted": "Slide eliminado."
+  },
+
+  "table": {
+    "image": "Imagen",
+    "title": "Título",
+    "position": "Posición",
+    "status": "Estado",
+    "actions": "Acciones"
+  },
+
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+
+  "buttons": {
+    "new": "Nuevo slide",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "refresh": "Actualizar"
+  },
+
+  "form": {
+    "createTitle": "Nuevo slide",
+    "editTitle": "Editar slide",
+    "fieldTitle": "Título",
+    "fieldSubtitle": "Subtítulo",
+    "fieldPosition": "Posición",
+    "fieldActive": "Activo",
+    "fieldImage": "Imagen",
+    "imageRequired": "Por favor, elige una imagen.",
+    "imageHint": "Consejo: usa una imagen ancha (por ejemplo 1600×600).",
+    "preview": "Vista previa",
+    "noImage": "Sin imagen",
+    "creating": "Creando…",
+    "updating": "Actualizando…"
+  },
+
+  "delete": {
+    "title": "Confirmar",
+    "message": "¿Seguro que deseas eliminar este slide?",
+    "deleting": "Eliminando…",
+    "btn": "Sí, eliminar"
+  }
+}

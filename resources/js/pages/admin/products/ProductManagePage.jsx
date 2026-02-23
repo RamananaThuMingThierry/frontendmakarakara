@@ -4,7 +4,7 @@ import ProductHeader from "./components/ProductHeader";
 import ProductInfo from "./components/ProductInfo";
 import CityAvailability from "./components/CityAvailability";
 import InventoryTable from "./components/InventoryTable";
-import StockMouvements from "./components/StockMouvements";
+import StockMouvements from "./components/StockMovements";
 import { productsApi } from "../../../api/products";
 
 export default function ProductManagePage() {

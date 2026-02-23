@@ -71,7 +71,7 @@ class City extends Model
 
     public function stockMouvements()
     {
-        return $this->hasMany(StockMouvement::class);
+        return $this->hasMany(StockMovement::class);
     }
 
 }

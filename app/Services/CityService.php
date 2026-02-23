@@ -25,7 +25,7 @@ class CityService{
     public function createCity(array $data){
         $name = trim((string) ($data['name']));
         $region = trim((string) ($data['region']));
-    
+
         $payload = [
             'name' => $name,
             'region' => $region,
@@ -59,7 +59,7 @@ class CityService{
 
             $payload['name'] = $name;
         }
-        
+
         if(array_key_exists('region', $data)){
             $region = trim((string) ($data['region']));
 
