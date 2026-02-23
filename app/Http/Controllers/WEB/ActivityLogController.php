@@ -20,7 +20,7 @@ class ActivityLogController extends Controller
         $logs = $this->activityLogService->getAllActivityLogs(
             array_keys($constraints),
             array_values($constraints),
-            fields: ['*'], relations:['user'], paginate: 10, orderBy: ['created_at' => 'desc']);
+            fields: ['*'], relations:['user'], paginate: 12, orderBy: ['created_at' => 'desc']);
 
         return response()->json([
             'success' => true,

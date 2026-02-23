@@ -1,0 +1,68 @@
+{
+  "title": "Slides",
+  "subtitle": "Slider-Bilder verwalten",
+  "total": "Gesamt",
+  "active": "Aktiv",
+  "loading": "Wird geladen…",
+  "empty": "Keine Slides gefunden.",
+
+  "errors": {
+    "load": "Slides konnten nicht geladen werden.",
+    "save": "Speichern fehlgeschlagen.",
+    "delete": "Löschen fehlgeschlagen."
+  },
+
+  "toast": {
+    "created": "Slide erstellt.",
+    "updated": "Slide aktualisiert.",
+    "deleted": "Slide gelöscht."
+  },
+
+  "table": {
+    "image": "Bild",
+    "title": "Titel",
+    "position": "Position",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+
+  "buttons": {
+    "new": "Neuer Slide",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "refresh": "Aktualisieren"
+  },
+
+  "form": {
+    "createTitle": "Neuer Slide",
+    "editTitle": "Slide bearbeiten",
+    "fieldTitle": "Titel",
+    "fieldSubtitle": "Untertitel",
+    "fieldPosition": "Position",
+    "fieldActive": "Aktiv",
+    "fieldImage": "Bild",
+    "imageRequired": "Bitte ein Bild auswählen.",
+    "imageHint": "Tipp: Verwenden Sie ein breites Bild (z. B. 1600×600).",
+    "preview": "Vorschau",
+    "noImage": "Kein Bild",
+    "creating": "Wird erstellt…",
+    "updating": "Wird aktualisiert…"
+  },
+
+  "delete": {
+    "title": "Bestätigen",
+    "message": "Diesen Slide wirklich löschen?",
+    "deleting": "Wird gelöscht…",
+    "btn": "Ja, löschen"
+  }
+}

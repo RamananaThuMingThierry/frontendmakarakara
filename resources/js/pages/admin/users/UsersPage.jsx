@@ -144,7 +144,7 @@ function openEdit(u) {
     }
 
     dtRef.current = $table.DataTable({
-      data: itemsRef.current,
+      data: [],
       pageLength: 10,
       lengthMenu: [10, 15, 25, 50, 100],
       ordering: true,
@@ -209,7 +209,7 @@ function openEdit(u) {
         $table.off("click", ".js-edit");
         $table.off("click", ".js-del");
       } catch {}
-      dtRef.current?.destroy();
+      dtRef.current?.destroy(true);
       dtRef.current = null;
     };
   }, [initialLoading, DT_LANG_URL]);
@@ -252,7 +252,7 @@ function openEdit(u) {
       email: form.email,
       phone: form.phone || null,
       status: form.status,
-        role: form.role,  
+        role: form.role,
     };
 
 if (form.avatar) payload.avatar = form.avatar; // ✅ File

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->restrictOnDelete();
 
             $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 12, 2); // snapshot prix
+            $table->decimal('unit_price', 12, 2);
             $table->timestamps();
 
             $table->unique(['cart_id', 'product_id']);
