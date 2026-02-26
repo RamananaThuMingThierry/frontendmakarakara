@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('status', ['active', 'converted'])->default('active'); // active, converted
+            $table->enum('status', ['active', 'converted'])->default('active');
             $table->timestamps();
             
             $table->unique('user_id');   

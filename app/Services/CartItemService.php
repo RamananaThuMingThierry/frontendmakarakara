@@ -12,6 +12,7 @@ class CartItemService
 {
     public function __construct(
         private CartItemRepository $cartItemRepository,
+        
         private CartRepository $cartRepository,
         private ProductRepository $productRepository
     ) {}
@@ -172,7 +173,7 @@ class CartItemService
     /**
      * DESTROY (suppression)
      */
-    public function destroyCartItem(CartItem $cartItem): bool
+    public function deleteCartItem(CartItem $cartItem): bool
     {
         $deleted = $this->cartItemRepository->delete($cartItem);
 

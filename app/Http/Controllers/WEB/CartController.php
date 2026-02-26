@@ -30,21 +30,21 @@ class CartController extends Controller
 
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
-                'action' => 'index_brand_failed',
-                'entity_type' => 'Brand',
+                'action' => 'index_cart_failed',
+                'entity_type' => 'Cart',
                 'entity_id' => null,
                 'color' => 'danger',
                 'method' => 'GET',
-                'route' => 'brands.index',
+                'route' => 'admin.carts.index',
                 'status_code' => 500,
-                'message' => 'Erreur lors du chargement des brands.',
+                'message' => 'Erreur lors du chargement des paniers.',
                 'metadata' => [
                     'error' => $e->getMessage(),
                 ],
             ]);
             
             return response()->json([
-                'message' => 'Erreur lors du chargement des brands.',
+                'message' => 'Erreur lors du chargement des paniers.',
                 'error' => $e->getMessage()
             ], 500);
 
@@ -77,7 +77,7 @@ class CartController extends Controller
                 'entity_id'   => $cart->id,
                 'color'       => 'success',
                 'method'      => 'POST',
-                'route'       => 'carts.store',
+                'route'       => 'admin.carts.store',
                 'message'     => 'Panier créée avec succès.',
                 'status_code' => 201,
                 'metadata'    => [
@@ -99,7 +99,7 @@ class CartController extends Controller
                 'entity_id'   => null,
                 'color'       => 'error',
                 'method'      => 'POST',
-                'route'       => 'carts.store',
+                'route'       => 'admin.carts.store',
                 'message'     => 'Échec de la création d\'une panier.',
                 'status_code' => 500,
                 'metadata'    => [
@@ -236,7 +236,7 @@ class CartController extends Controller
                 'entity_id' => $id,
                 'color' => 'primary',
                 'method' => 'PUT',
-                'route' => 'carts.update',
+                'route' => 'admin.carts.update',
                 'message' => 'Panier mise à jour avec succès.',
                 'status_code' => 200 
             ]);
@@ -254,7 +254,7 @@ class CartController extends Controller
                 'entity_id' => $id,
                 'color' => 'danger',
                 'method' => 'PUT',
-                'route' => 'carts.update',
+                'route' => 'admin.carts.update',
                 'message' => 'Erreur lors de la mise à jour du panier.',
                 'status_code' => 500,
                 'metadata' => [
@@ -282,7 +282,7 @@ class CartController extends Controller
                 'entity_type' => 'Cart',
                 'color' => 'danger',
                 'method' => 'DELETE',
-                'route' => 'carts.destroy',
+                'route' => 'admin.carts.destroy',
                 'message' => 'ID du panier invalide.',
                 'status_code' => 400,
                 'metadata' => [
@@ -303,7 +303,7 @@ class CartController extends Controller
                     'entity_type' => 'Cart',
                     'color' => 'warning',
                     'method' => 'GET',
-                    'route' => 'carts.destroy',
+                    'route' => 'admin.carts.destroy',
                     'message' => 'Panier non trouvée.',
                     'status_code' => 400,
                     'metadata' => [
@@ -325,7 +325,7 @@ class CartController extends Controller
                 'entity_id' => $id,
                 'color' => 'danger',
                 'method' => 'DELETE',
-                'route' => 'carts.destroy',
+                'route' => 'admin.carts.destroy',
                 'message' => 'panier supprimée avec succès.',
                 'status_code' => 200,
                 'metadata' => [
@@ -346,7 +346,7 @@ class CartController extends Controller
                 'entity_id' => $id,
                 'color' => 'danger',
                 'method' => 'DELETE',
-                'route' => 'carts.destroy',
+                'route' => 'admin.carts.destroy',
                 'message' => 'Erreur lors de la suppression du panier.',
                 'status_code' => 500,
                 'metadata' => [
