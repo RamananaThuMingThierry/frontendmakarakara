@@ -14,6 +14,7 @@ use App\Interface\PasswordResetCodeInterface;
 use App\Interface\PaymentMethodInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
+use App\Interface\ReviewInterface;
 use App\Interface\SlideInterface;
 use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
@@ -29,6 +30,7 @@ use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\ReviewRepository;
 use App\Repositories\SlideRepository;
 use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CartInterface::class, CartRepository::class);
         $this->app->bind(CartItemInterface::class, CartItemRepository::class);
         $this->app->bind(PaymentMethodInterface::class, PaymentMethodRepository::class);
+        $this->app->bind(ReviewInterface::class, ReviewRepository::class);
     }
 
     /**
