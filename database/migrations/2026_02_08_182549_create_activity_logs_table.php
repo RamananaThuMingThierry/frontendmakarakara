@@ -19,7 +19,13 @@ return new class extends Migration
 
             // Action structurée pour UI (couleurs) + filtrage
             $table->string('action');   // create, update, view, delete, error...
-            $table->enum('level', ['success', 'info', 'warning', 'danger'])->default('info'); // success, info, warning, error
+            $table->enum('color', ['success', 'primary', 'info', 'warning', 'danger'])->default('info'); // success, info, warning, error
+
+            /**
+             * create => success
+             * update => primary
+             * delete => danger
+             */
 
             // Cible (morph style)
             $table->string('entity_type')->nullable(); 
@@ -41,7 +47,7 @@ return new class extends Migration
             $table->index(['entity_type', 'entity_id']);
             $table->index(['user_id', 'created_at']);
             $table->index(['action', 'created_at']);
-            $table->index(['level', 'created_at']);
+            $table->index(['color', 'created_at']);
         });
     }
 

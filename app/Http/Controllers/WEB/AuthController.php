@@ -31,7 +31,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => $user->id,
                 'action' => 'login',
-                'level' => 'success',
+                'color' => 'success',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'POST',
@@ -57,7 +57,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => null,
                 'action' => 'login_failed',
-                'level' => 'danger',
+                'color' => 'warning',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'POST',
@@ -98,7 +98,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => $user->id,
                 'action' => 'register',
-                'level' => 'success',
+                'color' => 'success',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'POST',
@@ -124,7 +124,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => null,
                 'action' => 'register_failed',
-                'level' => 'danger',
+                'color' => 'danger',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'POST',
@@ -152,7 +152,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => null,
                 'action' => 'fetch_me_failed',
-                'level' => 'danger',
+                'color' => 'danger',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'GET',
@@ -181,7 +181,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $this->activityLogService->createActivityLog([
                 'user_id' => $user->id,
                 'action' => 'logout',
-                'level' => 'info',
+                'color' => 'info',
                 'entity_type' => null,
                 'entity_id' => null,
                 'method' => 'POST',

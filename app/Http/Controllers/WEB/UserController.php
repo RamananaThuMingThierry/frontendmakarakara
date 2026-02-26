@@ -37,7 +37,7 @@ class UserController extends Controller
                 'action' => 'index_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
-                'level' => 'danger',
+                'color' => 'danger',
                 'status_code' => 500,
                 'message' => 'Erreur lors du chargement des utilisateurs.',
                 'method' => 'GET',
@@ -76,7 +76,7 @@ class UserController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'create_user',
                 'entity_type' => 'User',
-                'level' => 'success',
+                'color' => 'success',
                 'status_code' => 201,
                 'method' => 'POST',
                 'message' => 'Utilisateur créée avec succès.',
@@ -101,7 +101,7 @@ class UserController extends Controller
                 'action' => 'create_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
-                'level' => 'danger',
+                'color' => 'danger',
                 'status_code' => 500,
                 'method' => 'POST',
                 'message' => 'Erreur lors de la création de l\'utilisateur.',
@@ -133,7 +133,7 @@ class UserController extends Controller
                 'action' => 'show_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
-                'level' => 'warning',
+                'color' => 'warning',
                 'status_code' => 400,
                 'method' => 'GET',
                 'message' => 'ID de l\'utilisateur invalide.',
@@ -155,6 +155,27 @@ class UserController extends Controller
                 relations: ['roles'],
             );
 
+            if(!$user){
+                $this->activityLogService->createActivityLog([
+                    'user_id' => auth()->id(),
+                    'action' => 'show_user_failed',
+                    'entity_type' => 'User',
+                    'entity_id' => $id,
+                    'color' => 'warning',
+                    'status_code' => 404,
+                    'method' => 'GET',
+                    'message' => 'Utilisateur non trouvé.',
+                    'route' => 'admin.users.show',
+                    'metadata' => [
+                        'id' => $id,
+                    ],
+                ]);
+
+                return response()->json([
+                    'message' => 'Utilisateur non trouvé.',
+                ], 404);
+            }
+
             return response()->json([
                 'data' => $user
             ]);
@@ -165,7 +186,7 @@ class UserController extends Controller
                 'action' => 'show_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => $id,
-                'level' => 'warning',
+                'color' => 'warning',
                 'status_code' => 404,
                 'method' => 'GET',
                 'message' => 'Utilisateur non trouvé.',
@@ -203,7 +224,7 @@ class UserController extends Controller
                 'action' => 'update_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
-                'level' => 'warning',
+                'color' => 'warning',
                 'status_code' => 400,
                 'method' => 'PUT',
                 'message' => 'ID de l\'utilisateur invalide.',
@@ -231,7 +252,7 @@ class UserController extends Controller
                     'action' => 'update_user_failed',
                     'entity_type' => 'User',
                     'entity_id' => $id,
-                    'level' => 'warning',
+                    'color' => 'warning',
                     'status_code' => 404,
                     'method' => 'PUT',
                     'message' => 'Utilisateur non trouvée.',
@@ -251,7 +272,7 @@ class UserController extends Controller
                 'action' => 'update_user',
                 'entity_type' => 'User',
                 'entity_id' => $user->id,
-                'level' => 'success',
+                'color' => 'success',
                 'status_code' => 200,
                 'method' => 'PUT',
                 'message' => 'Utilisateur mise à jour avec succès.',
@@ -276,7 +297,7 @@ class UserController extends Controller
                 'action' => 'update_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => $id,
-                'level' => 'PUT',
+                'color' => 'PUT',
                 'status_code' => 500,
                 'message' => 'Erreur lors de la mise à jours de la catégorie.',
                 'route' => 'admin.users.update',
@@ -310,7 +331,7 @@ class UserController extends Controller
                 'action' => 'delete_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => $id,
-                'level' => 'warning',
+                'color' => 'warning',
                 'status_code' => 404,
                 'method' => 'DELETE',
                 'message' => 'Utilisateur non trouvée.',
@@ -333,7 +354,7 @@ class UserController extends Controller
                 'action' => 'delete_user',
                 'entity_type' => 'User',
                 'entity_id' => $user->id,
-                'level' => 'success',
+                'color' => 'success',
                 'status_code' => 200,
                 'method' => 'DELETE',
                 'message' => 'Utilisateur supprimée avec succès.',
@@ -376,7 +397,7 @@ class UserController extends Controller
                 'action' => 'restore_user_failed',
                 'entity_type' => 'User',
                 'entity_id' => null,
-                'level' => 'warning',
+                'color' => 'warning',
                 'status_code' => 400,
                 'method' => 'POST',
                 'route' => 'admin.users.restore',

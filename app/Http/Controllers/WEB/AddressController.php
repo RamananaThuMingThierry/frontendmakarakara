@@ -37,7 +37,7 @@ class AddressController extends Controller
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'index_address_failed',
-                'level' => 'danger',
+                'color' => 'danger',
                 'entity_type' => 'Address',
                 'entity_id' => null,
                 'method' => 'GET',
@@ -79,7 +79,7 @@ class AddressController extends Controller
                 'action' => 'create_address',
                 'entity_type' => 'Address',
                 'entity_id' => $address->id,
-                'level' => 'success',
+                'color' => 'success',
                 'method' => 'POST',
                 'route' => 'addresses.store',
                 'message' => 'Adresse créée avec succès.',
@@ -94,7 +94,7 @@ class AddressController extends Controller
             return response()->json([
                 'message' => 'Adresse créée avec succès.',
                 'data'    => $address
-            ]);
+            ], 201);
 
         }catch(Throwable $e){
 
@@ -103,7 +103,7 @@ class AddressController extends Controller
                 'action' => 'create_address_failed',
                 'entity_type' => 'Address',
                 'entity_id' => null,
-                'level' => 'danger',
+                'color' => 'danger',
                 'method' => 'POST',
                 'route' => 'addresses.store',
                 'message' => 'Échec de la création de l\'adresse.',
@@ -131,7 +131,7 @@ class AddressController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'view_address_failed',
                 'entity_type' => 'Address',
-                'level' => 'danger',
+                'color' => 'warning',
                 'method' => 'GET',
                 'route' => 'addresses.show',
                 'message' => 'ID de l\'adresse invalide.',
@@ -162,7 +162,7 @@ class AddressController extends Controller
                 'action' => 'show_address_failed',
                 'entity_type' => 'Address',
                 'entity_id' => null,
-                'level' => 'danger',
+                'color' => 'danger',
                 'method' => 'GET',
                 'route' => 'addresses.show',
                 'message' => 'Erreur lors du chargement de l\'adresse.',
@@ -199,7 +199,7 @@ class AddressController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'update_address_failed',
                 'entity_type' => 'Address',
-                'level' => 'danger',
+                'color' => 'warning',
                 'method' => 'PUT',
                 'route' => 'addresses.update',
                 'message' => 'ID de l\'adresse invalide.',
@@ -223,7 +223,7 @@ class AddressController extends Controller
                     'action' => 'update_address_failed',
                     'entity_type' => 'Address',
                     'entity_id' => $id,
-                    'level' => 'danger',
+                    'color' => 'warning',
                     'method' => 'PUT',
                     'route' => 'addresses.update',
                     'message' => 'Adresse non trouvée.',
@@ -240,11 +240,17 @@ class AddressController extends Controller
 
             $address = $this->addressService->updateAddress($address, $data);
 
-            if(!$address){
-                return response()->json([
-                    'message' => 'Adresse non trouvée.'
-                ], 404);
-            }
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'update_address',
+                'entity_type' => 'Address',
+                'entity_id' => $id,
+                'color' => 'primary',
+                'method' => 'PUT',
+                'route' => 'addresses.update',
+                'message' => 'Adresse mise à jour avec succès.',
+                'status_code' => 200 
+            ]);
 
             return response()->json([
                 'message' => 'Adresse mise à jour avec succès.',
@@ -252,12 +258,13 @@ class AddressController extends Controller
             ], 200);
 
         }catch(Throwable $e){
+
             $this->activityLogService->createActivityLog([
                 'user_id' => auth()->id(),
                 'action' => 'update_address_failed',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'danger',
+                'color' => 'danger',
                 'method' => 'PUT',
                 'route' => 'addresses.update',
                 'message' => 'Erreur lors de la mise à jour de l\'adresse.',
@@ -285,7 +292,7 @@ class AddressController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'delete_address_failed',
                 'entity_type' => 'Address',
-                'level' => 'danger',
+                'color' => 'warning',
                 'method' => 'DELETE',
                 'route' => 'addresses.destroy',
                 'message' => 'ID de l\'adresse invalide.',
@@ -307,7 +314,7 @@ class AddressController extends Controller
                     'action' => 'delete_address_failed',
                     'entity_type' => 'Address',
                     'entity_id' => $id,
-                    'level' => 'danger',
+                    'color' => 'warning',
                     'method' => 'DELETE',
                     'route' => 'addresses.destroy',
                     'message' => 'Adresse non trouvée.',
@@ -329,7 +336,7 @@ class AddressController extends Controller
                 'action' => 'delete_address',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'success',
+                'color' => 'danger',
                 'method' => 'DELETE',
                 'route' => 'addresses.destroy',
                 'message' => 'Adresse supprimée avec succès.',
@@ -349,7 +356,7 @@ class AddressController extends Controller
                 'action' => 'delete_address_failed',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'danger',
+                'color' => 'danger',
                 'method' => 'DELETE',
                 'route' => 'addresses.destroy',
                 'message' => 'Erreur lors de la suppression de l\'adresse.',
@@ -384,7 +391,7 @@ class AddressController extends Controller
                     'user_id' => auth()->id(),
                     'action' => 'restore_address_failed',
                     'entity_type' => 'Address',
-                    'level' => 'danger',
+                    'color' => 'warning',
                     'method' => 'POST',
                     'route' => 'addresses.restore',
                     'message' => 'Adresse non trouvée ou pas supprimée.',
@@ -406,7 +413,7 @@ class AddressController extends Controller
                 'action' => 'restore_address',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'success',
+                'color' => 'success',
                 'method' => 'POST',
                 'route' => 'addresses.restore',
                 'message' => 'Adresse restaurée avec succès.',
@@ -446,7 +453,7 @@ class AddressController extends Controller
                     'user_id' => auth()->id(),
                     'action' => 'force_delete_address_failed',
                     'entity_type' => 'Address',
-                    'level' => 'danger',
+                    'color' => 'warning',
                     'method' => 'DELETE',
                     'route' => 'addresses.forceDelete',
                     'message' => 'Adresse non trouvée ou pas supprimée.',
@@ -468,7 +475,7 @@ class AddressController extends Controller
                 'action' => 'force_delete_address',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'success',
+                'color' => 'success',
                 'method' => 'DELETE',
                 'route' => 'addresses.forceDelete',
                 'message' => 'Adresse supprimée définitivement avec succès.',
@@ -489,7 +496,7 @@ class AddressController extends Controller
                 'action' => 'force_delete_address_failed',
                 'entity_type' => 'Address',
                 'entity_id' => $id,
-                'level' => 'danger',
+                'color' => 'danger',
                 'method' => 'DELETE',
                 'route' => 'addresses.forceDelete',
                 'message' => 'Erreur lors de la suppression définitive de l\'adresse.',

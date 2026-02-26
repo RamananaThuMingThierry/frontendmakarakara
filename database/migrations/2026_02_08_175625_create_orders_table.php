@@ -26,20 +26,25 @@ return new class extends Migration
             $table->decimal('total', 12, 2);
 
             $table->string('coupon_code')->nullable();
-            $table->enum('payment_method', ['cash', 'mobile_money'])->default('cash');
-            $table->string('payment_reference')->nullable(); // ex: ref mobile money
+
+            // ✅ nouveau: moyen de paiement choisi (nullable tant que l'user n'a pas choisi)
+            $table->foreignId('payment_method_id')
+                ->nullable()
+                ->constrained('payment_methods')
+                ->nullOnDelete();
+
+            // si tu veux garder une ref globale au niveau commande (optionnel)
+            $table->string('payment_reference')->nullable();
 
             $table->text('notes')->nullable();
 
-            // Option: ville choisie pour la commande (si tu veux)
             $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
-
-            // Adresse livraison choisie
             $table->foreignId('address_id')->nullable()->constrained('addresses')->nullOnDelete();
 
             $table->timestamps();
 
             $table->index(['user_id', 'status']);
+            $table->index(['payment_method_id', 'payment_status']);
         });
     }
 

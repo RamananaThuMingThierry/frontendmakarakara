@@ -29,7 +29,7 @@ class Cart extends Model
 
     /**
      * Relations
-     */
+    */
 
     public function user()
     {
@@ -51,7 +51,7 @@ class Cart extends Model
 
     /**
      * Total du panier
-     */
+    */
     public function getTotalAttribute()
     {
         return $this->items->sum(function ($item) {
@@ -61,7 +61,7 @@ class Cart extends Model
 
     /**
      * Nombre d’articles
-     */
+    */
     public function getItemsCountAttribute()
     {
         return $this->items->sum('quantity');
@@ -69,7 +69,7 @@ class Cart extends Model
 
     /**
      * Convertir en commande
-     */
+    */
     public function convert()
     {
         $this->update(['status' => 'converted']);

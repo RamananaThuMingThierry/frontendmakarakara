@@ -11,10 +11,26 @@ class ActivityLog extends Model
 {
     use HasFactory;
 
+    /** Status 
+     * 
+     * Action / Status API	Code HTTP	color
+     * Création réussie	201	success
+     * OK (GET)	200	info
+     * Mise à jour	200 / 204	primary
+     * Suppression	200 / 204	danger
+     * Bad Request  400 warning
+     * Not found	404	warning
+     * Validation error	422	warning
+     * Unauthorized	401	danger
+     * Forbidden	403	danger
+     * Server error	500	danger
+     * 
+     * **/
+     
     protected $fillable = [
         'user_id', 
         'action', 
-        'level',
+        'color',
         'entity_type', 
         'entity_id', 
         'method',

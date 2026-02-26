@@ -13,19 +13,27 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
 
-            $table->string('method'); // cod, momo, card...
-            $table->string('provider')->nullable(); // mvola, orange money, visa...
+            // ✅ FK vers payment_methods
+            $table->foreignId('payment_method_id')
+                ->constrained('payment_methods')
+                ->restrictOnDelete();
+
             $table->decimal('amount', 12, 2);
 
             $table->string('status')->default('pending'); // pending, success, failed, refunded
-            $table->string('transaction_ref')->nullable();
+            $table->string('transaction_ref')->nullable(); // ref provider
+
+            // optionnel: payload / réponse provider
+            $table->json('meta')->nullable();
 
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
 
             $table->index(['order_id', 'status']);
+            $table->index(['payment_method_id', 'status']);
         });
     }
 

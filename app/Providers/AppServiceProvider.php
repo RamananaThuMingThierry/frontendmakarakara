@@ -5,10 +5,13 @@ namespace App\Providers;
 use App\Interface\ActivityLogInterface;
 use App\Interface\AddressInterface;
 use App\Interface\BrandInterface;
+use App\Interface\CartInterface;
+use App\Interface\CartItemInterface;
 use App\Interface\CategoryInterface;
 use App\Interface\CityInterface;
 use App\Interface\InventoryInterface;
 use App\Interface\PasswordResetCodeInterface;
+use App\Interface\PaymentMethodInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
 use App\Interface\SlideInterface;
@@ -17,10 +20,13 @@ use App\Interface\UserInterface;
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\AddressRepository;
 use App\Repositories\BrandRepository;
+use App\Repositories\CartItemRepository;
+use App\Repositories\CartRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CityRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\PasswordResetCodeRepository;
+use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\SlideRepository;
@@ -48,6 +54,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(InventoryInterface::class, InventoryRepository::class);
         $this->app->bind(TestimonialInterface::class, TestimonialRepository::class);
         $this->app->bind(AddressInterface::class, AddressRepository::class);
+        $this->app->bind(CartInterface::class, CartRepository::class);
+        $this->app->bind(CartItemInterface::class, CartItemRepository::class);
+        $this->app->bind(PaymentMethodInterface::class, PaymentMethodRepository::class);
     }
 
     /**
