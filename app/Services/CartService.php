@@ -27,17 +27,23 @@ class CartService{
 
         $payload = [];
         if(array_key_exists('user_id', $data)){
-            $userId = $data['user_id'];
 
-            // Vérifions que cet user_id existe bien dans la base de données
+            $userId = (int)$data['user_id'];
+
             $user = $this->userRepository->getById($userId, ['id']);
-
             if(!$user){
                 throw new \Exception("Utilateur non trouvée.");          
             }
 
-            $payload['user_id'] = $userId;
+            // ✅ Vérifier qu’il n’a pas déjà un panier
+            $existing = $this->cartRepository->getByKeys('user_id', $userId, ['id']);
+            if ($existing) {
+                throw ValidationException::withMessages([
+                    'user_id' => "Cet utilisateur possède déjà un panier."
+                ]);
+            }
 
+            $payload['user_id'] = $userId;
         }else{
             throw ValidationException::withMessages([
                 'user_id' => "Le champ user_id est requise."
@@ -57,22 +63,6 @@ class CartService{
 
     public function updateCart(Cart $cart, array $data){
  
-        $payload = [];
-
-        if(array_key_exists('user_id', $data)){
-            $userId = $data['user_id'];
-
-            // Vérifions que cet user_id existe bien dans la base de données
-            $user = $this->userRepository->getById($userId, ['id']);
-
-            if(!$user){
-                throw new \Exception("Utilateur non trouvée.");          
-            }
-
-            $payload['user_id'] = $userId;
-
-        }
-
         $payload['status'] = isset($data['status']) ? $data['status'] : $cart->status;
 
         $cart = $this->cartRepository->update($cart, $payload);

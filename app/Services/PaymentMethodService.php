@@ -139,8 +139,8 @@ class PaymentMethodService
     public function deletePaymentMethod(PaymentMethod $paymentMethod): void
     {
         // supprimer ancienne image si existe
-        if (!empty($paymentMethod->image_url)) {
-            $oldPath = public_path($paymentMethod->image_url);
+        if (!empty($paymentMethod->image)) {
+            $oldPath = public_path($paymentMethod->image);
             if (file_exists($oldPath)) {
                 @unlink($oldPath);
             }

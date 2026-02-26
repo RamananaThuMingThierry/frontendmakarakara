@@ -4,7 +4,6 @@ namespace App\Http\Controllers\WEB;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentMethodRequest;
-use App\Models\PaymentMethod;
 use App\Services\ActivityLogService;
 use App\Services\PaymentMethodService;
 use Throwable;
@@ -43,7 +42,7 @@ class PaymentMethodController extends Controller
                 'status_code' => 500,
                 'message'     => 'Erreur lors du chargement des méthodes de paiement.',
                 'metadata'    => [
-                    'erreur' => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ],
             ]);
 
@@ -94,19 +93,20 @@ class PaymentMethodController extends Controller
             ], 201);
 
         } catch (Throwable $e) {
+
             $this->activityLogService->createActivityLog([
-                'user_id'     => auth()->id(),
-                'action'      => 'create_payment_method',
-                'entity_type' => 'PaymentMethod',
-                'entity_id'   => null,
-                'color'       => 'error',
-                'method'      => 'POST',
-                'route'       => 'payment_methods.store',
-                'message'     => 'Échec de la création de la méthode de paiement.',
-                'status_code' => 500,
-                'metadata'    => [
-                    'erreur' => $e->getMessage(),
-                ],
+                    'user_id'     => auth()->id(),
+                    'action'      => 'create_payment_method',
+                    'entity_type' => 'PaymentMethod',
+                    'entity_id'   => null,
+                    'color'       => 'error',
+                    'method'      => 'POST',
+                    'route'       => 'payment_methods.store',
+                    'message'     => 'Échec de la création de la méthode de paiement.',
+                    'status_code' => 500,
+                    'metadata'    => [
+                        'error' => $e->getMessage(),
+                    ],
             ]);
 
             return response()->json([
@@ -201,7 +201,7 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PaymentMethod $request, string $encryptedId)
+    public function update(PaymentMethodRequest $request, string $encryptedId)
     {
         $id = decrypt_to_int_or_null($encryptedId);
 

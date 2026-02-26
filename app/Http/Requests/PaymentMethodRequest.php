@@ -15,8 +15,7 @@ class PaymentMethodRequest extends FormRequest
 
     public function rules(): array
     {
-        // Récupère l'id en cas de update (route model binding)
-        $paymentMethodId = $this->route('payment_method')?->id;
+        $paymentMethodId = decrypt_to_int_or_null($this->route('payment_method'));
 
         return [
             'name' => [

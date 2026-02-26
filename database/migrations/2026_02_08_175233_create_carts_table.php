@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['active', 'converted'])->default('active'); // active, converted
             $table->timestamps();
-
+            
+            $table->unique('user_id');   
             $table->index(['user_id', 'status']);
         });
     }

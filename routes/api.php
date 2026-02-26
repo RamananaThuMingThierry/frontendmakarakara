@@ -4,6 +4,8 @@ use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\BrandController;
+use App\Http\Controllers\WEB\CartController;
+use App\Http\Controllers\WEB\CartItemController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\PaymentMethodController;
@@ -68,6 +70,10 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('brands', BrandController::class);
 
         Route::apiResource('city', CityController::class);
+
+        Route::apiResource('carts', CartController::class);
+
+        Route::apiResource('cart_items', CartItemController::class);
 
         Route::apiResource('payment_methods', PaymentMethodController::class);
 
