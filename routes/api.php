@@ -11,6 +11,7 @@ use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\PaymentMethodController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\ProductImageController;
+use App\Http\Controllers\WEB\ReviewController;
 use App\Http\Controllers\WEB\SlideController;
 use App\Http\Controllers\WEB\TestimonialController;
 use App\Http\Controllers\WEB\UserController;
@@ -76,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('cart_items', CartItemController::class);
 
         Route::apiResource('payment_methods', PaymentMethodController::class);
+
+        Route::apiResource('reviews', ReviewController::class);
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
 
