@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Order;
 
 class Coupon extends Model
 {
@@ -14,7 +15,7 @@ class Coupon extends Model
         'code',
         'type',
         'value',
-        'min_order_total',
+        'min_subtotal',
         'starts_at',
         'ends_at',
         'usage_limit',
@@ -24,7 +25,7 @@ class Coupon extends Model
 
     protected $casts = [
         'value' => 'decimal:2',
-        'min_order_total' => 'decimal:2',
+        'min_subtotal' => 'decimal:2',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
         'used_count' => 'integer',
@@ -55,7 +56,7 @@ class Coupon extends Model
         if ($this->usage_limit && $this->used_count >= $this->usage_limit)
             return false;
 
-        if ($this->min_order_total && $orderTotal < $this->min_order_total)
+        if ($this->min_subtotal && $orderTotal < $this->min_subtotal)
             return false;
 
         return true;
@@ -89,11 +90,11 @@ class Coupon extends Model
         return $query->where('is_active', true);
     }
 
-    public function coupons()
-{
-    return $this->belongsToMany(Coupon::class, 'order_coupons')
-        ->withPivot('discount_amount')
-        ->withTimestamps();
-}
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_coupons')
+            ->withPivot('discount_amount')
+            ->withTimestamps();
+    }
 
 }

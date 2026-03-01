@@ -23,7 +23,7 @@ class ReviewController extends Controller
                 keys:[],
                 values: [],
                 fields:['id', 'product_id', 'user_id', 'rating', 'comment', 'is_approved', 'created_at'],
-                relations:['user']
+                relations:['user','product']
             );
 
             return response()->json([

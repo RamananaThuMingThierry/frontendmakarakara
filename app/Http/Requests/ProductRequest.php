@@ -18,7 +18,6 @@ class ProductRequest extends FormRequest
         $productId = decrypt_to_int_or_null($this->route('product'));
 
         return [
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'brand_id' => ['nullable', 'integer', 'exists:brands,id'],
 
             'name' => ['required', 'string', 'max:255'],
@@ -41,16 +40,6 @@ class ProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        // ✅ Décrypte category_id (encrypted) -> int
-        if ($this->filled('category_id')) {
-            $categoryId = decrypt_to_int_or_null($this->input('category_id'));
-
-            // remplace la valeur chiffrée par l'id réel pour passer integer + exists
-            $this->merge([
-                'category_id' => $categoryId,
-            ]);
-        }
-
         // ✅ slug auto si absent
         if (!$this->filled('slug') && $this->filled('name')) {
             $this->merge([
@@ -62,7 +51,6 @@ class ProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'category_id.required' => 'La catégorie est obligatoire.',
             'category_id.exists' => 'Catégorie invalide.',
             'brand_id.exists' => 'Marque invalide.',
             'compare_price.gte' => 'Le prix barré doit être supérieur ou égal au prix.',

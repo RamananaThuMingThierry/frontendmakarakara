@@ -1,19 +1,17 @@
-
-
 export default function InventoryTable({ product, reload }) {
-  async function adjust(cityId, type) {
-    const qty = prompt("Quantité ?");
-    if (!qty) return;
+  // async function adjust(cityId, type) {
+  //   const qty = prompt("Quantité ?");
+  //   if (!qty) return;
 
-    await stockApi.move({
-      product_id: product.encrypted_id,
-      city_id: cityId,
-      quantity: Number(qty),
-      type: type, // IN or OUT
-    });
+  //   await stockApi.move({
+  //     product_id: product.encrypted_id,
+  //     city_id: cityId,
+  //     quantity: Number(qty),
+  //     type: type, // IN or OUT
+  //   });
 
-    reload();
-  }
+  //   reload();
+  // }
 
   return (
     <div className="card border-0 shadow-sm mb-3">
@@ -29,7 +27,7 @@ export default function InventoryTable({ product, reload }) {
             </tr>
           </thead>
           <tbody>
-            {product.inventories?.map((inv) => (
+            {/* {product.inventories?.map((inv) => (
               <tr key={inv.id}>
                 <td>{inv.city?.name}</td>
                 <td>{inv.quantity}</td>
@@ -48,7 +46,7 @@ export default function InventoryTable({ product, reload }) {
                   </button>
                 </td>
               </tr>
-            ))}
+            ))} */}
           </tbody>
         </table>
       </div>

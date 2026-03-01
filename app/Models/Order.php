@@ -19,6 +19,9 @@ class Order extends Model
         'subtotal',
         'discount_total',
         'delivery_fee',
+        'coupon_code',
+        'payment_method_id',
+        'payment_reference',
         'total',
         'notes',
         'city_id',
@@ -30,6 +33,7 @@ class Order extends Model
         'discount_total' => 'decimal:2',
         'delivery_fee' => 'decimal:2',
         'total' => 'decimal:2',
+        'payment_method_id' => 'integer',
     ];
 
     protected $appends = ['encrypted_id'];
@@ -88,6 +92,11 @@ class Order extends Model
     public function delivery()
     {
         return $this->hasOne(Delivery::class);
+    }
+
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 
     /**

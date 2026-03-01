@@ -12,19 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('coupons', function (Blueprint $table) {
-            $table->id();
-            $table->string('code')->unique();
-            $table->enum('type', ['fixed', 'percent']); // fixed = montant, percent = %            $table->decimal('value', 12, 2);
-            $table->decimal('min_subtotal', 12, 2)->default(0);
+            $table->id();                               // clé primaire auto‑incrémentée
+            $table->string('code')->unique();           // code du coupon, doit être unique
+            $table->enum('type', ['fixed', 'percent']); // type de réduction :
+                                                        //   - fixed  = montant fixe
+                                                        //   - percent = pourcentage
+            $table->decimal('value', 12, 2);            // valeur de la remise (en fonction du type)
+            $table->decimal('min_subtotal', 12, 2)      // montant minimum de commande requis
+                ->default(0);
 
-            $table->timestamp('starts_at')->nullable();
-            $table->timestamp('ends_at')->nullable();
+            $table->timestamp('starts_at')->nullable(); // date/heure de début de validité
+            $table->timestamp('ends_at')->nullable();   // date/heure de fin de validité
 
-            $table->integer('usage_limit')->nullable();
-            $table->integer('used_count')->default(0);
+            $table->integer('usage_limit')->nullable(); // nombre max d’utilisations (null = illimité)
+            $table->integer('used_count')->default(0);  // compteur des fois utilisées
 
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+            $table->boolean('is_active')->default(true); // actif/inactif (désactiver un code)
+
+            $table->timestamps();  
         });
     }
 

@@ -357,7 +357,7 @@ function onEditCategory(cat) {
 
     function onDetailsProduct(p) {
     if (!p?.encrypted_id) return;
-    navigate(`/admin/products/${p.encrypted_id}`);
+    navigate(`/admin/categories/products/${p.encrypted_id}`);
 }
 
 

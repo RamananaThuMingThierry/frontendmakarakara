@@ -20,7 +20,7 @@ export default function CategoriesPage() {
   const [editing, setEditing] = useState(null);
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
-  const [form, setForm] = useState({ name: "", slug: "", parent_id: "", is_active: true });
+  const [form, setForm] = useState({ name: "", parent_id: "", is_active: true });
 
   // delete modal
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -55,7 +55,7 @@ export default function CategoriesPage() {
 
   function openCreate() {
     setEditing(null);
-    setForm({ name: "", slug: "", parent_id: "", is_active: true });
+    setForm({ name: "", parent_id: "", is_active: true });
     setErrors({});
     setGlobalError("");
     setOpen(true);
@@ -65,7 +65,6 @@ export default function CategoriesPage() {
     setEditing(cat);
     setForm({
       name: cat.name ?? "",
-      slug: cat.slug ?? "",
       parent_id: cat.parent_id ?? "",
       is_active: !!cat.is_active,
     });
@@ -292,16 +291,6 @@ export default function CategoriesPage() {
                         autoFocus
                       />
                       {errors.name && <span className="text-danger small">{errors.name[0]}</span>}
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("categories.modal.slug", "Slug")}</label>
-                      <input
-                        className="form-control"
-                        value={form.slug}
-                        onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))}
-                        placeholder={t("categories.modal.placeholderSlug", "Ex: shoes")}
-                      />
                     </div>
 
                     <div className="mb-3">

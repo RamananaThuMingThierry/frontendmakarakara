@@ -55,7 +55,7 @@ class ReviewService{
             'product_id' => (int) $data['product_id'],
             'rating' => (int) $rating,
             'comment' => $data['comment'] ?? '',
-            'is_approuved' => isset($data['is_approuved']) ? $data['is_approuved'] : false,
+            'is_approved' => isset($data['is_approved']) ? $data['is_approved'] : false,
         ];
 
         return $this->reviewRepository->create($payload);
@@ -90,7 +90,7 @@ class ReviewService{
         if(array_key_exists('product_id', $data)) $payload['product_id'] = (int) $data['product_id'];
         if(array_key_exists('rating', $data)) $payload['rating'] = (int) $data['rating'];
         if(array_key_exists('comment', $data)) $payload['comment'] = $data['comment'];
-        if(array_key_exists('is_approuved', $data)) $payload['is_approuved'] = $data['is_approuved'];
+        if(array_key_exists('is_approved', $data)) $payload['is_approved'] = $data['is_approved'];
 
         return $this->reviewRepository->update($review, $payload);
     }

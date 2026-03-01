@@ -9,7 +9,10 @@ use App\Interface\CartInterface;
 use App\Interface\CartItemInterface;
 use App\Interface\CategoryInterface;
 use App\Interface\CityInterface;
+use App\Interface\CouponInterface;
 use App\Interface\InventoryInterface;
+use App\Interface\OrderInterface;
+use App\Interface\OrderItemInterface;
 use App\Interface\PasswordResetCodeInterface;
 use App\Interface\PaymentMethodInterface;
 use App\Interface\ProductImageInterface;
@@ -25,7 +28,10 @@ use App\Repositories\CartItemRepository;
 use App\Repositories\CartRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CityRepository;
+use App\Repositories\CouponRepository;
 use App\Repositories\InventoryRepository;
+use App\Repositories\OrderItemRepository;
+use App\Repositories\OrderRepository;
 use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductImageRepository;
@@ -60,6 +66,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CartItemInterface::class, CartItemRepository::class);
         $this->app->bind(PaymentMethodInterface::class, PaymentMethodRepository::class);
         $this->app->bind(ReviewInterface::class, ReviewRepository::class);
+        $this->app->bind(CouponInterface::class, CouponRepository::class);
+        $this->app->bind(OrderInterface::class, OrderRepository::class);
+        $this->app->bind(OrderItemInterface::class, OrderItemRepository::class);
     }
 
     /**

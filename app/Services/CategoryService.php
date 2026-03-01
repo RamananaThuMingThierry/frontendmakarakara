@@ -111,14 +111,7 @@ class CategoryService{
             }
             $payload['name'] = $name;
 
-            // si slug non fourni, on peut régénérer (à toi de décider)
-            if (!array_key_exists('slug', $data)) {
-                $payload['slug'] = Str::slug($name);
-            }
-        }
-
-        if (array_key_exists('slug', $data)) {
-            $payload['slug'] = trim((string)$data['slug']);
+            $payload['slug'] = Str::slug($name);
         }
 
         // is_active

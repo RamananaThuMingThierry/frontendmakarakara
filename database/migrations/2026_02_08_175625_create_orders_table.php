@@ -17,8 +17,8 @@ return new class extends Migration
 
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            $table->string('status')->default('pending'); // pending, confirmed, packed, shipped, delivered, canceled
-            $table->string('payment_status')->default('unpaid'); // unpaid, paid, failed, refunded
+            $table->enum('status', ['pending','confirmed','packed','shipped','delivered','canceled'])->default('pending'); // pending, confirmed, packed, shipped, delivered, canceled
+            $table->enum('payment_status', ['unpaid','paid','failed','refunded'])->default('unpaid'); // unpaid, paid, failed, refunded
 
             $table->decimal('subtotal', 12, 2);
             $table->decimal('discount_total', 12, 2)->default(0);

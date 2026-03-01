@@ -81,7 +81,7 @@ class Product extends Model
     // Villes où le produit est disponible (pivot city_product)
     public function cities()
     {
-        return $this->belongsToMany(City::class, 'city_products')
+        return $this->belongsToMany(City::class, 'city_product')
             ->withPivot('is_available')
             ->withTimestamps();
     }

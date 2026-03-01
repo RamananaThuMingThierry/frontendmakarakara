@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\StockMouvement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;

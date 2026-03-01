@@ -8,6 +8,7 @@ use App\Http\Controllers\WEB\CartController;
 use App\Http\Controllers\WEB\CartItemController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
+use App\Http\Controllers\WEB\CouponController;
 use App\Http\Controllers\WEB\PaymentMethodController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\ProductImageController;
@@ -60,13 +61,13 @@ Route::middleware('auth:sanctum')->group(function(){
 
         Route::apiResource('categories', CategoryController::class);
 
-        Route::apiResource('products', ProductController::class);
+        Route::apiResource('categories.products', ProductController::class);
 
-        Route::post('categories/products/{encryptedId}/restore', [ProductController::class, 'restore'])->name('products.restore');
+        Route::post('categories/{category}/products/{encryptedId}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
-        Route::delete('categories/products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+        Route::delete('categories/{category}/products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 
-        Route::apiResource('categories/products/images', ProductImageController::class)->only(['index','store','destroy']);
+        Route::apiResource('categories.products.images', ProductImageController::class)->only(['index','store','destroy']);
 
         Route::apiResource('brands', BrandController::class);
 
@@ -79,6 +80,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('payment_methods', PaymentMethodController::class);
 
         Route::apiResource('reviews', ReviewController::class);
+
+        Route::apiResource('coupons', CouponController::class);
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
 
