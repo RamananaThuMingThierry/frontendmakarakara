@@ -8,15 +8,15 @@ import StockMouvements from "./components/StockMovements";
 import { productsApi } from "../../../api/products";
 
 export default function ProductManagePage() {
-  const { encryptedId } = useParams();
+  const { categoryId, productId } = useParams();
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
     loadProduct();
-  }, [encryptedId]);
+  }, [categoryId, productId]);
 
   async function loadProduct() {
-    const res = await productsApi.show(encryptedId);
+    const res = await productsApi.show(categoryId, productId);
     setProduct(res?.data ?? res);
   }
 

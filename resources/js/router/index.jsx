@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
           { path: "categories/:encryptedId", element: <CategoryManagePage /> },
           { path: "categories/:encryptedId/edit", element: <UpdateCategoryPage /> },
           { path: "products/create", element: <CreateProductPage /> },
-          { path: "categories/products/:encryptedId", element: <ProductManagePage /> },
+          { path: "categories/:categoryId/products/:productId", element: <ProductManagePage /> },
           // { path: "orders", element: <OrdersPage /> },
           // { path: "coupons", element: <CouponsPage /> },
           { path: "sliders", element: <SlidesPage /> },

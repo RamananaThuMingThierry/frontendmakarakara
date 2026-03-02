@@ -1,31 +1,47 @@
-import api from './axios';
+import api from "./axios";
 
 export const productsApi = {
-  async list() {
-    const res = await api.get("/admin/products");
+  async list(categoryId) {
+    const res = await api.get(`/admin/categories/${categoryId}/products`);
     return res.data;
   },
 
-async create(payload) {
-  const res = await api.post("/admin/products", payload, {
-    headers: payload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
-  });
-  return { data: res.data, message: res.data.message };
-},
+  async create(categoryId, payload) {
+    const res = await api.post(
+      `/admin/categories/${categoryId}/products`,
+      payload,
+      {
+        headers:
+          payload instanceof FormData
+            ? { "Content-Type": "multipart/form-data" }
+            : undefined,
+      }
+    );
 
-  async show(id) {
-    console.log(id);
-    const res = await api.get(`/admin/products/${id}`);
-    return res.data;
-  },
-
-  async update(id, payload) {
-    const res = await api.put(`/admin/products/${id}`, payload);
     return { data: res.data, message: res.data.message };
   },
 
-  async remove(id) {
-    const res = await api.delete(`/admin/products/${id}`);
+  async show(categoryId, productId) {
+    const res = await api.get(
+      `/admin/categories/${categoryId}/products/${productId}`
+    );
+    return res.data;
+  },
+
+  async update(categoryId, productId, payload) {
+    const res = await api.put(
+      `/admin/categories/${categoryId}/products/${productId}`,
+      payload
+    );
+
+    return { data: res.data, message: res.data.message };
+  },
+
+  async remove(categoryId, productId) {
+    const res = await api.delete(
+      `/admin/categories/${categoryId}/products/${productId}`
+    );
+
     return { message: res.data.message };
   },
 };

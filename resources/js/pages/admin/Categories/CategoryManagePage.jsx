@@ -134,8 +134,8 @@ function CategoryNodeAccordion({
                   <i className="bi bi-check-circle-fill p-0 me-2 text-success" />
                 ) : (
                     <i className="bi bi-x-circle-fill p-0 me-2 text-danger" />
-                )} 
-                {node.name} 
+                )}
+                {node.name}
                 <span className="text-muted small fw-normal">({node.slug || "-"})</span>
               </span>
 
@@ -145,7 +145,7 @@ function CategoryNodeAccordion({
             </div>
 
             <div className="ms-auto d-flex align-items-center gap-2">
-              
+
               {/* ✅ Ajouter sous-catégorie (modal) */}
               <button
                 className="btn btn-sm btn-outline-primary"
@@ -231,7 +231,7 @@ function CategoryNodeAccordion({
                     onAskDeleteCategory={onAskDeleteCategory}
                     onAddProduct={onAddProduct}
                     onOpenCreateSubCategoryModal={onOpenCreateSubCategoryModal}
-                    onDetailsProduct={onDetailsProduct}  
+                    onDetailsProduct={onDetailsProduct}
                     onEditProduct={onEditProduct}
                     onDeleteProduct={onDeleteProduct}
                   />
@@ -356,20 +356,19 @@ function onEditCategory(cat) {
   }
 
     function onDetailsProduct(p) {
-    if (!p?.encrypted_id) return;
-    navigate(`/admin/categories/products/${p.encrypted_id}`);
-}
+        if (!p?.encrypted_id || !encryptedId) return;
+        navigate(`/admin/categories/${encryptedId}/products/${p.encrypted_id}`);
+    }
 
+    function onEditProduct(p) {
+        if (!p?.encrypted_id || !encryptedId) return;
+        navigate(`/admin/categories/${encryptedId}/products/${p.encrypted_id}/edit`);
+    }
 
-function onEditProduct(p) {
-  if (!p?.encrypted_id) return;
-  navigate(`/admin/products/${p.encrypted_id}/edit`);
-}
-
-function onDeleteProduct(p) {
-  console.log("delete", p);
-  // ici tu peux ouvrir un modal + appeler productsApi.remove(p.encrypted_id)
-}
+    function onDeleteProduct(p) {
+        console.log("delete", p);
+        // ici tu peux ouvrir un modal + appeler productsApi.remove(p.encrypted_id)
+    }
 
   async function confirmDeleteCategory() {
     if (!deleteTarget || deleting) return;
@@ -467,7 +466,7 @@ function onDeleteProduct(p) {
               onAskDeleteCategory={onAskDeleteCategory}
               onAddProduct={onAddProduct}
               onOpenCreateSubCategoryModal={onOpenCreateSubCategoryModal}
-              onDetailsProduct={onDetailsProduct}  
+              onDetailsProduct={onDetailsProduct}
               onEditProduct={onEditProduct}
               onDeleteProduct={onDeleteProduct}
             />
