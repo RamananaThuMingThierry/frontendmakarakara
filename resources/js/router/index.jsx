@@ -34,6 +34,7 @@ import CreateProductPage from "../pages/admin/products/CreateProductPage";
 import ProductManagePage from "../pages/admin/products/ProductManagePage";
 import ActivityLogPage from "../pages/admin/activity_logs/ActivityLogPage";
 import SlidesPage from "../pages/admin/slides/SlidesPage";
+import SettingsPage from "../pages/admin/settings/SettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -93,7 +94,7 @@ export const router = createBrowserRouter([
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
           { path: "activity-logs", element: <ActivityLogPage /> },
-          // { path: "settings", element: <SettingsPage /> },
+          { path: "settings", element: <SettingsPage /> },
         ],
       },
     ]

@@ -65,12 +65,9 @@ export default function ProductInfo({ product }) {
                   className="rounded border"
                   src={getUrl(img)}
                   alt={`thumb${idx + 1}`}
-                  style={{ width: 140, height: 100, objectFit: "cover" }}
+                  style={{ width: 100, height: 80, objectFit: "cover" }}
                 />
               ))}
-            </div>
-            <div className="text-muted small mt-2">
-              Astuce: miniatures cliquables plus tard (JS/Angular).
             </div>
           </div>
         </div>
@@ -81,7 +78,7 @@ export default function ProductInfo({ product }) {
         <div className="card shadow-sm h-100">
           <div className="card-header bg-white d-flex align-items-center justify-content-between">
             <div className="fw-semibold">Résumé</div>
-            <span className="badge text-bg-primary">
+            <span className="badge text-bg-warning py-2">
               Prix base: {product.price} MGA
             </span>
           </div>
@@ -126,7 +123,7 @@ export default function ProductInfo({ product }) {
                 <div className="p-3 border rounded bg-white">
                   <div className="text-muted small">Stock total</div>
                   <div className="fs-4 fw-semibold">
-                    {/* calculer au besoin */}
+                    100
                   </div>
                 </div>
               </div>
@@ -134,7 +131,7 @@ export default function ProductInfo({ product }) {
                 <div className="p-3 border rounded bg-white">
                   <div className="text-muted small">Réservé</div>
                   <div className="fs-4 fw-semibold">
-                    {/* réservé */}
+                    0
                   </div>
                 </div>
               </div>

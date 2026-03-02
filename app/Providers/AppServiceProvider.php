@@ -18,6 +18,7 @@ use App\Interface\PaymentMethodInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
 use App\Interface\ReviewInterface;
+use App\Interface\SettingsInterface;
 use App\Interface\SlideInterface;
 use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
@@ -37,6 +38,7 @@ use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\ReviewRepository;
+use App\Repositories\SettingsRepository;
 use App\Repositories\SlideRepository;
 use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CouponInterface::class, CouponRepository::class);
         $this->app->bind(OrderInterface::class, OrderRepository::class);
         $this->app->bind(OrderItemInterface::class, OrderItemRepository::class);
+        $this->app->bind(SettingsInterface::class, SettingsRepository::class);
     }
 
     /**

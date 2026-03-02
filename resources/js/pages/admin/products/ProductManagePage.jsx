@@ -23,32 +23,14 @@ export default function ProductManagePage() {
   if (!product) return null;
 
   return (
-    <>
-      {/* top bar */}
-      <nav className="navbar navbar-expand-lg bg-white border-bottom">
-        <div className="container-fluid px-4">
-          <a className="navbar-brand fw-semibold" href="#">
-            Back Office
-          </a>
-          <div className="ms-auto d-flex gap-2">
-            <button className="btn btn-outline-secondary btn-sm">
-              <i className="bi bi-pencil"></i> Modifier
-            </button>
-            <button className="btn btn-outline-danger btn-sm">
-              <i className="bi bi-archive"></i> Archiver
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <main className="container-fluid px-4 py-4">
+      <main className="container-fluid">
         <ProductHeader product={product} />
 
-        <div className="row g-3">
+        <div className="row g-2">
           <ProductInfo product={product} />
 
           <div className="col-12">
-            <div className="card shadow-sm mt-3">
+            <div className="card shadow-sm mt-2">
               <div className="card-header bg-white">
                 <ul className="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
                   <li className="nav-item" role="presentation">
@@ -106,6 +88,5 @@ export default function ProductManagePage() {
           </div>
         </div>
       </main>
-    </>
   );
 }

@@ -209,8 +209,8 @@ export default function SlidesPage() {
           width: 140,
           render: (v) =>
             v
-              ? `<span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i>${t("slides.status.active", "Active")}</span>`
-              : `<span class="badge text-bg-secondary"><i class="bi bi-x-circle me-1"></i>${t("slides.status.inactive", "Inactive")}</span>`,
+              ? `<span class="badge rounded-pill text-bg-success"><i class="bi bi-check-circle me-1"></i>${t("slides.status.active", "Active")}</span>`
+              : `<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-x-circle me-1"></i>${t("slides.status.inactive", "Inactive")}</span>`,
         },
         {
           data: null,
@@ -351,7 +351,7 @@ export default function SlidesPage() {
             <table ref={tableRef} className="table align-middle mb-0">
               <thead>
                 <tr className="text-muted small">
-                  <th style={{ width: 90 }}>{t("slides.table.image", "Image")}</th>
+                  <th style={{ width: 50 }}>{t("slides.table.image", "Image")}</th>
                   <th>{t("slides.table.title", "Title")}</th>
                   <th style={{ width: 180 }}>{t("slides.table.position", "Position")}</th>
                   <th style={{ width: 140 }}>{t("slides.table.status", "Status")}</th>
