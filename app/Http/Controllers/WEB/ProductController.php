@@ -45,7 +45,7 @@ class ProductController extends Controller
             $products = $this->productService->getAllProducts(
                 keys: array_keys($constraints),
                 values: array_values($constraints),
-                relations: ['images']    
+                relations: ['images']
             );
 
             return response()->json([
@@ -231,18 +231,6 @@ public function show(?string $categoryEncryptedId = null, string $encryptedId)
                 'message' => 'Produit non trouvé dans cette catégorie.'
             ], 404);
         }
-
-        $this->activityLogService->createActivityLog([
-            'user_id' => auth()->id(),
-            'action' => 'show_product',
-            'entity_type' => 'Product',
-            'entity_id' => $product->id,
-            'metadata' => [
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'category_id' => $product->category_id,
-            ],
-        ]);
 
         return response()->json(['data' => $product], 200);
 

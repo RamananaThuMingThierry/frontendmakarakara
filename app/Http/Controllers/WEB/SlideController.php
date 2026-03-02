@@ -233,18 +233,12 @@ class SlideController extends Controller
 
             $slide = $this->slideService->updateSlide($slide, $data);
 
-            if(!$slide){
-                return response()->json([
-                    'message' => 'Slide non trouvé.'
-                ], 404);
-            }
-
             $this->activityLogService->createActivityLog([
                 'user_id' => Auth::id(),
                 'action' => 'update_slide',
                 'entity_type' => 'Slide',
                 'entity_id' => $slide->id,
-                'color' => 'success',
+                'color' => 'primary',
                 'method' => 'PUT',
                 'route' => 'admin.slides.update',
                 'status_code' => 200,

@@ -16,16 +16,18 @@ class PaymentMethodRequest extends FormRequest
     public function rules(): array
     {
         $paymentMethodId = decrypt_to_int_or_null($this->route('payment_method'));
+        
+        $isUpdate = $this->isMethod('put') || $this->isMethod('patch');
 
         return [
             'name' => [
-                'required',
+                $isUpdate ? 'sometimes' : 'required',
                 'string',
                 'max:255',
             ],
 
             'code' => [
-                'required',
+                $isUpdate ? 'sometimes' : 'required',
                 'string',
                 'max:100',
                 Rule::unique('payment_methods', 'code')
@@ -36,7 +38,7 @@ class PaymentMethodRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp,svg',
-                'max:2048', // 2MB
+                'max:2048',
             ],
 
             'is_active' => [

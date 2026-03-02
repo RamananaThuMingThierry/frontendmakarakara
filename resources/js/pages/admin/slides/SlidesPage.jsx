@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { slidesApi } from "../../../api/slides";
 import { useI18n } from "../../../hooks/website/I18nContext";
+import { imageUrl } from "../../../utils/Url";
 
 import $ from "jquery";
 import "datatables.net";
@@ -45,14 +46,6 @@ export default function SlidesPage() {
   }, [items]);
 
   const getRowId = (row) => row?.encrypted_id ?? row?.id;
-
-  const imageUrl = (val) => {
-    if (!val) return "";
-    const s = String(val).trim();
-    if (s.startsWith("http")) return s;
-    if (s.startsWith("/")) return s;
-    return `/${s}`;
-  };
 
   async function load({ mode = "refresh" } = {}) {
     if (mode === "initial") setInitialLoading(true);
@@ -209,8 +202,8 @@ export default function SlidesPage() {
           width: 140,
           render: (v) =>
             v
-              ? `<span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i>${t("slides.status.active", "Active")}</span>`
-              : `<span class="badge text-bg-secondary"><i class="bi bi-x-circle me-1"></i>${t("slides.status.inactive", "Inactive")}</span>`,
+              ? `<span class="badge rounded-pill text-bg-success"><i class="bi bi-check-circle me-1"></i>${t("slides.status.active", "Active")}</span>`
+              : `<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-x-circle me-1"></i>${t("slides.status.inactive", "Inactive")}</span>`,
         },
         {
           data: null,
@@ -351,7 +344,7 @@ export default function SlidesPage() {
             <table ref={tableRef} className="table align-middle mb-0">
               <thead>
                 <tr className="text-muted small">
-                  <th style={{ width: 90 }}>{t("slides.table.image", "Image")}</th>
+                  <th style={{ width: 50 }}>{t("slides.table.image", "Image")}</th>
                   <th>{t("slides.table.title", "Title")}</th>
                   <th style={{ width: 180 }}>{t("slides.table.position", "Position")}</th>
                   <th style={{ width: 140 }}>{t("slides.table.status", "Status")}</th>

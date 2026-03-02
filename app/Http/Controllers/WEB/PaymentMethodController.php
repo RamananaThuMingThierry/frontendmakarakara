@@ -259,7 +259,10 @@ class PaymentMethodController extends Controller
                 'method' => 'PUT',
                 'route' => 'payment_methods.update',
                 'message' => 'Méthode de paiement mise à jour avec succès.',
-                'status_code' => 200 
+                'status_code' => 200,
+                'metadata' => [
+                    'data' => $data
+                ] 
             ]);
 
             return response()->json([

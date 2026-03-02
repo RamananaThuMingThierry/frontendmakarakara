@@ -14,21 +14,19 @@ export default function ProductHeader({ product }) {
         </nav>
         <h3 className="mb-0">{product.name}</h3>
         <div className="text-muted small">
-          SKU: {product.sku || "-"} • Catégorie: {product.category?.name || "-"} •{' '}
           {product.is_active ? (
-            <span className="badge text-bg-success">Actif</span>
+            <span className="badge text-bg-success rounded-pill me-1"><i class="bi bi-check"></i>&nbsp;Actif</span>
           ) : (
-            <span className="badge text-bg-secondary">Inactif</span>
-          )}
-        </div>
+            <span className="badge text-bg-secondary me-1">Inactif</span>
+          )} • SKU: {product.sku || "-"} • Catégorie: {product.category?.name || "-"}
+         </div>
       </div>
       <div className="d-flex gap-2">
-        <button
-          className="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#createMovementModal"
-        >
-          <i className="bi bi-plus-circle"></i> Nouveau mouvement
+        <button className="btn btn-outline-secondary btn-sm" type="button">
+            <i className="bi bi-pencil"></i> Modifier
+        </button>
+        <button className="btn btn-outline-danger btn-sm" type="button">
+            <i className="bi bi-archive"></i> Archiver
         </button>
       </div>
     </div>

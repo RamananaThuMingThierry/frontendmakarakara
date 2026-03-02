@@ -13,6 +13,7 @@ use App\Http\Controllers\WEB\PaymentMethodController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\ProductImageController;
 use App\Http\Controllers\WEB\ReviewController;
+use App\Http\Controllers\WEB\SettingsController;
 use App\Http\Controllers\WEB\SlideController;
 use App\Http\Controllers\WEB\TestimonialController;
 use App\Http\Controllers\WEB\UserController;
@@ -82,6 +83,9 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('reviews', ReviewController::class);
 
         Route::apiResource('coupons', CouponController::class);
+
+        Route::get('settings', [SettingsController::class, 'show'])->name('settings.show');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
 

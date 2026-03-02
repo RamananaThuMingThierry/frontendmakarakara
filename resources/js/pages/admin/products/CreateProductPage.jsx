@@ -140,7 +140,7 @@ export default function CreateProductPage() {
 
     setSaving(true);
     try {
-      await productsApi.create(fd); // doit accepter FormData (voir note plus bas)
+      await productsApi.create(categoryEncryptedId, fd); // doit accepter FormData (voir note plus bas)
 
       // retour sur la page manage catégorie
       navigate(`/admin/categories/${categoryEncryptedId}`);
