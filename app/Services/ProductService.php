@@ -88,7 +88,7 @@ class ProductService
                     mkdir($destination, 0755, true);
                 }
 
-                foreach ($files as $i => $image) {
+                foreach ($files as $image) {
                     $extension = $image->getClientOriginalExtension();
                     $filename  = Str::slug($name) . '-' . time() . '-' . Str::random(6) . '.' . $extension;
 
@@ -96,8 +96,7 @@ class ProductService
 
                     $this->productImageRepository->create([
                         'product_id' => $product->id,
-                        'url'        => 'images/products/' . $filename, // ✅ champ correct
-                        'position'   => $i,
+                        'url'        => 'images/products/' . $filename,
                     ]);
                 }
             }
@@ -214,7 +213,6 @@ class ProductService
                     $this->productImageRepository->create([
                         'product_id' => $product->id,
                         'image_url'  => 'images/products/' . $filename,
-                        'position'   => 0, // sera réordonné après
                     ]);
 
                     $newCount++;
@@ -229,8 +227,6 @@ class ProductService
                     'images' => 'Le produit doit avoir au moins une image.',
                 ]);
             }
-
-            $this->productImageRepository->reorderPositions($product->id);
 
             return $updated;
         });

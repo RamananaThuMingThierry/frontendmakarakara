@@ -24,17 +24,13 @@ class CityRequest extends FormRequest
     public function rules(): array
     {
 
-        $encryptedId = $this->route('encryptedId');
+        $cityId = decrypt_to_int_or_null($this->route('encryptedId'));
 
-        $cityId = null;
-
-        if ($encryptedId) {
-            $cityId = decrypt_to_int_or_null($encryptedId);
-        }
+        $isUpdate = $this->isMethod('put') || $this->isMethod('patch');
 
         return [
             'name' => [
-                'required',
+                $isUpdate ? 'sometimes' : 'required',
                 'string',
                 'max:255',
                 Rule::unique('cities', 'name')->ignore($cityId),

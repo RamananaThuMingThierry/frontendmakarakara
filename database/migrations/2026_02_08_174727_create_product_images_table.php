@@ -15,11 +15,8 @@ return new class extends Migration
             $table->id();
             
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->string('url');        // ou path storage
-            $table->unsignedInteger('position')->default(0);
+            $table->string('url');  
             $table->timestamps();
-
-            $table->index(['product_id', 'position']);
         });
     }
 

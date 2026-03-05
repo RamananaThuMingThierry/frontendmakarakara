@@ -8,14 +8,13 @@ use App\Repositories\BaseRepository;
 
 class ProductImageRepository extends BaseRepository implements ProductImageInterface
 {   
-    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null, array $orderBy = ['position' => 'asc'])
+    public function getAll(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null)
     {
         $fields = $this->withRequiredColumns($fields);
 
         $query = ProductImage::query();
         $query = $this->applyFilter($query, $keys, $values);
         $query = $this->applyRelation($query, $relations);
-        $query = $query->orderBy(key($orderBy), current($orderBy));
 
         return $paginate ? $query->paginate($paginate, $fields) : $query->get($fields);
     }
@@ -56,23 +55,4 @@ class ProductImageRepository extends BaseRepository implements ProductImageInter
     {
         $productImage->delete();
     }
-
-    public function reorderPositions(int $productId): void
-    {
-        $images = ProductImage::where('product_id', $productId)
-            ->orderBy('position')
-            ->orderBy('id')
-            ->get();
-
-        foreach ($images as $i => $image) {
-            $image->position = $i;
-        }
-
-        ProductImage::upsert(
-            $images->toArray(),
-            ['id'],
-            ['position']
-        );
-    }
-
 }

@@ -2,16 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\ProductImage;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\ProductImageRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Validation\ValidationException;
 
 class ProductImageService
 {
     public function __construct(
-        private ProductImageRepository $productImageRepository
+        private readonly ProductImageRepository $productImageRepository,
+        private readonly ProductRepository $productRepository,
     ) {}
 
     public function getAllProductImages(string|array $keys, mixed $values, array $fields = ['*'], array $relations = [], ?int $paginate = null)
@@ -33,78 +36,79 @@ class ProductImageService
     {
         return DB::transaction(function () use ($data) {
 
-            $payload = [];
+            $productId = (int) $data['product_id'];
 
-            if (!isset($data['product_id'])) {
+            $product = $this->productRepository->getById($productId, ['id', 'name'], ['images']);
+
+            if (!$product) {
                 throw ValidationException::withMessages([
-                    'product_id' => 'Le champ product_id est requis.',
-                ]);
-            }else{
-                $payload['product_id'] = (int) $data['product_id'];
-
-                $product = $this->productImageRepository->getById($payload['product_id'], ['id', 'name']);
-            
-                if (!$product) {
-                    throw ValidationException::withMessages([
-                        'product_id' => 'Produit non trouvé.',
-                    ]);
-                }
-            }
-
-            // ✅ Images uploadées
-            $files = [];
-            if (isset($data['images']) && is_array($data['images'])) {
-                foreach ($data['images'] as $image) {
-                    if ($image instanceof UploadedFile) {
-                        $files[] = $image;
-                    }
-                }
-            }
-
-            if (!empty($files)) {
-
-                $destination = public_path('images/products');
-
-                if (!file_exists($destination)) {
-                    mkdir($destination, 0755, true);
-                }
-
-                foreach ($files as $i => $image) {
-                    $extension = $image->getClientOriginalExtension();
-                    $filename  = Str::slug($product->name) . '-' . time() . '-' . Str::random(6) . '.' . $extension;
-
-                    $image->move($destination, $filename);
-
-                    $this->productImageRepository->create([
-                        'product_id' => $product->id,
-                        'url'        => 'images/products/' . $filename, // ✅ champ correct
-                        'position'   => $i,
-                    ]);
-                }
-
-            $productImage = $this->productImageRepository->create($payload);
-
-            if (!$productImage) {
-                throw ValidationException::withMessages([
-                    'product_image' => 'Création échouée.',
+                    'product_id' => 'Produit non trouvé.',
                 ]);
             }
 
-   
+            /** @var UploadedFile[] $images */
+            $images = $data['images'] ?? [];
+
+            if (!is_array($images) || count($images) < 1) {
+                throw ValidationException::withMessages([
+                    'images' => 'Veuillez ajouter au moins une image.',
+                ]);
             }
 
-            return $productImage;
+            // ✅ vérifier le nombre total d'images
+            $existingImagesCount = $product->images->count();
+            $newImagesCount = count($images);
+
+            if (($existingImagesCount + $newImagesCount) > 6) {
+                $remaining = max(0, 6 - $existingImagesCount);
+
+                throw ValidationException::withMessages([
+                'images' => "Limite 6 images. Il reste {$remaining} emplacement(s).",
+                ]);
+            }
+
+            $destination = public_path('images/products');
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $created = [];
+
+            foreach ($images as $image) {
+                if (!$image instanceof UploadedFile) {
+                    continue;
+                }
+
+                $extension = $image->getClientOriginalExtension();
+                $filename  = Str::slug($product->name) . '-' . time() . '-' . Str::random(6) . '.' . $extension;
+
+                $image->move($destination, $filename);
+
+                $created[] = $this->productImageRepository->create([
+                    'product_id' => $product->id,
+                    'url'        => 'images/products/' . $filename,
+                ]);
+            }
+
+            if (count($created) < 1) {
+                throw ValidationException::withMessages([
+                    'images' => 'Aucune image valide n’a été envoyée.',
+                ]);
+            }
+
+            return $created;
         });
     }
 
-    public function deleteProductImage(int $productImageId): void
+    public function deleteProductImage(ProductImage $productImage): void
     {
-        $productImage = $this->getProductImageById($productImageId, ['id','url']);
 
-        if (!$productImage) {
-            throw ValidationException::withMessages([
-                'ProductImage' => 'Image de produit non trouvée.',
-            ]);
+        // supprimer ancienne image si existe
+        if (!empty($productImage->url)) {
+            $oldPath = public_path($productImage->url);
+            if (file_exists($oldPath)) {
+                @unlink($oldPath);
+            }
         }
 
         $this->productImageRepository->delete($productImage);

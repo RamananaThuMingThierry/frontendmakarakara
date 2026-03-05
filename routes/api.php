@@ -68,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
         Route::delete('categories/{category}/products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 
-        Route::apiResource('categories.products.images', ProductImageController::class)->only(['index','store','destroy']);
+        Route::apiResource('product_images', ProductImageController::class)->only(['index','store','destroy']);
 
         Route::apiResource('brands', BrandController::class);
 

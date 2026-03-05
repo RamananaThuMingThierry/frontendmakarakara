@@ -13,12 +13,7 @@ class ProductImage extends Model
 
     protected $fillable = [
         'product_id',
-        'url',
-        'position',
-    ];
-
-    protected $casts = [
-        'position' => 'integer',
+        'url'
     ];
 
     protected $appends = ['encrypted_id', 'full_url'];
@@ -42,13 +37,5 @@ class ProductImage extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
-    }
-
-    /**
-     * Scope: tri par position
-     */
-    public function scopeOrdered($query)
-    {
-        return $query->orderBy('position');
     }
 }

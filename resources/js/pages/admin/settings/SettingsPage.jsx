@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { settingsApi } from "../../../api/settings";
 import { paymentMethodsApi } from "../../../api/payment_methods"; // <-- adapte le chemin
+import { cityApi } from "../../../api/cities";
 import { imageUrl } from "../../../utils/Url";
 
 function Field({ label, children, hint }) {
@@ -91,8 +92,9 @@ function DeleteModal({ open, onClose, onConfirm, loading, item }) {
 export default function SettingsPage() {
   const tabs = useMemo(
     () => [
-      { key: "about", label: "À propos" },
-      { key: "payments", label: "Moyens de paiement" },
+      { key: "about", label: "À propos", icon: "bi-info-circle" },
+      { key: "payments", label: "Moyens de paiement", icon: "bi-credit-card" },
+      { key: "cities", label: "Villes", icon: "bi-geo-alt" },
     ],
     []
   );
@@ -190,6 +192,154 @@ export default function SettingsPage() {
     setDeleteOpen(false);
     setDeleteItem(null);
   }
+
+  // -----------------------------
+// 3) CITIES
+// -----------------------------
+const [cities, setCities] = useState([]);
+const [citiesLoading, setCitiesLoading] = useState(false);
+
+const [cityModalOpen, setCityModalOpen] = useState(false);
+const [citySaving, setCitySaving] = useState(false);
+const [cityEditing, setCityEditing] = useState(null);
+
+const [cityForm, setCityForm] = useState({
+  name: "",
+  region: "",
+  is_active: true,
+});
+
+// delete
+const [cityDeleteOpen, setCityDeleteOpen] = useState(false);
+const [cityDeleteItem, setCityDeleteItem] = useState(null);
+const [cityDeleteLoading, setCityDeleteLoading] = useState(false);
+
+function openCreateCity() {
+  setCityEditing(null);
+  setCityForm({ name: "", region: "", is_active: true });
+  setCityModalOpen(true);
+}
+
+function openEditCity(item) {
+  setCityEditing(item);
+  setCityForm({
+    name: item?.name || "",
+    region: item?.region || "",
+    is_active: !!item?.is_active,
+  });
+  setCityModalOpen(true);
+}
+
+function openDeleteCity(item) {
+  setCityDeleteItem(item);
+  setCityDeleteOpen(true);
+}
+
+function closeDeleteCity() {
+  if (cityDeleteLoading) return;
+  setCityDeleteOpen(false);
+  setCityDeleteItem(null);
+}
+
+async function loadCities() {
+  setCitiesLoading(true);
+  setAlert(null);
+  try {
+    const list = await cityApi.index();
+    setCities(Array.isArray(list) ? list : []);
+  } catch (e) {
+    setAlert({
+      type: "danger",
+      text: e?.message || "Erreur lors du chargement des villes.",
+    });
+    setCities([]);
+  } finally {
+    setCitiesLoading(false);
+  }
+}
+
+async function submitCity() {
+  setCitySaving(true);
+  setAlert(null);
+
+  try {
+    const payload = {
+      name: cityForm.name,
+      region: cityForm.region,
+      is_active: cityForm.is_active ? 1 : 0,
+    };
+
+    if (!cityEditing) {
+      const res = await cityApi.create(payload);
+      setAlert({ type: "success", text: res?.message || "Ville créée." });
+    } else {
+      const encryptedId = cityEditing?.encrypted_id;
+      const res = await cityApi.update(encryptedId, payload);
+      setAlert({ type: "success", text: res?.message || "Ville modifiée." });
+    }
+
+    setCityModalOpen(false);
+    await loadCities();
+  } catch (e) {
+    setAlert({
+      type: "danger",
+      text: e?.message || "Erreur lors de l'enregistrement de la ville.",
+    });
+  } finally {
+    setCitySaving(false);
+  }
+}
+
+async function toggleCity(item) {
+  setAlert(null);
+  try {
+    const encryptedId = item?.encrypted_id;
+    const payload = { is_active: item.is_active ? 0 : 1 };
+
+    const res = await cityApi.update(encryptedId, payload);
+
+    setCities((prev) =>
+      prev.map((c) =>
+        c?.encrypted_id === encryptedId ? { ...c, is_active: !c.is_active } : c
+      )
+    );
+
+    if (res?.message) setAlert({ type: "success", text: res.message });
+  } catch (e) {
+    setAlert({
+      type: "danger",
+      text: e?.message || "Erreur lors de l'activation/désactivation.",
+    });
+  }
+}
+
+async function confirmDeleteCity() {
+  if (!cityDeleteItem) return;
+
+  setCityDeleteLoading(true);
+  setAlert(null);
+
+  try {
+    const encryptedId = cityDeleteItem?.encrypted_id;
+    const res = await cityApi.remove(encryptedId);
+
+    setCities((prev) => prev.filter((c) => c?.encrypted_id !== encryptedId));
+
+    setAlert({
+      type: "success",
+      text: res?.message || "Ville supprimée.",
+    });
+
+    closeDeleteCity();
+  } catch (e) {
+    setAlert({
+      type: "danger",
+      text: e?.message || "Erreur lors de la suppression.",
+    });
+  } finally {
+    setCityDeleteLoading(false);
+  }
+}
 
   async function loadPaymentMethods() {
     setMethodsLoading(true);
@@ -309,6 +459,7 @@ async function confirmDeletePaymentMethod() {
       try {
         await loadAbout();
         await loadPaymentMethods();
+        await loadCities();
       } catch (e) {
         if (mounted) {
           setAlert({ type: "danger", text: e?.message || "Erreur de chargement." });
@@ -350,19 +501,20 @@ async function confirmDeletePaymentMethod() {
         </div>
       ) : null}
 
-      <ul className="nav nav-tabs mb-3">
-        {tabs.map((t) => (
-          <li className="nav-item" key={t.key}>
-            <button
-              type="button"
-              className={`nav-link ${tab === t.key ? "active" : ""}`}
-              onClick={() => setTab(t.key)}
-            >
-              {t.label}
-            </button>
-          </li>
-        ))}
-      </ul>
+    <ul className="nav nav-tabs mb-3">
+      {tabs.map((t) => (
+        <li className="nav-item" key={t.key}>
+          <button
+            type="button"
+            className={`nav-link ${tab === t.key ? "active" : ""}`}
+            onClick={() => setTab(t.key)}
+          >
+            <i className={`bi ${t.icon} me-2`} />
+            {t.label}
+          </button>
+        </li>
+      ))}
+    </ul>
 
       {loading ? (
         <div className="p-4 bg-white border rounded-3">
@@ -642,8 +794,87 @@ async function confirmDeletePaymentMethod() {
         </div>
       ) : null}
 
+{/* CITIES TAB */}
+{!loading && tab === "cities" ? (
+  <div className="bg-white border rounded-3 p-3">
+    <div className="d-flex align-items-center justify-content-between mb-3">
+      <h5 className="mb-0">Villes</h5>
+      <button className="btn btn-warning btn-sm" onClick={openCreateCity} type="button">
+        <i className="bi bi-plus-lg me-2" />
+        Ajouter
+      </button>
+    </div>
 
-{/* MODAL CREATE/EDIT */}
+    {citiesLoading ? (
+      <div className="d-flex align-items-center gap-2">
+        <span className="spinner-border spinner-border-sm" />
+        <span>Chargement...</span>
+      </div>
+    ) : cities.length === 0 ? (
+      <div className="text-center text-muted py-4">Aucune ville.</div>
+    ) : (
+      <div className="row g-3">
+        {cities.map((c) => (
+          <div className="col-12 col-md-6 col-xl-4" key={c?.encrypted_id}>
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body">
+                <div className="d-flex align-items-start justify-content-between">
+                  <div>
+                    <div className="fw-semibold">{c.name}</div>
+                    <div className="text-muted small">
+                      Région: <span>{c.region || "—"}</span>
+                    </div>
+                  </div>
+                  <div>
+                    {c.is_active ? (
+                      <span className="badge text-bg-success">Actif</span>
+                    ) : (
+                      <span className="badge text-bg-secondary">Inactif</span>
+                    )}
+                  </div>
+                </div>
+
+                <hr />
+
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => toggleCity(c)}
+                    type="button"
+                    title="Activer/Désactiver"
+                  >
+                    <i className={`bi ${c.is_active ? "bi-toggle-on" : "bi-toggle-off"}`} />
+                  </button>
+
+                  <button
+                    className="btn btn-outline-dark btn-sm"
+                    onClick={() => openEditCity(c)}
+                    type="button"
+                  >
+                    <i className="bi bi-pencil-square me-1" />
+                    Modifier
+                  </button>
+
+                  <button
+                    className="btn btn-outline-danger btn-sm ms-auto"
+                    onClick={() => openDeleteCity(c)}
+                    type="button"
+                  >
+                    <i className="bi bi-trash me-1" />
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+) : null}
+
+
+      {/* MODAL CREATE/EDIT */}
       <Modal
         open={pmModalOpen}
         title={pmEditing ? "Modifier moyen de paiement" : "Ajouter moyen de paiement"}
@@ -742,6 +973,83 @@ async function confirmDeletePaymentMethod() {
         loading={deleteLoading}
         onClose={closeDeletePM}
         onConfirm={confirmDeletePaymentMethod}
+      />
+
+            {/* MODAL CITY CREATE/EDIT */}
+      <Modal
+        open={cityModalOpen}
+        title={cityEditing ? "Modifier ville" : "Ajouter ville"}
+        onClose={() => (!citySaving ? setCityModalOpen(false) : null)}
+        footer={
+          <>
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setCityModalOpen(false)}
+              disabled={citySaving}
+            >
+              Annuler
+            </button>
+            <button className="btn btn-warning" onClick={submitCity} disabled={citySaving}>
+              {citySaving ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-save me-2" />
+                  Enregistrer
+                </>
+              )}
+            </button>
+          </>
+        }
+      >
+        <div className="row">
+          <div className="col-md-6">
+            <Field label="Nom">
+              <input
+                className="form-control"
+                value={cityForm.name}
+                onChange={(e) => setCityForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="Ex: Antananarivo"
+              />
+            </Field>
+          </div>
+
+          <div className="col-md-6">
+            <Field label="Région">
+              <input
+                className="form-control"
+                value={cityForm.region}
+                onChange={(e) => setCityForm((p) => ({ ...p, region: e.target.value }))}
+                placeholder="Ex: Analamanga"
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div className="form-check">
+          <input
+            id="city_active"
+            type="checkbox"
+            className="form-check-input"
+            checked={cityForm.is_active}
+            onChange={(e) => setCityForm((p) => ({ ...p, is_active: e.target.checked }))}
+          />
+          <label className="form-check-label" htmlFor="city_active">
+            Actif
+          </label>
+        </div>
+      </Modal>
+
+      {/* MODAL CITY DELETE */}
+      <DeleteModal
+        open={cityDeleteOpen}
+        item={cityDeleteItem}
+        loading={cityDeleteLoading}
+        onClose={closeDeleteCity}
+        onConfirm={confirmDeleteCity}
       />
     </div>
   );

@@ -1,26 +1,5 @@
 import api from "./axios";
-
-// petit helper interne
-const toFormData = (payload) => {
-  const fd = new FormData();
-  Object.entries(payload || {}).forEach(([k, v]) => {
-    if (v === undefined || v === null) return;
-
-    // File / Blob
-    if (v instanceof File || v instanceof Blob) {
-      fd.append(k, v);
-      return;
-    }
-
-    if (typeof v === "boolean") {
-      fd.append(k, v ? "1" : "0");
-      return;
-    }
-
-    fd.append(k, String(v));
-  });
-  return fd;
-};
+import { toFormData } from "../utils/to-form-data";
 
 export const paymentMethodsApi = {
   async index() {
