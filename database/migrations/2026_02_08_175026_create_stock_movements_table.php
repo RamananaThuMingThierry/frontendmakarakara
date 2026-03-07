@@ -18,8 +18,12 @@ return new class extends Migration
             $table->foreignId('city_from_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->foreignId('city_to_id')->nullable()->constrained('cities')->nullOnDelete();
 
-            $table->string('type'); // in, out, adjust, return
-            $table->integer('quantity');
+            $table->string('type'); // in, out
+   
+            $table->integer('quantity'); // quantité du mouvement
+            $table->integer('stock_before')->default(0);
+            $table->integer('stock_after')->default(0);
+
             $table->string('reason')->nullable(); // sale, correction...
             $table->text('note')->nullable();
 

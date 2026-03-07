@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('city_id')->constrained()->cascadeOnDelete();
 
-            $table->decimal('old_price', 12, 2)->nullable();
+            $table->decimal('old_price', 12, 2)->default(0);
             $table->decimal('new_price', 12, 2);
 
             $table->foreignId('changed_by')->nullable()->constrained('users')->nullOnDelete();

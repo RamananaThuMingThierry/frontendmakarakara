@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
@@ -15,10 +14,14 @@ class StockMovement extends Model
 
     protected $fillable = [
         'product_id',
-        'city_id',
+        'city_from_id',
+        'city_to_id',
         'type',
         'quantity',
+        'stock_before',
+        'stock_after',
         'reason',
+        'note',
         'reference_type',
         'reference_id',
         'created_by',
@@ -30,26 +33,27 @@ class StockMovement extends Model
 
     protected $appends = ['encrypted_id'];
 
-    /**
-     * encrypted_id pour API
-     */
-    public function getEncryptedIdAttribute()
+    public function getEncryptedIdAttribute(): string
     {
-        return Crypt::encryptString($this->id);
+        return Crypt::encryptString((string) $this->id);
     }
 
     /**
      * Relations
      */
-
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function city()
+    public function cityFrom()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(City::class, 'city_from_id');
+    }
+
+    public function cityTo()
+    {
+        return $this->belongsTo(City::class, 'city_to_id');
     }
 
     public function user()
@@ -58,9 +62,16 @@ class StockMovement extends Model
     }
 
     /**
-     * Scopes utiles
+     * Référence polymorphique (commande, inventaire, etc.)
      */
+    public function reference()
+    {
+        return $this->morphTo(__FUNCTION__, 'reference_type', 'reference_id');
+    }
 
+    /**
+     * Scopes
+     */
     public function scopeIn($query)
     {
         return $query->where('type', 'in');

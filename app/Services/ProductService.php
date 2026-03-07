@@ -57,7 +57,7 @@ class ProductService
                 'slug'          => !empty($data['slug']) ? $data['slug'] : Str::slug($name),
                 'description'   => $data['description'] ?? null,
                 'price'         => $data['price'] ?? 0,
-                'compare_price' => $data['compare_price'] ?? null,
+                'compare_price' => $data['compare_price'] ?? 0,
                 'sku'           => $data['sku'] ?? null,
                 'barcode'       => $data['barcode'] ?? null,
                 'is_active'     => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : true,

@@ -18,15 +18,15 @@ return new class extends Migration
             $table->foreignId('city_id')->constrained()->cascadeOnDelete();
 
             $table->unsignedInteger('quantity');
-            $table->string('status')->default('ACTIVE'); // ACTIVE, RELEASED, CONSUMED
+            $table->enum('status', ['active','released','consumed'])->default('active');
 
             $table->string('reference_type')->nullable(); // order...
             $table->unsignedBigInteger('reference_id')->nullable();
-            $table->index(['reference_type', 'reference_id']);
-
+            
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-
+            
+            $table->index(['reference_type', 'reference_id']);
             $table->index(['product_id', 'city_id', 'status']);
         });
     }

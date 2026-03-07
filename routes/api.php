@@ -9,12 +9,14 @@ use App\Http\Controllers\WEB\CartItemController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\CouponController;
+use App\Http\Controllers\WEB\InventoryController;
 use App\Http\Controllers\WEB\PaymentMethodController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\ProductImageController;
 use App\Http\Controllers\WEB\ReviewController;
 use App\Http\Controllers\WEB\SettingsController;
 use App\Http\Controllers\WEB\SlideController;
+use App\Http\Controllers\WEB\StockMovementController;
 use App\Http\Controllers\WEB\TestimonialController;
 use App\Http\Controllers\WEB\UserController;
 use Illuminate\Http\Request;
@@ -69,6 +71,12 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('categories/{category}/products/{encryptedId}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
 
         Route::apiResource('product_images', ProductImageController::class)->only(['index','store','destroy']);
+
+        Route::apiResource('inventories', InventoryController::class);
+        Route::put('inventories/{encryptedId}/adjust', [InventoryController::class, 'adjust'])->name('inventories.adjust');
+        Route::put('inventories/{encryptedId}/transfert', [InventoryController::class, 'transfert'])->name('inventories.adjust');
+
+        Route::apiResource('stock_movements', StockMovementController::class);
 
         Route::apiResource('brands', BrandController::class);
 

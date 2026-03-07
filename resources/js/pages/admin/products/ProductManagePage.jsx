@@ -36,18 +36,6 @@ export default function ProductManagePage() {
                   <li className="nav-item" role="presentation">
                     <button
                       className="nav-link active"
-                      id="info-tab"
-                      data-bs-toggle="tab"
-                      data-bs-target="#tab-info"
-                      type="button"
-                      role="tab"
-                    >
-                      <i className="bi bi-info-circle"></i> Informations
-                    </button>
-                  </li>
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className="nav-link"
                       id="inventory-tab"
                       data-bs-toggle="tab"
                       data-bs-target="#tab-inventory"
@@ -73,10 +61,7 @@ export default function ProductManagePage() {
               </div>
               <div className="card-body">
                 <div className="tab-content" id="productTabsContent">
-                  <div className="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="info-tab">
-                    <CityAvailability product={product} reload={loadProduct} />
-                  </div>
-                  <div className="tab-pane fade" id="tab-inventory" role="tabpanel" aria-labelledby="inventory-tab">
+                  <div className="tab-pane fade show active" id="tab-inventory" role="tabpanel" aria-labelledby="inventory-tab">
                     <InventoryTable product={product} reload={loadProduct} />
                   </div>
                   <div className="tab-pane fade" id="tab-movements" role="tabpanel" aria-labelledby="movements-tab">

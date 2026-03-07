@@ -13,10 +13,6 @@ class StockReservation extends Model
 
     protected $table = 'stock_reservations';
 
-    public const STATUS_ACTIVE = 'ACTIVE';
-    public const STATUS_RELEASED = 'RELEASED';
-    public const STATUS_CONSUMED = 'CONSUMED';
-
     protected $fillable = [
         'product_id',
         'city_id',
@@ -69,29 +65,29 @@ class StockReservation extends Model
     /** Scopes */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_ACTIVE);
+        return $query->where('status', 'active');
     }
 
     public function scopeReleased(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_RELEASED);
+        return $query->where('status', 'released');
     }
 
     public function scopeConsumed(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_CONSUMED);
+        return $query->where('status', 'consumed');
     }
 
     /** Helpers */
     public function markReleased(): void
     {
-        $this->update(['status' => self::STATUS_RELEASED]);
+        $this->update(['status' => 'released']);
         $this->refresh();
     }
 
     public function markConsumed(): void
     {
-        $this->update(['status' => self::STATUS_CONSUMED]);
+        $this->update(['status' => 'consumed']);
         $this->refresh();
     }
 }
