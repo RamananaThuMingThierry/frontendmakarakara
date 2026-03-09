@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class InventoryTransfertRequest extends FormRequest
 {
@@ -48,12 +47,6 @@ class InventoryTransfertRequest extends FormRequest
                 $this->merge(['city_to_id' => null]);
             }
         }
-
-        if ($this->has('type')) {
-            $this->merge([
-                'type' => strtolower((string) $this->input('type'))
-            ]);
-        }
     }
 
     /**
@@ -72,7 +65,6 @@ class InventoryTransfertRequest extends FormRequest
                 'exists:cities,id',
                 'different:city_from_id',
             ],
-            'type'         => ['required', Rule::in(['transfer', 'transfert'])],
             'quantity'     => ['required', 'integer', 'min:1'],
             'reason'       => ['required', 'string', 'max:255'],
             'note'         => ['nullable', 'string', 'max:1000'],
@@ -94,9 +86,6 @@ class InventoryTransfertRequest extends FormRequest
             'city_to_id.integer'       => 'L’identifiant de la ville de destination est invalide.',
             'city_to_id.exists'        => 'La ville de destination sélectionnée est introuvable.',
             'city_to_id.different'     => 'La ville de destination doit être différente de la ville source.',
-
-            'type.required'            => 'Le type de mouvement est obligatoire.',
-            'type.in'                  => 'Le type doit être "transfer" ou "transfert".',
 
             'quantity.required'        => 'La quantité est obligatoire.',
             'quantity.integer'         => 'La quantité doit être un nombre entier.',

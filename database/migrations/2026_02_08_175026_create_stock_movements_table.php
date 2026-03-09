@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('city_from_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->foreignId('city_to_id')->nullable()->constrained('cities')->nullOnDelete();
 
-            $table->string('type'); // in, out
+            $table->enum('type', ['in','ou','transfert'])->default('in'); // in, out
    
             $table->integer('quantity'); // quantité du mouvement
             $table->integer('stock_before')->default(0);

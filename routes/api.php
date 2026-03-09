@@ -10,6 +10,7 @@ use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\CouponController;
 use App\Http\Controllers\WEB\InventoryController;
+use App\Http\Controllers\WEB\InventoryPriceHistoryController;
 use App\Http\Controllers\WEB\PaymentMethodController;
 use App\Http\Controllers\WEB\ProductController;
 use App\Http\Controllers\WEB\ProductImageController;
@@ -76,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('inventories/{encryptedId}/adjust', [InventoryController::class, 'adjust'])->name('inventories.adjust');
         Route::put('inventories/{encryptedId}/transfert', [InventoryController::class, 'transfert'])->name('inventories.adjust');
 
+        Route::apiResource('inventory_price_histories', InventoryPriceHistoryController::class);
+        
         Route::apiResource('stock_movements', StockMovementController::class);
 
         Route::apiResource('brands', BrandController::class);
