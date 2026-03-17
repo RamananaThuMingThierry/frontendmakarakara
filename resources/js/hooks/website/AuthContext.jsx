@@ -42,6 +42,23 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("roles");
   };
 
+  const replaceAuthUser = (nextUser) => {
+    setUser(nextUser || null);
+  };
+
+  const refreshUser = async () => {
+    if (!token) return null;
+
+    const data = await meApi();
+    const nextUser = data.user || null;
+    const nextRoles = Array.isArray(data.roles) ? data.roles : [];
+
+    setUser(nextUser);
+    setRoles(nextRoles);
+
+    return data;
+  };
+
   // Sync axios token
   useEffect(() => {
     setApiToken(token || "");
@@ -193,6 +210,8 @@ useEffect(() => {
       login,
       logout,
       logoutAdmin,
+      refreshUser,
+      replaceAuthUser,
       hasRole: (role) => (Array.isArray(roles) ? roles.includes(role) : false),
     }),
     [user, roles, token, isAuth, loading, hydrating]

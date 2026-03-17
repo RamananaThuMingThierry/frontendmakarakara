@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\AuthController;
@@ -20,7 +21,10 @@ use App\Http\Controllers\WEB\SlideController;
 use App\Http\Controllers\WEB\StockMovementController;
 use App\Http\Controllers\WEB\TestimonialController;
 use App\Http\Controllers\WEB\UserController;
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,10 +38,50 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgot']);
-Route::post('/reset-password', [AuthController::class, 'rest']);
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
+Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request, string $id, string $hash) {
+    if (! $request->hasValidSignature()) {
+        return response()->json([
+            'message' => 'Lien de vérification invalide ou expiré.',
+        ], 403);
+    }
+
+    try {
+        $userId = Crypt::decryptString($id);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'message' => 'Identifiant invalide.',
+        ], 400);
+    }
+
+    $user = User::find($userId);
+
+    if (! $user) {
+        return response()->json([
+            'message' => 'Utilisateur introuvable.',
+        ], 404);
+    }
+
+    if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
+        return response()->json([
+            'message' => 'Lien de vérification invalide.',
+        ], 403);
+    }
+
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+    }
+
+    return response()->json([
+        'message' => 'Votre email a bien été vérifié.',
+        'verified' => true,
+    ]);
+})->name('verification.verify.api');
 
 Route::middleware('auth:sanctum')->group(function(){
 
@@ -78,7 +122,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('inventories/{encryptedId}/transfert', [InventoryController::class, 'transfert'])->name('inventories.adjust');
 
         Route::apiResource('inventory_price_histories', InventoryPriceHistoryController::class);
-        
+
         Route::apiResource('stock_movements', StockMovementController::class);
 
         Route::apiResource('brands', BrandController::class);
@@ -100,6 +144,10 @@ Route::middleware('auth:sanctum')->group(function(){
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
 
+        Route::get('account', [AccountAdminController::class, 'show'])->name('account.show');
+        Route::put('account', [AccountAdminController::class, 'update'])->name('account.update');
+        Route::put('account/password', [AccountAdminController::class, 'changePassword'])->name('account.password.update');
+
         Route::post('logout', [AuthController::class, 'logout']);
     });
 
@@ -108,10 +156,5 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 
     Route::middleware(['role:customer'])->group(function () {
-        // Route::get('/customer/account', ...);
-
-        Route::get('/account', function(Request $request){
-            return response()->json($request->user());
-        });
     });
 });

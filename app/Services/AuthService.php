@@ -26,8 +26,8 @@ class AuthService
     {
         $ok = Auth::attempt(
             [
-                'email' => $email, 
-                'password' => $password, 
+                'email' => $email,
+                'password' => $password,
                 'status' => 'active'
             ], $remember);
 

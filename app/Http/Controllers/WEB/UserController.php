@@ -125,7 +125,7 @@ class UserController extends Controller
     public function show(string $encryptedId)
     {
         $id = decrypt_to_int_or_null($encryptedId);
- 
+
         if(is_null($id)){
 
             $this->activityLogService->createActivityLog([
@@ -149,7 +149,7 @@ class UserController extends Controller
         }
 
         try {
-            
+
             $user = $this->userService->getUserById(
                 id: $id,
                 relations: ['roles'],
@@ -240,9 +240,9 @@ class UserController extends Controller
         }
 
         $data = $request->validated();
-     
+
         try{
-            
+
             $user = $this->userService->getUserById($id);
 
             if(!$user){
@@ -444,7 +444,7 @@ class UserController extends Controller
             ]);
 
         } catch (ValidationException $e) {
-            
+
         return response()->json([
                 'message' => $e->getMessage(),
                 'errors' => $e->errors(),

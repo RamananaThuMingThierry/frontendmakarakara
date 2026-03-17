@@ -4,16 +4,29 @@ import "../../css/admin.css";
 import { useAuth } from "../hooks/website/AuthContext";
 import { useI18n } from "../hooks/website/I18nContext";
 
+function buildAvatarUrl(path) {
+  if (!path) return null;
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL || "http://192.168.0.17:8000/api";
+  const base = apiUrl.replace(/\/api\/?$/, "");
+  return `${base}/${String(path).replace(/^\/+/, "")}`;
+}
+
 const NAV = [
-  { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Dashboard" },
-  { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
-  { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
-  { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
-  { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
-  { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
-  { to: "/admin/users", icon: "bi-people", label: "Users" },
-  { to: "/admin/settings", icon: "bi-gear", label: "Settings" },
-  { to: "/admin/activity-logs", icon: "bi-file-earmark-text", label: "Activity Logs" },
+    { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Dashboard" },
+    { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
+    { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
+    //   { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
+    //   { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
+    { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
+    { to: "/admin/users", icon: "bi-people", label: "Users" },
+    { to: "/admin/settings", icon: "bi-gear", label: "Settings" },
+    { to: "/admin/activity-logs", icon: "bi-file-earmark-text", label: "Activity Logs" },
+    { to: "/admin/account", icon: "bi-person-circle", label: "Mon compte" },
 
   // ✅ Logout action (pas une route)
   { action: "logout", icon: "bi-box-arrow-left", label: "Logout" },
@@ -151,9 +164,10 @@ export default function AdminLayout() {
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
-  const { isAuth, logoutAdmin, roles } = useAuth();
+  const { isAuth, logoutAdmin, roles, user } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
+  const headerAvatar = buildAvatarUrl(user?.avatar);
 
   // ESC ferme drawer + modal
   useEffect(() => {
@@ -330,8 +344,14 @@ export default function AdminLayout() {
                     </ul>
                   </div>
 
-                <button className="btn btn-dark btn-sm" type="button">
-                  <i className="bi bi-person-circle me-2" />
+                <button className="btn btn-warning btn-sm d-inline-flex align-items-center gap-2" type="button" onClick={() => nav("/admin/account")}>
+                  {headerAvatar ? (
+                    <span className="admin-header-avatar">
+                      <img src={headerAvatar} alt={user?.name || "Profil"} />
+                    </span>
+                  ) : (
+                    <i className="bi bi-person-circle" />
+                  )}
                   Mon compte
                 </button>
               </div>

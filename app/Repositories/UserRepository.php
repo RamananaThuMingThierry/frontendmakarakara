@@ -15,7 +15,7 @@ class UserRepository extends BaseRepository implements UserInterface
         $q = $this->applyTrashed($q, $withTrashed, $onlyTrashed);
         $q = $this->applyFilter($q, $keys, $values);
 
-        return $paginate ? $q->paginate($paginate) : $q->get(); 
+        return $paginate ? $q->paginate($paginate) : $q->get();
     }
 
     public function getById(int|string $id, array $fields = [], array $relations = [], bool $withTrashed = false, bool $onlyTrashed = false): ?User

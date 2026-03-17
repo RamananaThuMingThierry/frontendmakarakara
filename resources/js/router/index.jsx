@@ -35,42 +35,43 @@ import ProductManagePage from "../pages/admin/products/ProductManagePage";
 import ActivityLogPage from "../pages/admin/activity_logs/ActivityLogPage";
 import SlidesPage from "../pages/admin/slides/SlidesPage";
 import SettingsPage from "../pages/admin/settings/SettingsPage";
+import EmailVerifyPage from "../pages/EmailVerifyPage";
+import AdminAccountPage from "../pages/admin/account/AdminAccountPage";
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout/>,
     children: [
+       { path: "email/verify", element: <EmailVerifyPage /> },
       {
         path: "/",
         element: <PublicLayout />,
         children: [
-
-          { index: true, element: <Home /> },
-          { path: "shop", element: <Shop /> },
-          { path: "cart", element: <Cart /> },
-          { path: "checkout", element: <Checkout /> },
-          { path: "about", element: <About /> },
-          { path: "contact", element: <Contact /> },
-          { path: "gallery", element: <GalleryClients /> },
-          { path: "favorites", element: <Favorites /> },
-          { path: "testimonials", element: <TestimonialsPage />},
-          { path: "search", element: <SearchResults /> },
-          { path: "login", element: <Login /> },
-          { path: "register", element: <Register /> },
-          { path: "forgot-password", element: <ForgotPassword /> },
-          { path: "verify-code", element: <VerifyCode /> },
-          { path: "reset-password", element: <ResetPassword /> },
-          { path: "order-success/:orderNumber", element: <OrderSuccess /> },
-          { path: "product/:id", element: <ProductDetails /> },
-
-          {
-            path: "account",
-            element: (
-              <RoleRoute allow={["customer"]}>
-                <Account />
-              </RoleRoute>
-            ),
-          },
+            { index: true, element: <Home /> },
+            { path: "shop", element: <Shop /> },
+            { path: "cart", element: <Cart /> },
+            { path: "checkout", element: <Checkout /> },
+            { path: "about", element: <About /> },
+            { path: "contact", element: <Contact /> },
+            { path: "gallery", element: <GalleryClients /> },
+            { path: "favorites", element: <Favorites /> },
+            { path: "testimonials", element: <TestimonialsPage />},
+            { path: "search", element: <SearchResults /> },
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Register /> },
+            { path: "forgot-password", element: <ForgotPassword /> },
+            { path: "verify-code", element: <VerifyCode /> },
+            { path: "reset-password", element: <ResetPassword /> },
+            { path: "order-success/:orderNumber", element: <OrderSuccess /> },
+            { path: "product/:id", element: <ProductDetails /> },
+            {
+                path: "account",
+                element: (
+                <RoleRoute allow={["customer"]}>
+                    <Account />
+                </RoleRoute>
+                ),
+            },
         ],
       },
       {
@@ -95,6 +96,7 @@ export const router = createBrowserRouter([
           { path: "users", element: <UsersPage /> },
           { path: "activity-logs", element: <ActivityLogPage /> },
           { path: "settings", element: <SettingsPage /> },
+          { path: "account", element: <AdminAccountPage /> },
         ],
       },
     ]

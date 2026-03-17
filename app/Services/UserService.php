@@ -31,7 +31,7 @@ class UserService{
             'email' => $data['email'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
-            'status' => isset($data['status']) ? (string) $data['status'] : 'active', 
+            'status' => isset($data['status']) ? (string) $data['status'] : 'active',
         ];
 
         // ✅ Gestion de profil user (avatar)
@@ -65,8 +65,9 @@ class UserService{
     }
 
     public function updateUser(User $user, array $data){
-        
+
         $payload = [];
+        $emailChanged = false;
 
         if(array_key_exists('name', $data)){
             $name = trim((string)$data['name']);
@@ -80,10 +81,19 @@ class UserService{
             $payload['name'] = $name;
         }
 
+
         if(array_key_exists('email', $data)){
+            $email = trim((string) $data['email']);
+
             $payload['email'] = $data['email'];
+
+            $emailChanged = $email !== $user->email;
+
+            if($emailChanged){
+                $payload['email_verified_at'] = null;
+            }
         }
-        
+
         if(array_key_exists('phone', $data)){
             $payload['phone'] = $data['phone'];
         }
@@ -97,7 +107,7 @@ class UserService{
 
             // ✅ Gestion de profil user (avatar)
             if (!empty($data['avatar']) && $data['avatar'] instanceof UploadedFile) {
-               
+
                 if(!empty($user->avatar)){
                     $oldPath = public_path($user->avatar);
                     if(file_exists($oldPath)){
@@ -107,20 +117,20 @@ class UserService{
 
                 $extension = $data['avatar']->getClientOriginalExtension();
                 $filename = 'user-' . time() . '.' . $extension;
-    
+
                 $destination = public_path('images/users');
-    
+
                 // crée le dossier s'il n'existe pas
                 if (!file_exists($destination)) {
                     mkdir($destination, 0755, true);
                 }
-    
+
                 $data['avatar']->move($destination, $filename);
 
                 $payload['avatar'] = 'images/users/'. $filename;
             }
         }
-        
+
         // rien à update ?
         if (empty($payload)) {
             throw ValidationException::withMessages([
@@ -149,13 +159,28 @@ class UserService{
         $this->userRepository->delete($user);
     }
 
+    public function updatePassword(User $user, string $password): User
+    {
+        $updated = $this->userRepository->update($user, [
+            'password' => Hash::make($password),
+        ]);
+
+        if (!$updated) {
+            throw ValidationException::withMessages([
+                'password' => 'Mise \u00e0 jour du mot de passe \u00e9chou\u00e9e.',
+            ]);
+        }
+
+        return $updated;
+    }
+
     public function restoreUser(int|string $id){
 
         $user = $this->getUserById(
             id: $id,
             fields: ['*'],
             onlyTrashed:true);
-    
+
         if(!$user) {
             throw ValidationException::withMessages([
                 'user' => 'Utilisateur non trouvée.',

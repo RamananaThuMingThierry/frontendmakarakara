@@ -24,7 +24,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
             $user = $this->auth->login($data['email'], $data['password'], (bool)($data['remember'] ?? false));
 
             $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
-        
+
             // ✅ récupérer le rôle spatie
             $roles = $user->getRoleNames(); // "admin" | "customer" | "delivery"
 
@@ -160,7 +160,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
                 'message' => 'Utilisateur non authentifié.',
                 'status_code' => 401,
             ]);
-            
+
             return response()->json([
                 'message' => 'Non authentifié'
             ], 401);
@@ -176,7 +176,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
     public function logout(Request $request)
     {
         $user = Auth::user();
-        
+
         if ($user) {
             $this->activityLogService->createActivityLog([
                 'user_id' => $user->id,

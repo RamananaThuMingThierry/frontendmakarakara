@@ -25,6 +25,7 @@ use App\Interface\StockMovementInterface;
 use App\Interface\StockReservationInterface;
 use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
+use App\Models\User;
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\AddressRepository;
 use App\Repositories\BrandRepository;
@@ -48,6 +49,12 @@ use App\Repositories\StockMovementRepository;
 use App\Repositories\StockReservationRepository;
 use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
+use Carbon\Carbon;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -88,6 +95,26 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        VerifyEmail::createUrlUsing(function (User $notifiable) {
+            $backendSignedUrl = URL::temporarySignedRoute(
+                'verification.verify.api',
+                Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+                [
+                    'id' => Crypt::encryptString((string) $notifiable->getKey()),
+                    'hash' => sha1($notifiable->getEmailForVerification()),
+                ]
+            );
+
+            return config('app.frontend_url').'/email/verify?verify_url='.urlencode($backendSignedUrl);
+        });
+
+        VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+            return (new MailMessage)
+                ->subject('Vérification de votre adresse email')
+                ->greeting('Bonjour '.$notifiable->name.',')
+                ->line('Merci de confirmer votre adresse email pour sécuriser votre compte.')
+                ->action('Confirmer mon email', $url)
+                ->line('Si vous n’avez pas demandé cette modification, ignorez simplement ce message.');
+        });
     }
 }

@@ -1,12 +1,28 @@
-import { useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/website/AuthContext";
 
 export default function Login() {
   const { isAuth, login, loading, hydrating, roles } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // si session en cours de restauration, on attend
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState("");
+  const [flashMessage, setFlashMessage] = useState(() => location.state?.message || "");
+
+  useEffect(() => {
+    const nextMessage = location.state?.message;
+    if (!nextMessage) return;
+
+    setFlashMessage(nextMessage);
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.pathname, location.state, navigate]);
+
   if (hydrating) {
     return (
       <div className="d-flex justify-content-center py-5">
@@ -15,12 +31,10 @@ export default function Login() {
     );
   }
 
-  // déjà connecté
   if (isAuth) {
     const r = Array.isArray(roles) ? roles : [];
     const from = location.state?.from?.pathname;
 
-    // si tu dépends des roles pour admin/delivery
     if (r.length === 0) {
       return (
         <div className="d-flex justify-content-center py-5">
@@ -39,15 +53,6 @@ export default function Login() {
     return <Navigate to={target} replace />;
   }
 
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
-
-  const [errors, setErrors] = useState({});
-  const [globalError, setGlobalError] = useState("");
-
   const submit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -57,7 +62,7 @@ export default function Login() {
 
     if (!res.ok) {
       if (res.errors) setErrors(res.errors);
-      else setGlobalError(res.message || "Connexion échouée");
+      else setGlobalError(res.message || "Connexion echouee");
     }
   };
 
@@ -65,8 +70,9 @@ export default function Login() {
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
         <h2 className="fw-bold mb-1">Connexion</h2>
-        <p className="text-secondary mb-3">Accédez à votre compte.</p>
+        <p className="text-secondary mb-3">Accedez a votre compte.</p>
 
+        {flashMessage && <div className="alert alert-success py-2">{flashMessage}</div>}
         {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
 
         <form onSubmit={submit} className="d-flex flex-column gap-3">
@@ -89,7 +95,7 @@ export default function Login() {
                 className={`form-control pe-5 ${errors.password ? "is-invalid" : ""}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="........"
               />
               <button
                 type="button"
@@ -106,14 +112,14 @@ export default function Login() {
                   color: "#6c757d",
                 }}
               >
-                {showPassword ? "🙈" : "👁"}
+                {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
               </button>
             </div>
-            {errors.password && <span className="text-danger small">{errors.password[0]}</span>}
+            {errors.password && <span className="text-danger">{errors.password[0]}</span>}
           </div>
 
           <div className="d-flex align-items-center justify-content-between">
-            <label className="d-flex align-items-center gap-2 small text-secondary m-0">
+            <label className="d-flex align-items-center gap-2 text-secondary m-0">
               <input
                 type="checkbox"
                 className="form-check-input m-0"
@@ -124,7 +130,7 @@ export default function Login() {
             </label>
 
             <Link className="small" to="/forgot-password">
-              Mot de passe oublié ?
+              Mot de passe oublie ?
             </Link>
           </div>
 
@@ -133,7 +139,7 @@ export default function Login() {
           </button>
 
           <div className="text-secondary small">
-            Pas de compte ? <Link to="/register">Créer un compte</Link>
+            Pas de compte ? <Link to="/register">Creer un compte</Link>
           </div>
         </form>
       </div>
