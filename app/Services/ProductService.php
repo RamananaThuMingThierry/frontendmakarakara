@@ -108,6 +108,7 @@ class ProductService
     public function updateProduct(int|string $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
+            $filesToDeleteAfterCommit = [];
 
             $product = $this->getProductById($id, ['*']);
 
@@ -181,9 +182,9 @@ class ProductService
                     // ✅ supprimer DB même si fichier absent
                     $this->productImageRepository->delete($img);
 
-                    $path = !empty($img->image_url) ? public_path($img->image_url) : null;
-                    if ($path && file_exists($path)) {
-                        @unlink($path);
+                    $path = !empty($img->url) ? public_path($img->url) : null;
+                    if ($path) {
+                        $filesToDeleteAfterCommit[] = $path;
                     }
 
                     $deletedCount++;
@@ -212,7 +213,7 @@ class ProductService
 
                     $this->productImageRepository->create([
                         'product_id' => $product->id,
-                        'image_url'  => 'images/products/' . $filename,
+                        'url'        => 'images/products/' . $filename,
                     ]);
 
                     $newCount++;
@@ -228,13 +229,23 @@ class ProductService
                 ]);
             }
 
+            if (!empty($filesToDeleteAfterCommit)) {
+                DB::afterCommit(function () use ($filesToDeleteAfterCommit) {
+                    foreach ($filesToDeleteAfterCommit as $path) {
+                        if (file_exists($path)) {
+                            @unlink($path);
+                        }
+                    }
+                });
+            }
+
             return $updated;
         });
     }
 
     public function deleteProduct(Product $product): void
     {
-        $product = $this->getProductById($product->id, ['id','image_url']);
+        $product = $this->getProductById($product->id, ['id']);
 
         if (!$product) {
             throw ValidationException::withMessages([
