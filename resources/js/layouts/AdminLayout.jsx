@@ -21,7 +21,7 @@ const NAV = [
     { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
     { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
     //   { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
-    //   { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
+    { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
     { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
     { to: "/admin/users", icon: "bi-people", label: "Users" },
     { to: "/admin/settings", icon: "bi-gear", label: "Settings" },

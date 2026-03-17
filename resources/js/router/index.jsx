@@ -37,6 +37,7 @@ import SlidesPage from "../pages/admin/slides/SlidesPage";
 import SettingsPage from "../pages/admin/settings/SettingsPage";
 import EmailVerifyPage from "../pages/EmailVerifyPage";
 import AdminAccountPage from "../pages/admin/account/AdminAccountPage";
+import CouponsPage from "../pages/admin/coupons/CouponsPage";
 
 export const router = createBrowserRouter([
   {
@@ -91,7 +92,7 @@ export const router = createBrowserRouter([
           { path: "products/create", element: <CreateProductPage /> },
           { path: "categories/:categoryId/products/:productId", element: <ProductManagePage /> },
           // { path: "orders", element: <OrdersPage /> },
-          // { path: "coupons", element: <CouponsPage /> },
+          { path: "coupons", element: <CouponsPage /> },
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
           { path: "activity-logs", element: <ActivityLogPage /> },
