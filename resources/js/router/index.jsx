@@ -40,6 +40,7 @@ import AdminAccountPage from "../pages/admin/account/AdminAccountPage";
 import CouponsPage from "../pages/admin/coupons/CouponsPage";
 import ContactUsPage from "../pages/admin/contacts/ContactUsPage";
 import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
+import GalleryPage from "../pages/admin/gallery/GalleryPage";
 
 export const router = createBrowserRouter([
   {
@@ -96,6 +97,7 @@ export const router = createBrowserRouter([
           // { path: "orders", element: <OrdersPage /> },
           { path: "coupons", element: <CouponsPage /> },
           { path: "testimonials", element: <TestimonialPage /> },
+          { path: "gallery", element: <GalleryPage /> },
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
           { path: "contacts", element: <ContactUsPage /> },

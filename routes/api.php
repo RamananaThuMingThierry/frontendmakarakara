@@ -93,6 +93,8 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, string $id, 
 
 Route::middleware('auth:sanctum')->group(function(){
 
+    Route::post('/galleries/{encryptedId}/like', [GalleryController::class, 'toggleLike'])->name('galleries.public.like');
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/me', [AuthController::class, 'me']);

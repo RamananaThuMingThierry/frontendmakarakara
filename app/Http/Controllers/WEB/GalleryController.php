@@ -7,19 +7,31 @@ use App\Http\Requests\GalleryRequest;
 use App\Services\ActivityLogService;
 use App\Services\GalleryService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Throwable;
 
 class GalleryController extends Controller
 {
     public function __construct(private GalleryService $galleryService, private ActivityLogService $activityLogService) {}
 
-    public function publicIndex()
+    public function publicIndex(Request $request)
     {
         try {
+            $user = $request->user('sanctum');
             $galleries = $this->galleryService->getAllGalleries([], [], ['id', 'name', 'image_url', 'likes', 'created_at'])
                 ->sortBy([
                     ['created_at', 'desc'],
                 ])->values();
+
+            $likedIds = $user
+                ? $user->likedGalleries()->pluck('galleries.id')->all()
+                : [];
+
+            $galleries = $galleries->map(function ($gallery) use ($likedIds) {
+                $gallery->liked_by_user = in_array($gallery->id, $likedIds, true);
+
+                return $gallery;
+            })->values();
 
             return response()->json([
                 'data' => $galleries,
@@ -370,6 +382,41 @@ class GalleryController extends Controller
 
             return response()->json([
                 'message' => 'Erreur lors de la suppression de l element de galerie.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function toggleLike(Request $request, string $encryptedId)
+    {
+        $id = decrypt_to_int_or_null($encryptedId);
+
+        if (is_null($id)) {
+            return response()->json([
+                'message' => 'ID de galerie invalide.',
+            ], 400);
+        }
+
+        $gallery = $this->galleryService->getGalleryById($id, ['*']);
+
+        if (!$gallery) {
+            return response()->json([
+                'message' => 'Element de galerie non trouve.',
+            ], 404);
+        }
+
+        try {
+            $result = $this->galleryService->toggleLike($gallery, $request->user());
+
+            return response()->json([
+                'message' => $result['liked']
+                    ? 'Like ajoute avec succes.'
+                    : 'Like retire avec succes.',
+                'data' => $result,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la mise a jour du like.',
                 'error' => $e->getMessage(),
             ], 500);
         }

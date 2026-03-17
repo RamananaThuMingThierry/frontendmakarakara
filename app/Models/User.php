@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Notifications\Notifiable;
@@ -91,5 +92,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function deliveries()
     {
         return $this->hasMany(Delivery::class, 'assigned_to');
+    }
+
+    public function likedGalleries(): BelongsToMany
+    {
+        return $this->belongsToMany(Gallery::class, 'gallery_likes')
+            ->withTimestamps();
     }
 }

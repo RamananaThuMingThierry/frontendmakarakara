@@ -23,6 +23,7 @@ const NAV = [
     //   { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
     { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
     { to: "/admin/testimonials", icon: "bi-chat-square-quote", label: "Testimonials" },
+    { to: "/admin/gallery", icon: "bi-card-image", label: "Gallery" },
     { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
     { to: "/admin/users", icon: "bi-people", label: "Users" },
     { to: "/admin/contacts", icon: "bi-envelope-paper", label: "Contact Us" },

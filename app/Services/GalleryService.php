@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Gallery;
+use App\Models\User;
 use App\Repositories\GalleryRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
@@ -104,6 +106,37 @@ class GalleryService
         }
 
         $this->galleryRepository->delete($gallery);
+    }
+
+    public function toggleLike(Gallery $gallery, User $user): array
+    {
+        return DB::transaction(function () use ($gallery, $user) {
+            $gallery = Gallery::query()->lockForUpdate()->findOrFail($gallery->id);
+
+            $alreadyLiked = $gallery->likedByUsers()
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if ($alreadyLiked) {
+                $gallery->likedByUsers()->detach($user->id);
+                $gallery->likes = max(0, (int) $gallery->likes - 1);
+                $gallery->save();
+
+                return [
+                    'liked' => false,
+                    'likes' => (int) $gallery->likes,
+                ];
+            }
+
+            $gallery->likedByUsers()->attach($user->id);
+            $gallery->likes = (int) $gallery->likes + 1;
+            $gallery->save();
+
+            return [
+                'liked' => true,
+                'likes' => (int) $gallery->likes,
+            ];
+        });
     }
 
     private function storeImage(UploadedFile $image): string
