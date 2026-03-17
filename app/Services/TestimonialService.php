@@ -34,7 +34,6 @@ class TestimonialService
             'product_used' => trim((string)($data['product_used'] ?? '')),
             'rating'       => isset($data['rating']) ? (int)$data['rating'] : null,
             'message'      => trim((string)($data['message'] ?? '')),
-            'position'     => isset($data['position']) ? (int)$data['position'] : 0,
             'is_active'    => array_key_exists('is_active', $data) ? (bool)$data['is_active'] : true,
         ];
 
@@ -94,9 +93,7 @@ class TestimonialService
         if (array_key_exists('message', $data)) {
             $payload['message'] = trim((string)$data['message']);
         }
-        if (array_key_exists('position', $data)) {
-            $payload['position'] = (int)$data['position'];
-        }
+
         if (array_key_exists('is_active', $data)) {
             $payload['is_active'] = (bool)$data['is_active'];
         }

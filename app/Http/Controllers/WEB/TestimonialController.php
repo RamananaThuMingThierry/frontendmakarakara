@@ -6,11 +6,72 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TestimonialRequest;
 use App\Services\ActivityLogService;
 use App\Services\TestimonialService;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class TestimonialController extends Controller
 {
     public function __construct(private TestimonialService $testimonialService,private ActivityLogService $activityLogService) {}
+
+    public function publicIndex()
+    {
+        try {
+            $testimonials = $this->testimonialService->getAllTestimonials(
+                ['is_active'],
+                [true],
+                ['id', 'name', 'photo_url', 'city', 'product_used', 'rating', 'message', 'created_at']
+            )->sortBy([
+                ['created_at', 'desc'],
+            ])->values();
+
+            return response()->json([
+                'data' => $testimonials,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors du chargement des temoignages.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function publicStore(TestimonialRequest $request)
+    {
+        try {
+            $data = $request->validated();
+
+            $testimonial = $this->testimonialService->createTestimonial($data);
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => auth()->id(),
+                'action' => 'create_testimonial_public',
+                'entity_type' => 'Testimonial',
+                'entity_id' => $testimonial->id,
+                'color' => 'info',
+                'status_code' => 201,
+                'message' => 'Temoignage public envoye et publie.',
+                'method' => 'POST',
+                'route' => 'testimonials.public.store',
+                'metadata' => [
+                    'testimonial_id' => $testimonial->id,
+                    'name' => $testimonial->name,
+                    'rating' => $testimonial->rating,
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Merci. Votre avis a bien ete envoye et publie.',
+                'data' => $testimonial,
+            ], 201);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'envoi de votre avis.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function index(){
         try{
@@ -19,7 +80,7 @@ class TestimonialController extends Controller
             $testimonials = $this->testimonialService->getAllTestimonials(
                 array_keys($constraints),
                 array_values($constraints),
-                ['id', 'name', 'photo_url', 'city', 'product_used', 'rating', 'message', 'position', 'is_active']
+                ['id', 'name', 'photo_url', 'city', 'product_used', 'rating', 'message', 'is_active']
             );
 
             return response()->json([

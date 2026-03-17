@@ -44,6 +44,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
 Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
+Route::get('/testimonials', [TestimonialController::class, 'publicIndex'])->name('testimonials.public.index');
+Route::post('/testimonials', [TestimonialController::class, 'publicStore'])->name('testimonials.public.store');
 Route::get('/shop/inventories', [InventoryController::class, 'shopIndex'])->name('shop.inventories');
 Route::get('/shop/products/{encryptedId}', [ProductController::class, 'shopShow'])->name('shop.products.show');
 
@@ -92,6 +94,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])
+        ->name('verification.send.api');
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 

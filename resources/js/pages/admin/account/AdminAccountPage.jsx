@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword, getAccount, updateAccount } from "../../../api/account";
+import { changePassword, getAccount, resendVerificationEmail, updateAccount } from "../../../api/account";
 import { useAuth } from "../../../hooks/website/AuthContext";
 
 function buildAvatarUrl(path) {
@@ -44,6 +44,9 @@ export default function AdminAccountPage() {
   const [passwordStatus, setPasswordStatus] = useState("success");
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const [verificationStatus, setVerificationStatus] = useState("info");
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +87,10 @@ export default function AdminAccountPage() {
       avatar: null,
     });
   }, [account]);
+
+  useEffect(() => {
+    setVerificationMessage("");
+  }, [account?.email_verified_at, account?.email]);
 
   const avatarPreview = useMemo(() => {
     if (profileForm.avatar instanceof File) {
@@ -156,6 +163,25 @@ export default function AdminAccountPage() {
     }
   }
 
+  async function handleResendVerification() {
+    setVerificationLoading(true);
+    setVerificationMessage("");
+    setVerificationStatus("info");
+
+    try {
+      const data = await resendVerificationEmail();
+      setVerificationStatus(data?.verified ? "success" : "info");
+      setVerificationMessage(data?.message || "Email de verification envoye.");
+    } catch (error) {
+      setVerificationStatus("danger");
+      setVerificationMessage(
+        error?.response?.data?.message || "Envoi de l'email de verification impossible."
+      );
+    } finally {
+      setVerificationLoading(false);
+    }
+  }
+
   return (
     <section className="admin-account-page">
       <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
@@ -213,6 +239,28 @@ export default function AdminAccountPage() {
                     </strong>
                   </div>
                 </div>
+
+                {!account?.email_verified_at ? (
+                  <div className="alert alert-warning mt-4 mb-0">
+                    <div className="fw-semibold mb-1">Email non verifie</div>
+                    <div className="small mb-3">
+                      Envoyez un nouvel email de verification pour valider cette adresse.
+                    </div>
+                    {verificationMessage ? (
+                      <div className={`alert alert-${verificationStatus} py-2 mb-3`}>
+                        {verificationMessage}
+                      </div>
+                    ) : null}
+                    <button
+                      className="btn btn-sm btn-dark"
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={verificationLoading}
+                    >
+                      {verificationLoading ? "Envoi..." : "Verifier l'email"}
+                    </button>
+                  </div>
+                ) : null}
 
                 <div className="alert alert-light border mb-0 mt-4">
                   Si vous changez votre adresse email, une nouvelle verification sera demandee.

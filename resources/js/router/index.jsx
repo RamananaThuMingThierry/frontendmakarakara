@@ -38,6 +38,8 @@ import SettingsPage from "../pages/admin/settings/SettingsPage";
 import EmailVerifyPage from "../pages/EmailVerifyPage";
 import AdminAccountPage from "../pages/admin/account/AdminAccountPage";
 import CouponsPage from "../pages/admin/coupons/CouponsPage";
+import ContactUsPage from "../pages/admin/contacts/ContactUsPage";
+import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
 
 export const router = createBrowserRouter([
   {
@@ -93,8 +95,10 @@ export const router = createBrowserRouter([
           { path: "categories/:categoryId/products/:productId", element: <ProductManagePage /> },
           // { path: "orders", element: <OrdersPage /> },
           { path: "coupons", element: <CouponsPage /> },
+          { path: "testimonials", element: <TestimonialPage /> },
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
+          { path: "contacts", element: <ContactUsPage /> },
           { path: "activity-logs", element: <ActivityLogPage /> },
           { path: "settings", element: <SettingsPage /> },
           { path: "account", element: <AdminAccountPage /> },

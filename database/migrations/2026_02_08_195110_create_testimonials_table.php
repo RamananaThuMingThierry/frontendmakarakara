@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
-            
+
             $table->string('name');              // nom de la fille
             $table->string('photo_url')->nullable(); // photo
             $table->string('city')->nullable();  // ex: Tana
@@ -23,7 +23,6 @@ return new class extends Migration
             $table->text('message');             // témoignage
 
             $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });
     }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../hooks/website/AuthContext";
-import { changePassword, updateAccount } from "../../api/account";
+import { changePassword, resendVerificationEmail, updateAccount } from "../../api/account";
 import "../../../css/website.css";
 
 export default function Account() {
@@ -24,6 +24,9 @@ export default function Account() {
   const [passwordStatus, setPasswordStatus] = useState("success");
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const [verificationStatus, setVerificationStatus] = useState("info");
 
   useEffect(() => {
     setProfileForm((prev) => ({
@@ -34,6 +37,10 @@ export default function Account() {
       avatar: null,
     }));
   }, [user]);
+
+  useEffect(() => {
+    setVerificationMessage("");
+  }, [user?.email_verified_at, user?.email]);
 
   const avatarPreview = useMemo(() => {
     if (profileForm.avatar instanceof File) {
@@ -102,6 +109,25 @@ export default function Account() {
     }
   };
 
+  const sendVerificationEmail = async () => {
+    setVerificationLoading(true);
+    setVerificationMessage("");
+    setVerificationStatus("info");
+
+    try {
+      const data = await resendVerificationEmail();
+      setVerificationStatus(data?.verified ? "success" : "info");
+      setVerificationMessage(data?.message || "Email de verification envoye.");
+    } catch (error) {
+      setVerificationStatus("danger");
+      setVerificationMessage(
+        error?.response?.data?.message || "Envoi de l'email de verification impossible."
+      );
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
   return (
     <main className="account-page py-5">
       <div className="container">
@@ -139,10 +165,40 @@ export default function Account() {
                   {user?.phone || "Non renseigne"}
                 </div>
                 <div>
+                  <span className="fw-semibold text-dark">Email :</span>{" "}
+                  {user?.email_verified_at ? (
+                    <span className="text-success fw-semibold">Verifie</span>
+                  ) : (
+                    <span className="text-warning fw-semibold">Non verifie</span>
+                  )}
+                </div>
+                <div>
                   <span className="fw-semibold text-dark">Role :</span>{" "}
                   Client
                 </div>
               </div>
+
+              {!user?.email_verified_at ? (
+                <div className="alert alert-warning mt-4 mb-0">
+                  <div className="fw-semibold mb-1">Verification de l'email requise</div>
+                  <div className="small mb-3">
+                    Verifiez votre adresse email pour securiser votre compte.
+                  </div>
+                  {verificationMessage ? (
+                    <div className={`alert alert-${verificationStatus} py-2 mb-3`}>
+                      {verificationMessage}
+                    </div>
+                  ) : null}
+                  <button
+                    className="btn btn-sm btn-dark"
+                    type="button"
+                    onClick={sendVerificationEmail}
+                    disabled={verificationLoading}
+                  >
+                    {verificationLoading ? "Envoi..." : "Verifier mon email"}
+                  </button>
+                </div>
+              ) : null}
 
               <div className="alert alert-light border mt-4 mb-0">
                 Modifiez vos informations personnelles ou votre mot de passe depuis cette page.

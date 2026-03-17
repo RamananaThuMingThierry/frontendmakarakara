@@ -17,7 +17,6 @@ class Testimonial extends Model
         'product_used',
         'rating',
         'message',
-        'position',
         'is_active',
     ];
 
@@ -44,15 +43,4 @@ class Testimonial extends Model
     {
         return $query->where('is_active', true);
     }
-
-    /**
-     * Scope tri position
-     */
-    public function scopeOrdered($query)
-    {
-        return $query->orderBy('position');
-    }
 }
-
-// Utilisation Testimonial
-// Testimonial::active()->ordered()->get();

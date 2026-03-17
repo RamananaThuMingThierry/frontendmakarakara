@@ -172,6 +172,68 @@ public function __construct(private AuthService $auth, private ActivityLogServic
         ], 200);
     }
 
+    public function resendVerificationEmail(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'Non authentifie',
+            ], 401);
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Votre adresse email est deja verifiee.',
+                'verified' => true,
+            ], 200);
+        }
+
+        try {
+            $user->sendEmailVerificationNotification();
+
+            $this->activityLogService->createActivityLog([
+                'user_id' => $user->id,
+                'action' => 'resend_email_verification',
+                'color' => 'info',
+                'entity_type' => 'User',
+                'entity_id' => $user->id,
+                'method' => 'POST',
+                'route' => 'verification.send.api',
+                'message' => 'Email de verification renvoye.',
+                'status_code' => 200,
+                'metadata' => [
+                    'email' => $user->email,
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Un email de verification vient d etre envoye.',
+                'verified' => false,
+            ], 200);
+        } catch (Throwable $e) {
+            $this->activityLogService->createActivityLog([
+                'user_id' => $user->id,
+                'action' => 'resend_email_verification_failed',
+                'color' => 'warning',
+                'entity_type' => 'User',
+                'entity_id' => $user->id,
+                'method' => 'POST',
+                'route' => 'verification.send.api',
+                'message' => 'Echec du renvoi de l email de verification.',
+                'status_code' => 500,
+                'metadata' => [
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Impossible d envoyer l email de verification pour le moment.',
+            ], 500);
+        }
+    }
+
 
     public function logout(Request $request)
     {

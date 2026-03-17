@@ -3,13 +3,12 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class TestimonialRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::check();
+        return true;
     }
 
     public function rules(): array
@@ -56,12 +55,6 @@ class TestimonialRequest extends FormRequest
                 'max:2000',
             ],
 
-            'position' => [
-                'nullable',
-                'integer',
-                'min:0',
-            ],
-
             'is_active' => [
                 'nullable',
                 'boolean',
@@ -94,9 +87,6 @@ class TestimonialRequest extends FormRequest
             'message.required' => 'Le message est obligatoire.',
             'message.string' => 'Le message doit être un texte.',
             'message.max' => 'Le message ne doit pas dépasser 2000 caractères.',
-
-            'position.integer' => 'La position doit être un nombre entier.',
-            'position.min' => 'La position doit être supérieure ou égale à 0.',
 
             'is_active.boolean' => 'Le statut actif doit être vrai ou faux.',
         ];

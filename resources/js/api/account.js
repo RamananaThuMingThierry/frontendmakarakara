@@ -31,3 +31,8 @@ export async function changePassword(payload) {
   const { data } = await api.put("/admin/account/password", payload);
   return data;
 }
+
+export async function resendVerificationEmail() {
+  const { data } = await api.post("/email/verification-notification");
+  return data;
+}
