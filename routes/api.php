@@ -9,6 +9,7 @@ use App\Http\Controllers\WEB\CartController;
 use App\Http\Controllers\WEB\CartItemController;
 use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
+use App\Http\Controllers\WEB\ContactUsController;
 use App\Http\Controllers\WEB\CouponController;
 use App\Http\Controllers\WEB\InventoryController;
 use App\Http\Controllers\WEB\InventoryPriceHistoryController;
@@ -42,6 +43,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
 Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
+Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 Route::get('/shop/inventories', [InventoryController::class, 'shopIndex'])->name('shop.inventories');
 Route::get('/shop/products/{encryptedId}', [ProductController::class, 'shopShow'])->name('shop.products.show');
 
@@ -140,6 +142,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('reviews', ReviewController::class);
 
         Route::apiResource('coupons', CouponController::class);
+
+        Route::apiResource('contacts', ContactUsController::class)->only(['index', 'show', 'destroy']);
 
         Route::get('settings', [SettingsController::class, 'show'])->name('settings.show');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');

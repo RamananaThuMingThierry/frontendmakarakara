@@ -15,6 +15,8 @@ return [
 
     'default' => env('MAIL_MAILER', 'smtp'),
 
+    'admin_address' => env('ADMIN_EMAIL', 'tiafinjaran@yopmail.com'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
