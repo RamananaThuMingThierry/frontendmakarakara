@@ -11,6 +11,7 @@ use App\Interface\CategoryInterface;
 use App\Interface\CityInterface;
 use App\Interface\ContactUsInterface;
 use App\Interface\CouponInterface;
+use App\Interface\GalleryInterface;
 use App\Interface\InventoryInterface;
 use App\Interface\InventoryPriceHistoryInterface;
 use App\Interface\OrderInterface;
@@ -36,6 +37,7 @@ use App\Repositories\CategoryRepository;
 use App\Repositories\CityRepository;
 use App\Repositories\ContactUsRepository;
 use App\Repositories\CouponRepository;
+use App\Repositories\GalleryRepository;
 use App\Repositories\InventoryPriceHistoryRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\OrderItemRepository;
@@ -91,6 +93,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StockMovementInterface::class, StockMovementRepository::class);
         $this->app->bind(StockReservationInterface::class, StockReservationRepository::class);
         $this->app->bind(ContactUsInterface::class, ContactUsRepository::class);
+        $this->app->bind(GalleryInterface::class, GalleryRepository::class);
     }
 
     /**

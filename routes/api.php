@@ -11,6 +11,7 @@ use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\ContactUsController;
 use App\Http\Controllers\WEB\CouponController;
+use App\Http\Controllers\WEB\GalleryController;
 use App\Http\Controllers\WEB\InventoryController;
 use App\Http\Controllers\WEB\InventoryPriceHistoryController;
 use App\Http\Controllers\WEB\PaymentMethodController;
@@ -44,6 +45,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
 Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
+Route::get('/galleries', [GalleryController::class, 'publicIndex'])->name('galleries.public.index');
 Route::get('/testimonials', [TestimonialController::class, 'publicIndex'])->name('testimonials.public.index');
 Route::post('/testimonials', [TestimonialController::class, 'publicStore'])->name('testimonials.public.store');
 Route::get('/shop/inventories', [InventoryController::class, 'shopIndex'])->name('shop.inventories');
@@ -146,6 +148,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::apiResource('reviews', ReviewController::class);
 
         Route::apiResource('coupons', CouponController::class);
+
+        Route::apiResource('galleries', GalleryController::class);
 
         Route::apiResource('contacts', ContactUsController::class)->only(['index', 'show', 'destroy']);
 

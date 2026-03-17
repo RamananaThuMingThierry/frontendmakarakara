@@ -1,25 +1,7 @@
 import { Link } from "react-router-dom";
+import { galleryClients } from "../../data/galleryClients";
 
 export default function GalleryClients() {
-  const images = [
-    "/website/images/c1.jpg",
-    "/website/images/c2.jpg",
-    "/website/images/c3.jpg",
-    "/website/images/c4.jpg",
-    "/website/images/c5.jpg",
-    "/website/images/c6.jpg",
-    "/website/images/c7.jpg",
-    "/website/images/c8.jpg",
-    "/website/images/c1.jpg",
-    "/website/images/c2.jpg",
-    "/website/images/c3.jpg",
-    "/website/images/c4.jpg",
-    "/website/images/c5.jpg",
-    "/website/images/c6.jpg",
-    "/website/images/c7.jpg",
-    "/website/images/c8.jpg",
-  ];
-
   return (
     <div className="py-5 bg-light">
       <div className="container" style={{ maxWidth: 1100 }}>
@@ -30,7 +12,7 @@ export default function GalleryClients() {
               Galerie Clients
             </h2>
             <p className="text-secondary mb-0">
-              Tous les résultats de notre communauté
+              Tous les resultats de notre communaute
             </p>
           </div>
 
@@ -41,19 +23,22 @@ export default function GalleryClients() {
 
         {/* Grid */}
         <div className="row g-3">
-          {images.map((src, i) => (
-            <div key={i} className="col-6 col-md-3">
+          {galleryClients.map((image) => (
+            <div key={image.id} className="col-6 col-md-3">
               <div className="client-card position-relative overflow-hidden rounded-4">
                 <img
-                  src={src}
-                  alt={`Client ${i + 1}`}
+                  src={image.src}
+                  alt={image.alt}
                   className="w-100 h-100 object-fit-cover"
                   style={{ height: 220 }}
                   loading="lazy"
                 />
 
                 <div className="overlay d-flex align-items-center justify-content-center">
-                  <i className="bi bi-heart-fill text-white fs-4"></i>
+                  <div className="text-center text-white">
+                    <i className="bi bi-heart-fill fs-4"></i>
+                    <div className="small mt-1">100</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -62,7 +47,7 @@ export default function GalleryClients() {
 
         {/* Small footer */}
         <div className="text-center text-secondary small mt-4">
-          {images.length} photos
+          {galleryClients.length} photos
         </div>
       </div>
     </div>

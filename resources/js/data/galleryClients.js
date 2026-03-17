@@ -1,0 +1,18 @@
+export const galleryClients = [
+  { id: 1, src: "/website/images/c1.jpg", alt: "Client 1", likes: 124 },
+  { id: 2, src: "/website/images/c2.jpg", alt: "Client 2", likes: 98 },
+  { id: 3, src: "/website/images/c3.jpg", alt: "Client 3", likes: 136 },
+  { id: 4, src: "/website/images/c4.jpg", alt: "Client 4", likes: 87 },
+  { id: 5, src: "/website/images/c5.jpg", alt: "Client 5", likes: 153 },
+  { id: 6, src: "/website/images/c6.jpg", alt: "Client 6", likes: 112 },
+  { id: 7, src: "/website/images/c7.jpg", alt: "Client 7", likes: 105 },
+  { id: 8, src: "/website/images/c8.jpg", alt: "Client 8", likes: 141 },
+  { id: 9, src: "/website/images/c1.jpg", alt: "Client 9", likes: 94 },
+  { id: 10, src: "/website/images/c2.jpg", alt: "Client 10", likes: 120 },
+  { id: 11, src: "/website/images/c3.jpg", alt: "Client 11", likes: 109 },
+  { id: 12, src: "/website/images/c4.jpg", alt: "Client 12", likes: 132 },
+  { id: 13, src: "/website/images/c5.jpg", alt: "Client 13", likes: 76 },
+  { id: 14, src: "/website/images/c6.jpg", alt: "Client 14", likes: 144 },
+  { id: 15, src: "/website/images/c7.jpg", alt: "Client 15", likes: 118 },
+  { id: 16, src: "/website/images/c8.jpg", alt: "Client 16", likes: 127 },
+];
