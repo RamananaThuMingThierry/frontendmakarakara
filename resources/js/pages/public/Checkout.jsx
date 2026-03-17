@@ -96,7 +96,7 @@ export default function Checkout() {
         longitude: Number(form.longitude),
       },
       items: cart.map((i) => ({
-        product_id: i.id,
+        product_id: i.product_id ?? i.id,
         quantity: i.qty,
       })),
     };

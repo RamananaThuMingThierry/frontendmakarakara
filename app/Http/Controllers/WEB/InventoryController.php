@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\InventoryAdjustRequest;
 use App\Http\Requests\InventoryRequest;
 use App\Http\Requests\InventoryTransfertRequest;
+use App\Models\Inventory;
 use App\Services\ActivityLogService;
 use App\Services\InventoryPriceHistoryService;
 use App\Services\InventoryService;
@@ -57,6 +58,32 @@ class InventoryController extends Controller
 
             return response()->json([
                 'message' => 'Erreur lors du chargement des inventaires.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function shopIndex()
+    {
+        try {
+            $inventories = Inventory::query()
+                ->with(['product.category', 'product.images', 'city'])
+                ->whereNotNull('city_id')
+                ->where('is_available', true)
+                ->whereHas('product', function ($query) {
+                    $query->where('is_active', true);
+                })
+                ->whereHas('city', function ($query) {
+                    $query->where('is_active', true);
+                })
+                ->get();
+
+            return response()->json([
+                'data' => $inventories,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors du chargement des inventaires boutique.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -206,7 +233,7 @@ class InventoryController extends Controller
             $inventory = $this->inventoryService->getInventoryById($id, ['*']);
 
             if (!$inventory) {
-                
+
                 $this->activityLogService->createActivityLog([
                     'user_id' => auth()->id(),
                     'action' => 'show_inventory_failed',
@@ -334,7 +361,7 @@ class InventoryController extends Controller
 
                 switch($data['type']){
                     case 'up':
-                        $newQuantity = $oldQuantity + $adjustQty;    
+                        $newQuantity = $oldQuantity + $adjustQty;
                         break;
                     case 'down':
                         if($adjustQty > $oldQuantity){
@@ -342,7 +369,7 @@ class InventoryController extends Controller
                                 'quantity' => ['La quantité à retirer dépasse le stock disponible.']
                             ]);
                         }
-                        $newQuantity = $oldQuantity - $adjustQty;    
+                        $newQuantity = $oldQuantity - $adjustQty;
                     break;
                 }
 
@@ -362,7 +389,7 @@ class InventoryController extends Controller
                 ];
 
                 $movement = $this->stockMovementService->createStockMovement($movementPayload);
-                
+
                 $updatedInventory = $this->inventoryService->updateInventory($id, [
                     'quantity' => $newQuantity
                 ]);
@@ -421,7 +448,7 @@ class InventoryController extends Controller
             ], 500);
         }
     }
-    
+
     public function transfert(InventoryTransfertRequest $request, string $encryptedId)
     {
         $data = $request->validated();

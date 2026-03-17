@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('city_id')->constrained()->cascadeOnDelete();
-            
+
             $table->decimal('price', 12, 2)->default(0);
             $table->decimal('compare_price', 12, 2)->default(0);
 
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->unsignedInteger('reserved_quantity')->default(0); // réservé
 
             $table->integer('min_stock')->default(0); // seuil minimum (low stock)
-            $table->boolean('is_available')->default(true); 
-            $table->enum('status', ['ok','low','out_of_stock'])->default('ok'); // Normal, Faible, Rupture 
+            $table->boolean('is_available')->default(true);
+            $table->enum('status', ['ok','low','out_of_stock'])->default('ok'); // Normal, Faible, Rupture
             $table->timestamps();
 
             $table->unique(['product_id', 'city_id']);

@@ -64,7 +64,7 @@ export const router = createBrowserRouter([
             { path: "verify-code", element: <VerifyCode /> },
             { path: "reset-password", element: <ResetPassword /> },
             { path: "order-success/:orderNumber", element: <OrderSuccess /> },
-            { path: "product/:id", element: <ProductDetails /> },
+            { path: "product/:encrypted_id", element: <ProductDetails /> },
             {
                 path: "account",
                 element: (

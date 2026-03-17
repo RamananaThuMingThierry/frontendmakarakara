@@ -1,6 +1,11 @@
 import api from "./axios";
 
 export const inventoryApi = {
+  async shopList() {
+    const { data } = await api.get("/shop/inventories");
+    return data?.data ?? data;
+  },
+
   async index() {
     const { data } = await api.get("/admin/inventories");
     return data?.data ?? data;

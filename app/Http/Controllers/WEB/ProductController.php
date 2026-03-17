@@ -4,6 +4,7 @@ namespace App\Http\Controllers\WEB;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
+use App\Models\Product;
 use App\Services\ActivityLogService;
 use App\Services\ProductService;
 use Throwable;
@@ -11,6 +12,53 @@ use Throwable;
 class ProductController extends Controller
 {
     public function __construct(private ProductService $productService, private ActivityLogService $activityLogService){}
+
+    public function shopShow(string $encryptedId)
+    {
+        try {
+            $productId = decrypt_to_int_or_null($encryptedId);
+
+            if (is_null($productId)) {
+                return response()->json(['message' => 'ID de produit invalide.'], 400);
+            }
+
+            $product = Product::query()
+                ->with([
+                    'category',
+                    'brand',
+                    'images',
+                    'inventories' => function ($query) {
+                        $query->with('city')
+                            ->whereNotNull('city_id')
+                            ->where('is_available', true)
+                            ->whereHas('city', function ($cityQuery) {
+                                $cityQuery->where('is_active', true);
+                            });
+                    },
+                ])
+                ->where('id', $productId)
+                ->where('is_active', true)
+                ->whereHas('inventories', function ($query) {
+                    $query->whereNotNull('city_id')
+                        ->where('is_available', true)
+                        ->whereHas('city', function ($cityQuery) {
+                            $cityQuery->where('is_active', true);
+                        });
+                })
+                ->first();
+
+            if (!$product) {
+                return response()->json(['message' => 'Produit non trouvé.'], 404);
+            }
+
+            return response()->json(['data' => $product], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération du produit.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
      * Display a listing of the resource.

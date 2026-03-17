@@ -1,6 +1,11 @@
 import api from "./axios";
 
 export const productsApi = {
+  async shopShow(productEncryptedId) {
+    const { data } = await api.get(`/shop/products/${productEncryptedId}`);
+    return data?.data ?? data;
+  },
+
   async list(categoryId) {
     const res = await api.get(`/admin/categories/${categoryId}/products`);
     return res.data;

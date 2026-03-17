@@ -42,6 +42,8 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
 Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
+Route::get('/shop/inventories', [InventoryController::class, 'shopIndex'])->name('shop.inventories');
+Route::get('/shop/products/{encryptedId}', [ProductController::class, 'shopShow'])->name('shop.products.show');
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, string $id, string $hash) {
     if (! $request->hasValidSignature()) {

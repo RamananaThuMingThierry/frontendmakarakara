@@ -29,6 +29,10 @@ export function CartProvider({ children }) {
       } else {
         next.push({
           id: product.id,
+          product_id: product.product_id ?? product.id,
+          inventory_id: product.inventory_id ?? null,
+          city_id: product.city_id ?? null,
+          city_name: product.city_name ?? null,
           name: product.name,
           price: product.price,
           image: product.image,

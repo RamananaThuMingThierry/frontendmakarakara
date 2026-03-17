@@ -13,36 +13,32 @@ class Inventory extends Model
     protected $fillable = [
         'product_id',
         'city_id',
-
         'price',
         'compare_price',
-
         'quantity',
         'reserved_quantity',
         'min_stock',
         'is_available',
-        'status'
+        'status',
     ];
 
     protected $casts = [
         'product_id' => 'integer',
         'city_id' => 'integer',
-
         'price' => 'decimal:2',
         'compare_price' => 'decimal:2',
-
         'quantity' => 'integer',
         'reserved_quantity' => 'integer',
         'min_stock' => 'integer',
         'is_available' => 'boolean',
-        'status' => 'string'
+        'status' => 'string',
     ];
 
     protected $appends = [
-        'encrypted_id'
+        'encrypted_id',
     ];
 
-     /* ------------------ Accessors ------------------ */
+    /* ------------------ Accessors ------------------ */
 
     public function getEncryptedIdAttribute(): string
     {
