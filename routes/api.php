@@ -11,6 +11,10 @@ use App\Http\Controllers\WEB\CategoryController;
 use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\ContactUsController;
 use App\Http\Controllers\WEB\CouponController;
+use App\Http\Controllers\WEB\ClientAccountController;
+use App\Http\Controllers\WEB\ClientCartController;
+use App\Http\Controllers\WEB\ClientOrderController;
+use App\Http\Controllers\WEB\ClientReservationController;
 use App\Http\Controllers\WEB\GalleryController;
 use App\Http\Controllers\WEB\InventoryController;
 use App\Http\Controllers\WEB\InventoryPriceHistoryController;
@@ -98,13 +102,19 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/me', [AuthController::class, 'me']);
+
     Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])
         ->name('verification.send.api');
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
-        Route::get('admin/account', function(Request $request){
-            return response()->json($request->user());
+        Route::get('account', function(Request $request){
+            $user = $request->user();
+            $roles = $user->getRoleNames();
+            return response()->json([
+                'user' => $user,
+                'roles' => $roles
+            ]);
         });
 
         Route::apiResource('users', UserController::class);
@@ -172,5 +182,16 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 
     Route::middleware(['role:customer'])->group(function () {
+        Route::get('/account', [ClientAccountController::class, 'show'])->name('customer.account.show');
+        Route::put('/account', [ClientAccountController::class, 'update'])->name('customer.account.update');
+        Route::put('/account/password', [ClientAccountController::class, 'changePassword'])->name('customer.account.password.update');
+        Route::get('/my-cart', [ClientCartController::class, 'show'])->name('customer.cart.show');
+        Route::post('/my-cart/sync', [ClientCartController::class, 'sync'])->name('customer.cart.sync');
+        Route::put('/my-cart/items/{product}', [ClientCartController::class, 'upsertItem'])->name('customer.cart.items.upsert');
+        Route::delete('/my-cart/items/{product}', [ClientCartController::class, 'removeItem'])->name('customer.cart.items.remove');
+        Route::delete('/my-cart', [ClientCartController::class, 'clear'])->name('customer.cart.clear');
+        Route::post('/my-reservations', [ClientReservationController::class, 'store'])->name('customer.reservations.store');
+        Route::get('/my-orders', [ClientOrderController::class, 'index'])->name('customer.orders.index');
+        Route::post('/orders', [ClientOrderController::class, 'store'])->name('customer.orders.store');
     });
 });

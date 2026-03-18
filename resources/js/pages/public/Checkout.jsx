@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
+import { useAuth } from "../../hooks/website/AuthContext";
+import { createOrder } from "../../api/client_orders";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
@@ -10,6 +12,7 @@ export default function Checkout() {
   const { cart, cartCount, total, clear } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuth, user } = useAuth();
 
   // infos venant du Cart (coupon/remise/livraison)
   const couponCode = location.state?.coupon_code || null;
@@ -23,8 +26,8 @@ export default function Checkout() {
   }, [subtotal, discountTotal, deliveryFee]);
 
   const [form, setForm] = useState({
-    full_name: "",
-    phone: "",
+    full_name: user?.name || "",
+    phone: user?.phone || "",
     address_line1: "",
     address_line2: "",
     city_name: "",
@@ -37,6 +40,14 @@ export default function Checkout() {
 
   const [geoLoading, setGeoLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      full_name: user?.name || current.full_name,
+      phone: user?.phone || current.phone,
+    }));
+  }, [user?.name, user?.phone]);
 
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -102,12 +113,9 @@ export default function Checkout() {
     };
 
     try {
-      // 🔁 1) Pour l’instant: MOCK
-      // 🔁 2) Plus tard: fetch("/api/orders", { method:"POST", headers..., body: JSON.stringify(payload) })
-      console.log("ORDER PAYLOAD", payload);
-
-      // Simule un order_number
-      const orderNumber = "ORD-" + Date.now();
+      const response = await createOrder(payload);
+      const order = response?.data || null;
+      const orderNumber = order?.order_number || "ORD-" + Date.now();
 
       // vider panier
       clear();
@@ -122,6 +130,7 @@ export default function Checkout() {
           total: grandTotal,
           coupon_code: couponCode,
           payment_method: form.payment_method,
+          status: order?.status || "pending",
           address: {
             full_name: form.full_name,
             phone: form.phone,
@@ -135,10 +144,16 @@ export default function Checkout() {
           items: cart,
         },
       });
+    } catch (error) {
+      alert(error?.response?.data?.message || "Impossible de créer la commande.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (!isAuth) {
+    return <Navigate to="/login" replace state={{ from: location, message: "Connectez-vous avant de commander." }} />;
+  }
 
   if (!cartCount) {
     return (

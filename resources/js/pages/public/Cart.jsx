@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
+import { useAuth } from "../../hooks/website/AuthContext";
+import { createMyReservation } from "../../api/client_reservations";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
@@ -24,6 +26,10 @@ function computeDiscount(subtotal, code) {
 export default function Cart() {
   const { cart, cartCount, total, inc, dec, remove, setQty, clear } = useCart();
   const navigate = useNavigate();
+  const { isAuth } = useAuth();
+  const [reserving, setReserving] = useState(false);
+  const [reservationMessage, setReservationMessage] = useState("");
+  const [reservationError, setReservationError] = useState("");
 
   // Coupon state
   const [couponInput, setCouponInput] = useState("");
@@ -37,7 +43,7 @@ export default function Cart() {
   const deliveryFee = useMemo(() => {
     // exemple: si sous-total >= 150 000 => livraison gratuite
     if (subtotal >= 150000) return 0;
-    return cartCount ? 5000 : 0;
+    return cartCount ? 0 : 0;
   }, [subtotal, cartCount]);
 
   const discountTotal = appliedCoupon?.discount || 0;
@@ -74,6 +80,16 @@ export default function Cart() {
   };
 
   const goCheckout = () => {
+    if (!isAuth) {
+      navigate("/login", {
+        state: {
+          from: { pathname: "/checkout" },
+          message: "Créez un compte ou connectez-vous avant de passer commande.",
+        },
+      });
+      return;
+    }
+
     // On passe le coupon vers /checkout (state router)
     navigate("/checkout", {
       state: {
@@ -82,6 +98,40 @@ export default function Cart() {
         delivery_fee: deliveryFee,
       },
     });
+  };
+
+  const reserveCart = async () => {
+    setReservationMessage("");
+    setReservationError("");
+
+    if (!isAuth) {
+      navigate("/login", {
+        state: {
+          from: { pathname: "/cart" },
+          message: "Connectez-vous pour reserver votre panier pendant 24 heures.",
+        },
+      });
+      return;
+    }
+
+    setReserving(true);
+
+    try {
+      const response = await createMyReservation();
+      const expiresAt = response?.data?.expires_at
+        ? new Date(response.data.expires_at).toLocaleString()
+        : null;
+
+      setReservationMessage(
+        expiresAt
+          ? `Reservation enregistree. Elle expirera le ${expiresAt} si vous ne passez pas commande.`
+          : "Reservation enregistree pour 24 heures."
+      );
+    } catch (error) {
+      setReservationError(error?.response?.data?.message || "Impossible de reserver ce panier.");
+    } finally {
+      setReserving(false);
+    }
   };
 
   if (!cartCount) {
@@ -203,6 +253,15 @@ export default function Cart() {
             <div className="bg-white rounded-4 shadow-sm p-4">
               <h5 className="fw-bold mb-3">Récapitulatif</h5>
 
+              {!isAuth ? (
+                <div className="alert alert-warning py-2">
+                  Votre panier est sauvegarde sur cet appareil. Connectez-vous pour le conserver aussi sur votre compte et finaliser la commande.
+                </div>
+              ) : null}
+
+              {reservationMessage && <div className="alert alert-success py-2">{reservationMessage}</div>}
+              {reservationError && <div className="alert alert-danger py-2">{reservationError}</div>}
+
               {/* Coupon */}
               <div className="mb-3">
                 <div className="fw-semibold mb-2">Coupon</div>
@@ -263,9 +322,20 @@ export default function Cart() {
                 <span className="fw-bold text-danger">{formatPriceMGA(grandTotal)}</span>
               </div>
 
-              <button className="btn btn-warning w-100 fw-semibold mt-3" type="button" onClick={goCheckout}>
-                Commander
-              </button>
+              <div className="d-grid gap-2 mt-3">
+                <button
+                  className="btn btn-outline-dark fw-semibold"
+                  type="button"
+                  onClick={reserveCart}
+                  disabled={reserving}
+                >
+                  {reserving ? "Reservation..." : "Reserver 24h"}
+                </button>
+
+                <button className="btn btn-warning fw-semibold" type="button" onClick={goCheckout}>
+                  Commander
+                </button>
+              </div>
 
               <small className="text-secondary d-block mt-2">
                 Paiement à la livraison ou mobile money

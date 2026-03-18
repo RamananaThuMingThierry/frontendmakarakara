@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Cart;
+use App\Models\City;
+use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,11 +17,15 @@ class CartItem extends Model
     protected $fillable = [
         'cart_id',
         'product_id',
+        'city_id',
+        'inventory_id',
         'quantity',
         'unit_price',
     ];
 
     protected $casts = [
+        'city_id' => 'integer',
+        'inventory_id' => 'integer',
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
     ];
@@ -46,6 +52,16 @@ class CartItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function inventory()
+    {
+        return $this->belongsTo(Inventory::class);
     }
 
     /**

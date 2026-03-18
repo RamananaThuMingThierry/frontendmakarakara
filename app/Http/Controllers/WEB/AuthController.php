@@ -94,6 +94,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
 
             // token direct après register (pratique pour React)
             $token = $user->createToken('MAHAKARAKARA')->plainTextToken;
+            $roles = $user->getRoleNames();
 
             $this->activityLogService->createActivityLog([
                 'user_id' => $user->id,
@@ -108,7 +109,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
                 'metadata' => [
                     'pseudo' => $user->name,
                     'email' => $user->email,
-                    'roles' => $user->getRoleNames(),
+                    'roles' => $roles,
                 ]
             ]);
 
@@ -116,6 +117,7 @@ public function __construct(private AuthService $auth, private ActivityLogServic
                 [
                     'message' => 'Compte créé avec succès.',
                     'user' => $user,
+                    'roles' => $roles,
                     'token' => $token,
                 ],
                 201

@@ -1,12 +1,39 @@
-import { Link, NavLink } from "react-router-dom";
+import Offcanvas from "bootstrap/js/dist/offcanvas";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from '../../hooks/website/CartContext';
 import { useFavorites } from "../../hooks/website/FavoritesContext";
 import { PRODUCTS } from "../../data/products";
 import SearchBar from "./SearchBar";
+import { useAuth } from "../../hooks/website/AuthContext";
 
 export default function Header() {
+  const navigate = useNavigate();
   const { cartCount } = useCart();
   const { favCount } = useFavorites();
+  const { isAuth, roles, user, logout } = useAuth();
+  const safeRoles = Array.isArray(roles) ? roles : [];
+  const accountLink = safeRoles.includes("admin") ? "/admin/account" : "/account/profile";
+  const navItems = [
+    { to: "/", label: "Home" },
+    { to: "/shop", label: "Shop" },
+    { to: "/cart", label: "Cart" },
+    { to: "/about", label: "About" },
+    { to: "/contact", label: "Contact" },
+  ];
+
+  const closeMobileMenu = () => {
+    const offcanvasEl = document.getElementById("mainNav");
+    if (!offcanvasEl) return;
+
+    const instance = Offcanvas.getInstance(offcanvasEl) || Offcanvas.getOrCreateInstance(offcanvasEl);
+    instance.hide();
+  };
+
+  const handleMobileNavigation = (to) => (event) => {
+    event.preventDefault();
+    closeMobileMenu();
+    navigate(to);
+  };
 
   return (
     <>
@@ -33,16 +60,11 @@ export default function Header() {
           <div className="collapse navbar-collapse">
             {/* center links */}
             <ul className="navbar-nav mx-auto gap-lg-3">
-              {[
-                { to: "/", label: "Home" },
-                { to: "/shop", label: "Shop" },
-                { to: "/cart", label: "Cart" },
-                { to: "/about", label: "About" },
-                { to: "/contact", label: "Contact" },
-              ].map((item) => (
+              {navItems.map((item) => (
                 <li className="nav-item" key={item.to}>
                   <NavLink
                     to={item.to}
+                    end={item.to === "/"}
                     className={({ isActive }) =>
                       "nav-link" + (isActive ? " fw-semibold" : "")
                     }
@@ -58,9 +80,22 @@ export default function Header() {
 
               <SearchBar products={PRODUCTS} />
 
-              <Link className="btn btn-link p-0 text-dark" to="/login" aria-label="Account">
-                <i className="bi bi-person fs-5"></i>
-              </Link>
+              {isAuth ? (
+                <div className="dropdown">
+                  <button className="btn btn-link p-0 text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    <i className="bi bi-person fs-5 me-1"></i>
+                    <span className="small">{user?.name || "Compte"}</span>
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-end">
+                    <li><Link className="dropdown-item" to={accountLink}>Mon espace</Link></li>
+                    <li><button className="dropdown-item" type="button" onClick={logout}>Déconnexion</button></li>
+                  </ul>
+                </div>
+              ) : (
+                <Link className="btn btn-link p-0 text-dark" to="/login" aria-label="Account">
+                  <i className="bi bi-person fs-5"></i>
+                </Link>
+              )}
 
             <Link to="/favorites" className="btn btn-link text-dark position-relative me-2">
               <i className="bi bi-heart" />
@@ -100,30 +135,31 @@ export default function Header() {
         </div>
         <div className="offcanvas-body">
           <ul className="navbar-nav">
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/" data-bs-dismiss="offcanvas">Home</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/shop" data-bs-dismiss="offcanvas">Shop</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/cart" data-bs-dismiss="offcanvas">Cart</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/about" data-bs-dismiss="offcanvas">About</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/contact" data-bs-dismiss="offcanvas">Contact</NavLink>
-            </li>
+            {navItems.map((item) => (
+              <li className="nav-item" key={item.to}>
+                <NavLink
+                  className={({ isActive }) => "nav-link" + (isActive ? " fw-semibold" : "")}
+                  to={item.to}
+                  end={item.to === "/"}
+                  onClick={handleMobileNavigation(item.to)}
+                >
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
           </ul>
 
           <hr />
 
           <div className="d-flex gap-3">
-            <Link className="btn btn-outline-dark w-100" to="/login" data-bs-dismiss="offcanvas">
-              <i className="bi bi-person me-2"></i>Compte
+            <Link
+              className="btn btn-outline-dark w-100"
+              to={isAuth ? accountLink : "/login"}
+              onClick={handleMobileNavigation(isAuth ? accountLink : "/login")}
+            >
+              <i className="bi bi-person me-2"></i>{isAuth ? "Mon espace" : "Compte"}
             </Link>
-            <Link className="btn btn-dark w-100" to="/cart" data-bs-dismiss="offcanvas">
+            <Link className="btn btn-dark w-100" to="/cart" onClick={handleMobileNavigation("/cart")}>
               <i className="bi bi-bag me-2"></i>Panier ({cartCount})
             </Link>
           </div>

@@ -9,12 +9,12 @@ class CartItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     public function rules(): array
     {
-        $cartItemId = decrypt_to_int_or_null($this->route('cart_item')); 
+        $cartItemId = decrypt_to_int_or_null($this->route('cart_item'));
 
         return [
             'cart_id' => [
@@ -26,7 +26,7 @@ class CartItemRequest extends FormRequest
                 'required',
                 'exists:products,id',
                 Rule::unique('cart_items')
-                    ->where(fn ($query) => 
+                    ->where(fn ($query) =>
                         $query->where('cart_id', $this->cart_id)
                     )
                     ->ignore($cartItemId)

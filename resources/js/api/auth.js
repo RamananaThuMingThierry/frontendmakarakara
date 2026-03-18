@@ -1,5 +1,10 @@
 import api from "./axios";
 
+export async function registerApi(payload) {
+  const { data } = await api.post("/register", payload);
+  return data;
+}
+
 export async function loginApi(payload) {
   // payload: { email, password }
   const { data } = await api.post("/login", payload);

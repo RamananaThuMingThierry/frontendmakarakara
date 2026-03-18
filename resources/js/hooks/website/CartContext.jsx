@@ -1,70 +1,224 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "./AuthContext";
+import {
+  clearMyCart,
+  getMyCart,
+  removeMyCartItem,
+  syncMyCart,
+  updateMyCartItem,
+} from "../../api/client_cart";
 
 const CartContext = createContext(null);
+const CART_STORAGE_KEY = "cart";
+const CART_OWNER_KEY = "cart_owner";
+
+function readLocalCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalCart(cart) {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+}
+
+function readCartOwner() {
+  return localStorage.getItem(CART_OWNER_KEY) || "guest";
+}
+
+function writeCartOwner(owner) {
+  localStorage.setItem(CART_OWNER_KEY, owner || "guest");
+}
+
+function normalizeProduct(product) {
+  const productId = product.product_id ?? product.id;
+
+  return {
+    id: productId,
+    product_id: productId,
+    inventory_id: product.inventory_id ?? null,
+    city_id: product.city_id ?? null,
+    city_name: product.city_name ?? null,
+    name: product.name,
+    price: Number(product.price || 0),
+    image: product.image || null,
+    qty: Math.max(1, parseInt(product.qty ?? 1, 10) || 1),
+  };
+}
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("cart") || "[]");
-      return Array.isArray(saved) ? saved : [];
-    } catch {
-      return [];
-    }
-  });
+  const { isAuth, hydrating, user } = useAuth();
+  const [cart, setCart] = useState(() => readLocalCart());
+  const [syncing, setSyncing] = useState(false);
+  const hydratedUserIdRef = useRef(null);
 
-  // ✅ Auto-sync localStorage
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  const getQty = (id) => cart.find((i) => i.id === id)?.qty ?? 0;
-
-  const addOne = (product) => {
-    setCart((prev) => {
-      const next = [...prev];
-      const idx = next.findIndex((i) => i.id === product.id);
-
-      if (idx >= 0) {
-        next[idx] = { ...next[idx], qty: (next[idx].qty || 0) + 1 };
-      } else {
-        next.push({
-          id: product.id,
-          product_id: product.product_id ?? product.id,
-          inventory_id: product.inventory_id ?? null,
-          city_id: product.city_id ?? null,
-          city_name: product.city_name ?? null,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          qty: 1,
-        });
-      }
-      return next;
-    });
+  const applyLocalCart = (nextCart, owner = readCartOwner()) => {
+    setCart(nextCart);
+    writeLocalCart(nextCart);
+    writeCartOwner(owner);
   };
 
-  const setQty = (id, qty) => {
-    const q = Math.max(0, parseInt(qty, 10) || 0);
+  const applyRemotePayload = (payload) => {
+    const items = Array.isArray(payload?.items) ? payload.items.map(normalizeProduct) : [];
+    setCart(items);
+    writeLocalCart(items);
+    writeCartOwner(String(user?.id ?? "auth"));
+  };
 
-    setCart((prev) =>
-      prev
-        .map((i) => (i.id === id ? { ...i, qty: q } : i))
-        .filter((i) => i.qty > 0)
-    );
+  useEffect(() => {
+    if (hydrating) return;
+
+    if (!isAuth) {
+      hydratedUserIdRef.current = null;
+      if (readCartOwner() !== "guest") {
+        applyLocalCart([], "guest");
+      } else {
+        applyLocalCart(readLocalCart(), "guest");
+      }
+      return;
+    }
+
+    const currentUserId = user?.id ?? "auth";
+    if (hydratedUserIdRef.current === currentUserId) return;
+
+    let cancelled = false;
+
+    const hydrateServerCart = async () => {
+      setSyncing(true);
+
+      try {
+        const localItems = readLocalCart();
+        const syncableItems = localItems
+          .filter((item) => Number.isInteger(Number(item.product_id ?? item.id)))
+          .map((item) => ({
+            product_id: Number(item.product_id ?? item.id),
+            quantity: Math.max(1, parseInt(item.qty ?? 1, 10) || 1),
+            city_id: item.city_id ?? null,
+            inventory_id: item.inventory_id ?? null,
+          }));
+        const shouldMergeGuestCart = readCartOwner() === "guest" && syncableItems.length > 0;
+
+        if (shouldMergeGuestCart) {
+          await syncMyCart(syncableItems);
+        }
+
+        const response = await getMyCart();
+        if (cancelled) return;
+
+        applyRemotePayload(response?.data);
+        hydratedUserIdRef.current = currentUserId;
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Cart sync failed", error);
+      } finally {
+        if (!cancelled) setSyncing(false);
+      }
+    };
+
+    hydrateServerCart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuth, hydrating, user?.id]);
+
+  const updateServerItem = async (productId, quantity, nextLocalCart, itemMeta = null) => {
+    applyLocalCart(nextLocalCart, isAuth ? String(user?.id ?? "auth") : "guest");
+
+    if (!isAuth) return;
+
+    setSyncing(true);
+
+    try {
+      let response;
+      if (quantity <= 0) {
+        response = await removeMyCartItem(productId);
+      } else {
+        response = await updateMyCartItem(productId, {
+          quantity,
+          city_id: itemMeta?.city_id ?? null,
+          inventory_id: itemMeta?.inventory_id ?? null,
+        });
+      }
+
+      applyRemotePayload(response?.data);
+    } catch (error) {
+      console.error("Cart item update failed", error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const getQty = (id) => cart.find((item) => item.id === id)?.qty ?? 0;
+
+  const addOne = (product) => {
+    const normalized = normalizeProduct(product);
+    const nextCart = [...cart];
+    const idx = nextCart.findIndex((item) => item.id === normalized.id);
+
+    if (idx >= 0) {
+      nextCart[idx] = { ...nextCart[idx], qty: (nextCart[idx].qty || 0) + 1 };
+    } else {
+      nextCart.push(normalized);
+    }
+
+    const nextQty = nextCart.find((item) => item.id === normalized.id)?.qty ?? 1;
+    return updateServerItem(normalized.product_id, nextQty, nextCart, normalized);
+  };
+
+  const getProductKey = (productOrId) => {
+    if (typeof productOrId === "object" && productOrId !== null) {
+      return productOrId.product_id ?? productOrId.id;
+    }
+
+    return productOrId;
+  };
+
+  const getQtyByProduct = (productOrId) => getQty(getProductKey(productOrId));
+
+  const setQty = (id, qty) => {
+    const nextQty = Math.max(0, parseInt(qty, 10) || 0);
+    const current = cart.find((item) => item.id === id);
+    if (!current) return;
+
+    const nextCart = cart
+      .map((item) => (item.id === id ? { ...item, qty: nextQty } : item))
+      .filter((item) => item.qty > 0);
+
+    return updateServerItem(current.product_id ?? current.id, nextQty, nextCart, current);
   };
 
   const inc = (id) => setQty(id, getQty(id) + 1);
   const dec = (id) => setQty(id, getQty(id) - 1);
   const remove = (id) => setQty(id, 0);
-  const clear = () => setCart([]);
+
+  const clear = async () => {
+    applyLocalCart([], isAuth ? String(user?.id ?? "auth") : "guest");
+
+    if (!isAuth) return;
+
+    setSyncing(true);
+
+    try {
+      const response = await clearMyCart();
+      applyRemotePayload(response?.data);
+    } catch (error) {
+      console.error("Cart clear failed", error);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const cartCount = useMemo(
-    () => cart.reduce((sum, i) => sum + (i.qty || 0), 0),
+    () => cart.reduce((sum, item) => sum + (item.qty || 0), 0),
     [cart]
   );
 
   const total = useMemo(
-    () => cart.reduce((sum, i) => sum + (i.price || 0) * (i.qty || 0), 0),
+    () => cart.reduce((sum, item) => sum + Number(item.price || 0) * (item.qty || 0), 0),
     [cart]
   );
 
@@ -72,7 +226,9 @@ export function CartProvider({ children }) {
     cart,
     cartCount,
     total,
+    syncing,
     getQty,
+    getQtyByProduct,
     addOne,
     setQty,
     inc,
@@ -86,6 +242,6 @@ export function CartProvider({ children }) {
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart doit être utilisé dans <CartProvider>");
+  if (!ctx) throw new Error("useCart doit etre utilise dans <CartProvider>");
   return ctx;
 }

@@ -19,15 +19,17 @@ return new class extends Migration
 
             $table->unsignedInteger('quantity');
             $table->enum('status', ['active','released','consumed'])->default('active');
+            $table->timestamp('expires_at')->nullable();
 
             $table->string('reference_type')->nullable(); // order...
             $table->unsignedBigInteger('reference_id')->nullable();
-            
+
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-            
+
             $table->index(['reference_type', 'reference_id']);
             $table->index(['product_id', 'city_id', 'status']);
+            $table->index(['status', 'expires_at']);
         });
     }
 

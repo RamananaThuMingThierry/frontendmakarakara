@@ -111,6 +111,8 @@ export default function Shop() {
 
       return {
         id: `inventory-${inventory.encrypted_id}`,
+        product_id: product.id ?? null,
+        inventory_id: inventory.id ?? null,
         encrypted_inventory_id: inventory.encrypted_id || null,
         product_encrypted_id: product.encrypted_id || null,
         city_id: currentCity.id ?? inventory.city_id ?? null,

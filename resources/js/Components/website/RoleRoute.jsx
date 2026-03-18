@@ -29,7 +29,10 @@ export default function RoleRoute({ children, allow = [] }) {
   }
 
   const ok = allow.length === 0 || allow.some((x) => r.includes(x));
-  if (!ok) return <Navigate to="/" replace />;
+  if (!ok) {
+    if (r.includes("admin")) return <Navigate to="/admin" replace />;
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }

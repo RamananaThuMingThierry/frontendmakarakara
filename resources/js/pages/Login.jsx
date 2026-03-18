@@ -2,6 +2,33 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/website/AuthContext";
 
+function resolveRedirectTarget(roles, fromPath) {
+  const safeRoles = Array.isArray(roles) ? roles : [];
+  const isAdmin = safeRoles.includes("admin");
+  const isDelivery = safeRoles.includes("delivery");
+  const isCustomer = safeRoles.includes("customer");
+
+  if (isAdmin) {
+    if (fromPath && fromPath.startsWith("/admin")) return fromPath;
+    return "/admin";
+  }
+
+  if (isDelivery) {
+    if (fromPath && fromPath.startsWith("/delivery")) return fromPath;
+    return "/delivery";
+  }
+
+  if (isCustomer) {
+    if (fromPath && !fromPath.startsWith("/admin") && !fromPath.startsWith("/delivery")) {
+      return fromPath;
+    }
+
+    return "/";
+  }
+
+  return "/";
+}
+
 export default function Login() {
   const { isAuth, login, loading, hydrating, roles } = useAuth();
   const location = useLocation();
@@ -43,12 +70,7 @@ export default function Login() {
       );
     }
 
-    let target = from;
-    if (!target) {
-      if (r.includes("admin")) target = "/admin";
-      else if (r.includes("delivery")) target = "/delivery";
-      else target = "/";
-    }
+    const target = resolveRedirectTarget(r, from);
 
     return <Navigate to={target} replace />;
   }
@@ -63,7 +85,11 @@ export default function Login() {
     if (!res.ok) {
       if (res.errors) setErrors(res.errors);
       else setGlobalError(res.message || "Connexion echouee");
+      return;
     }
+
+    const target = resolveRedirectTarget(res.roles, location.state?.from?.pathname);
+    navigate(target, { replace: true });
   };
 
   return (

@@ -18,6 +18,7 @@ class StockReservation extends Model
         'city_id',
         'quantity',
         'status',
+        'expires_at',
         'reference_type',
         'reference_id',
         'created_by',
@@ -28,9 +29,10 @@ class StockReservation extends Model
         'city_id' => 'integer',
         'quantity' => 'integer',
         'created_by' => 'integer',
+        'expires_at' => 'datetime',
     ];
 
-    protected $appends = ['encrypted_id'];
+    protected $appends = ['encrypted_id', 'is_expired'];
 
     public function getEncryptedIdAttribute(): string
     {
@@ -89,5 +91,10 @@ class StockReservation extends Model
     {
         $this->update(['status' => 'consumed']);
         $this->refresh();
+    }
+
+    public function getIsExpiredAttribute(): bool
+    {
+        return $this->expires_at ? now()->greaterThanOrEqualTo($this->expires_at) : false;
     }
 }

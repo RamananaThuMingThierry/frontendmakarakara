@@ -41,6 +41,9 @@ import CouponsPage from "../pages/admin/coupons/CouponsPage";
 import ContactUsPage from "../pages/admin/contacts/ContactUsPage";
 import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
 import GalleryPage from "../pages/admin/gallery/GalleryPage";
+import ClientLayout from "../layouts/ClientLayout";
+import Profile from "../pages/client/Profile";
+import Orders from "../pages/client/Orders";
 
 export const router = createBrowserRouter([
   {
@@ -68,14 +71,19 @@ export const router = createBrowserRouter([
             { path: "reset-password", element: <ResetPassword /> },
             { path: "order-success/:orderNumber", element: <OrderSuccess /> },
             { path: "product/:encrypted_id", element: <ProductDetails /> },
-            {
-                path: "account",
-                element: (
-                <RoleRoute allow={["customer"]}>
-                    <Account />
-                </RoleRoute>
-                ),
-            },
+        ],
+      },
+      {
+        path: "/account",
+        element: (
+          <RoleRoute allow={["customer"]}>
+            <ClientLayout />
+          </RoleRoute>
+        ),
+        children: [
+          { index: true, element: <Account /> },
+          { path: "profile", element: <Profile /> },
+          { path: "orders", element: <Orders /> },
         ],
       },
       {

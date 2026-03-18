@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { loginApi, meApi, logoutApi } from "../../api/auth";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { loginApi, meApi, logoutApi, registerApi } from "../../api/auth";
 import { logoutAdminApi } from "../../api/admin";
 import { setApiToken } from "../../api/axios";
 
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
   const isAuth = !!token;
   // const isAuth = token ? true : false;
 
-  const clearClientAuth = () => {
+  const clearClientAuth = useCallback(() => {
     setApiToken("");
     setUser(null);
     setToken("");
@@ -40,13 +40,30 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("roles");
-  };
+  }, []);
 
-  const replaceAuthUser = (nextUser) => {
+  const applyAuthState = useCallback(({ token: nextToken, user: nextUser, roles: nextRoles }) => {
+    const safeToken = nextToken || "";
+    const safeUser = nextUser || null;
+    const safeRoles = Array.isArray(nextRoles) ? nextRoles : [];
+
+    setToken(safeToken);
+    setUser(safeUser);
+    setRoles(safeRoles);
+    setApiToken(safeToken);
+
+    if (safeToken) localStorage.setItem("token", safeToken);
+    else localStorage.removeItem("token");
+
+    localStorage.setItem("user", JSON.stringify(safeUser));
+    localStorage.setItem("roles", JSON.stringify(safeRoles));
+  }, []);
+
+  const replaceAuthUser = useCallback((nextUser) => {
     setUser(nextUser || null);
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (!token) return null;
 
     const data = await meApi();
@@ -57,7 +74,7 @@ export function AuthProvider({ children }) {
     setRoles(nextRoles);
 
     return data;
-  };
+  }, [token]);
 
   // Sync axios token
   useEffect(() => {
@@ -127,7 +144,7 @@ useEffect(() => {
 
 
 
-  const login = async ({ email, password, rememberMe }) => {
+  const login = useCallback(async ({ email, password, rememberMe }) => {
     
     setLoading(true);
     
@@ -139,17 +156,7 @@ useEffect(() => {
       const nextRoles = Array.isArray(data.roles) ? data.roles : [];
 
       // set + persist immédiat
-      setToken(nextToken);
-      setUser(nextUser);
-      setRoles(nextRoles);
-
-      setApiToken(nextToken);
-
-      if (nextToken) localStorage.setItem("token", nextToken);
-      else localStorage.removeItem("token");
-
-      localStorage.setItem("user", JSON.stringify(nextUser));
-      localStorage.setItem("roles", JSON.stringify(nextRoles));
+      applyAuthState({ token: nextToken, user: nextUser, roles: nextRoles });
 
       // ✅ si roles manquants, hydrate via /me
       if (nextToken && nextRoles.length === 0) {
@@ -173,7 +180,7 @@ useEffect(() => {
         }
       }
 
-      return { ok: true };
+      return { ok: true, roles: nextRoles, user: nextUser };
     } catch (e) {
       return {
         ok: false,
@@ -183,21 +190,55 @@ useEffect(() => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [applyAuthState, clearClientAuth]);
 
-  const logout = async () => {
+  const register = useCallback(async ({ name, email, phone, password }) => {
+    setLoading(true);
+
+    try {
+      const data = await registerApi({
+        name,
+        email,
+        phone: phone || "",
+        password,
+        password_confirmation: password,
+      });
+
+      applyAuthState({
+        token: data.token || "",
+        user: data.user || null,
+        roles: data.roles || ["customer"],
+      });
+
+      return {
+        ok: true,
+        roles: Array.isArray(data.roles) ? data.roles : ["customer"],
+        user: data.user || null,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: e?.response?.data?.message,
+        errors: e?.response?.data?.errors,
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, [applyAuthState]);
+
+  const logout = useCallback(async () => {
     try {
       await logoutApi();
     } catch {}
     clearClientAuth();
-  };
+  }, [clearClientAuth]);
 
-  const logoutAdmin = async () => {
+  const logoutAdmin = useCallback(async () => {
     try {
       await logoutAdminApi();
     } catch {}
     clearClientAuth();
-  };
+  }, [clearClientAuth]);
 
   const value = useMemo(
     () => ({
@@ -208,13 +249,14 @@ useEffect(() => {
       loading,
       hydrating,
       login,
+      register,
       logout,
       logoutAdmin,
       refreshUser,
       replaceAuthUser,
       hasRole: (role) => (Array.isArray(roles) ? roles.includes(role) : false),
     }),
-    [user, roles, token, isAuth, loading, hydrating]
+    [user, roles, token, isAuth, loading, hydrating, login, register, logout, logoutAdmin, refreshUser, replaceAuthUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
