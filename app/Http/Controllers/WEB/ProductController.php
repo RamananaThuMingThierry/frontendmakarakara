@@ -266,7 +266,7 @@ public function show(?string $categoryEncryptedId = null, string $encryptedId)
         $product = $this->productService->getProductById(
             $productId,
             ['*'],
-            ['category', 'brand', 'images', 'inventories.city', 'stockMouvements']
+            ['category', 'brand', 'images', 'inventories.city', 'stockMouvements.cityFrom:id,name', 'stockMouvements.cityTo:id,name', 'stockMouvements.user:id,name']
         );
 
         if (!$product) {
@@ -394,7 +394,7 @@ public function update(ProductRequest $request, ?string $categoryEncryptedId = n
         $fresh = $this->productService->getProductById(
             $productId,
             ['*'],
-            ['category', 'brand', 'images', 'inventories.city', 'stockMouvements']
+            ['category', 'brand', 'images', 'inventories.city', 'stockMouvements.cityFrom:id,name', 'stockMouvements.cityTo:id,name', 'stockMouvements.user:id,name']
         );
 
         $this->activityLogService->createActivityLog([
