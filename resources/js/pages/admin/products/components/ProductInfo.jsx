@@ -36,6 +36,20 @@ function extractLaravelError(err) {
 }
 
 export default function ProductInfo({ product, onRefresh }) {
+  const inventoryStats = useMemo(() => {
+    const inventories = Array.isArray(product?.inventories) ? product.inventories : [];
+
+    return {
+      totalStock: inventories.reduce((sum, inventory) => sum + Number(inventory?.quantity || 0), 0),
+      reservedStock: inventories.reduce((sum, inventory) => sum + Number(inventory?.reserved_quantity || 0), 0),
+      citiesCount: new Set(
+        inventories
+          .map((inventory) => inventory?.city_id)
+          .filter(Boolean)
+      ).size,
+    };
+  }, [product?.inventories]);
+
   // local images
   const [localImages, setLocalImages] = useState(product?.images || []);
   useEffect(() => setLocalImages(product?.images || []), [product]);
@@ -381,25 +395,19 @@ export default function ProductInfo({ product, onRefresh }) {
               <div className="col-12 col-md-4">
                 <div className="p-3 border rounded bg-white">
                   <div className="text-muted small">Stock total</div>
-                  <div className="fs-4 fw-semibold">
-                    100
-                  </div>
+                  <div className="fs-4 fw-semibold">{inventoryStats.totalStock}</div>
                 </div>
               </div>
               <div className="col-12 col-md-4">
                 <div className="p-3 border rounded bg-white">
                   <div className="text-muted small">Réservé</div>
-                  <div className="fs-4 fw-semibold">
-                    0
-                  </div>
+                  <div className="fs-4 fw-semibold">{inventoryStats.reservedStock}</div>
                 </div>
               </div>
               <div className="col-12 col-md-4">
                 <div className="p-3 border rounded bg-white">
                   <div className="text-muted small">Villes associées</div>
-                  <div className="fs-4 fw-semibold">
-                    {product.cities?.length || 0}
-                  </div>
+                  <div className="fs-4 fw-semibold">{inventoryStats.citiesCount}</div>
                 </div>
               </div>
             </div>
@@ -587,4 +595,3 @@ export default function ProductInfo({ product, onRefresh }) {
     </>
   );
 }
-

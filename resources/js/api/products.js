@@ -34,9 +34,20 @@ export const productsApi = {
   },
 
   async update(categoryId, productId, payload) {
-    const res = await api.put(
+    const isFormData = payload instanceof FormData;
+
+    if (isFormData) {
+      payload.append("_method", "PUT");
+    }
+
+    const res = await api[isFormData ? "post" : "put"](
       `/admin/categories/${categoryId}/products/${productId}`,
-      payload
+      payload,
+      {
+        headers: isFormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+      }
     );
 
     return { data: res.data, message: res.data.message };

@@ -31,6 +31,7 @@ import BrandsPage from "../pages/admin/Brands/BrandsPage";
 import CategoryManagePage from "../pages/admin/Categories/CategoryManagePage";
 import UpdateCategoryPage from "../pages/admin/Categories/UpdateCategoryPage";
 import CreateProductPage from "../pages/admin/products/CreateProductPage";
+import EditProductPage from "../pages/admin/products/EditProductPage";
 import ProductManagePage from "../pages/admin/products/ProductManagePage";
 import ActivityLogPage from "../pages/admin/activity_logs/ActivityLogPage";
 import SlidesPage from "../pages/admin/slides/SlidesPage";
@@ -105,6 +106,7 @@ export const router = createBrowserRouter([
           { path: "categories/:encryptedId/edit", element: <UpdateCategoryPage /> },
           { path: "products/create", element: <CreateProductPage /> },
           { path: "categories/:categoryId/products/:productId", element: <ProductManagePage /> },
+          { path: "categories/:categoryId/products/:productId/edit", element: <EditProductPage /> },
           // { path: "orders", element: <OrdersPage /> },
           { path: "coupons", element: <CouponsPage /> },
           { path: "testimonials", element: <TestimonialPage /> },
