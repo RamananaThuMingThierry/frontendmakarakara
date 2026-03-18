@@ -90,7 +90,8 @@ public function __construct(private AuthService $auth, private ActivityLogServic
         try{
             $user = $this->auth->register($data);
 
-            $user->assignRole('admin');
+            $user->assignRole('customer');
+            // $user->assignRole('admin');
 
             // token direct après register (pratique pour React)
             $token = $user->createToken('MAHAKARAKARA')->plainTextToken;

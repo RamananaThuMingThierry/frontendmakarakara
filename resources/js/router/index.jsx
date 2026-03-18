@@ -41,9 +41,11 @@ import CouponsPage from "../pages/admin/coupons/CouponsPage";
 import ContactUsPage from "../pages/admin/contacts/ContactUsPage";
 import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
 import GalleryPage from "../pages/admin/gallery/GalleryPage";
+import ReservationsPage from "../pages/admin/reservations/ReservationsPage";
 import ClientLayout from "../layouts/ClientLayout";
 import Profile from "../pages/client/Profile";
 import Orders from "../pages/client/Orders";
+import Reservations from "../pages/client/Reservations";
 
 export const router = createBrowserRouter([
   {
@@ -83,6 +85,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Account /> },
           { path: "profile", element: <Profile /> },
+          { path: "reservations", element: <Reservations /> },
           { path: "orders", element: <Orders /> },
         ],
       },
@@ -106,6 +109,7 @@ export const router = createBrowserRouter([
           { path: "coupons", element: <CouponsPage /> },
           { path: "testimonials", element: <TestimonialPage /> },
           { path: "gallery", element: <GalleryPage /> },
+          { path: "reservations", element: <ReservationsPage /> },
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
           { path: "contacts", element: <ContactUsPage /> },

@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
 import { useAuth } from "../../hooks/website/AuthContext";
-import { createMyReservation } from "../../api/client_reservations";
+import { createMyReservation, listMyReservations } from "../../api/client_reservations";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
@@ -24,10 +24,11 @@ function computeDiscount(subtotal, code) {
 }
 
 export default function Cart() {
-  const { cart, cartCount, total, inc, dec, remove, setQty, clear } = useCart();
+  const { cart, cartCount, total, inc, dec, remove, setQty, clear, clearLocal } = useCart();
   const navigate = useNavigate();
   const { isAuth } = useAuth();
   const [reserving, setReserving] = useState(false);
+  const [hasActiveReservation, setHasActiveReservation] = useState(false);
   const [reservationMessage, setReservationMessage] = useState("");
   const [reservationError, setReservationError] = useState("");
 
@@ -51,6 +52,37 @@ export default function Cart() {
   const grandTotal = useMemo(() => {
     return Math.max(0, subtotal - discountTotal) + deliveryFee;
   }, [subtotal, discountTotal, deliveryFee]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadReservations() {
+      if (!isAuth) {
+        if (!cancelled) setHasActiveReservation(false);
+        return;
+      }
+
+      try {
+        const reservations = await listMyReservations();
+        const hasActiveCartReservation = Array.isArray(reservations) && reservations.some((reservation) => {
+          return (
+            reservation.status === "active" &&
+            !reservation.is_expired &&
+            reservation.reference_type?.includes("Cart")
+          );
+        });
+
+        if (!cancelled) setHasActiveReservation(hasActiveCartReservation);
+      } catch (error) {
+        if (!cancelled) setHasActiveReservation(false);
+      }
+    }
+
+    loadReservations();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuth]);
 
   const applyCoupon = () => {
     setCouponError("");
@@ -127,6 +159,8 @@ export default function Cart() {
           ? `Reservation enregistree. Elle expirera le ${expiresAt} si vous ne passez pas commande.`
           : "Reservation enregistree pour 24 heures."
       );
+      setHasActiveReservation(true);
+      clearLocal();
     } catch (error) {
       setReservationError(error?.response?.data?.message || "Impossible de reserver ce panier.");
     } finally {
@@ -137,6 +171,8 @@ export default function Cart() {
   if (!cartCount) {
     return (
       <div className="container py-5 text-center">
+        {reservationMessage && <div className="alert alert-success py-2 mb-4">{reservationMessage}</div>}
+        {reservationError && <div className="alert alert-danger py-2 mb-4">{reservationError}</div>}
         <img
           src="/images/shopping-cart.png"
           alt="Panier vide"
@@ -323,14 +359,16 @@ export default function Cart() {
               </div>
 
               <div className="d-grid gap-2 mt-3">
-                <button
-                  className="btn btn-outline-dark fw-semibold"
-                  type="button"
-                  onClick={reserveCart}
-                  disabled={reserving}
-                >
-                  {reserving ? "Reservation..." : "Reserver 24h"}
-                </button>
+                {!hasActiveReservation ? (
+                  <button
+                    className="btn btn-outline-dark fw-semibold"
+                    type="button"
+                    onClick={reserveCart}
+                    disabled={reserving}
+                  >
+                    {reserving ? "Reservation..." : "Reserver 24h"}
+                  </button>
+                ) : null}
 
                 <button className="btn btn-warning fw-semibold" type="button" onClick={goCheckout}>
                   Commander

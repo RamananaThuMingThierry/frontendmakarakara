@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Inventory;
 use App\Models\Product;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -165,6 +166,7 @@ class ClientCartController extends Controller
     {
         $cart = DB::transaction(function () use ($request) {
             $cart = $this->getOrCreateCart($request);
+            $this->releaseActiveCartReservations($cart->id, $request->user()->id);
             $cart->items()->delete();
 
             return $cart->fresh(['items.product.images', 'items.city', 'items.inventory']);
@@ -213,5 +215,34 @@ class ClientCartController extends Controller
             'total' => $items->sum(fn ($item) => $item['price'] * $item['qty']),
             'items' => $items->all(),
         ];
+    }
+
+    private function releaseActiveCartReservations(int $cartId, int $userId): void
+    {
+        $reservations = Reservation::query()
+            ->with('items')
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->where('cart_id', $cartId)
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($reservations as $reservation) {
+            foreach ($reservation->items as $reservationItem) {
+                $inventory = Inventory::query()
+                    ->where('product_id', $reservationItem->product_id)
+                    ->where('city_id', $reservationItem->city_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($inventory) {
+                    $inventory->update([
+                        'reserved_quantity' => max(0, (int) $inventory->reserved_quantity - (int) $reservationItem->quantity),
+                    ]);
+                }
+            }
+
+            $reservation->markReleased('cart_cleared');
+        }
     }
 }

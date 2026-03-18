@@ -3,6 +3,7 @@
 use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\AddressController;
+use App\Http\Controllers\WEB\ADMIN\ReservationController;
 use App\Http\Controllers\WEB\AuthController;
 use App\Http\Controllers\WEB\BrandController;
 use App\Http\Controllers\WEB\CartController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\WEB\CouponController;
 use App\Http\Controllers\WEB\ClientAccountController;
 use App\Http\Controllers\WEB\ClientCartController;
 use App\Http\Controllers\WEB\ClientOrderController;
-use App\Http\Controllers\WEB\ClientReservationController;
+use App\Http\Controllers\WEB\CUSTOMER\ReservationController as CUSTOMERReservationController;
 use App\Http\Controllers\WEB\GalleryController;
 use App\Http\Controllers\WEB\InventoryController;
 use App\Http\Controllers\WEB\InventoryPriceHistoryController;
@@ -169,6 +170,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+        Route::get('reservations', [ReservationController::class, 'index'])->name('admin.reservations.index');
+        Route::get('reservations/{encryptedId}', [ReservationController::class, 'show'])->name('admin.reservations.show');
 
         Route::get('account', [AccountAdminController::class, 'show'])->name('account.show');
         Route::put('account', [AccountAdminController::class, 'update'])->name('account.update');
@@ -190,7 +193,10 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('/my-cart/items/{product}', [ClientCartController::class, 'upsertItem'])->name('customer.cart.items.upsert');
         Route::delete('/my-cart/items/{product}', [ClientCartController::class, 'removeItem'])->name('customer.cart.items.remove');
         Route::delete('/my-cart', [ClientCartController::class, 'clear'])->name('customer.cart.clear');
-        Route::post('/my-reservations', [ClientReservationController::class, 'store'])->name('customer.reservations.store');
+        Route::get('/my-reservations', [CUSTOMERReservationController::class, 'index'])->name('customer.reservations.index');
+        Route::post('/my-reservations', [CUSTOMERReservationController::class, 'store'])->name('customer.reservations.store');
+        Route::get('/my-reservations/{reservationId}', [CUSTOMERReservationController::class, 'show'])->name('customer.reservations.show');
+        Route::delete('/my-reservations/{reservationId}', [CUSTOMERReservationController::class, 'destroy'])->name('customer.reservations.destroy');
         Route::get('/my-orders', [ClientOrderController::class, 'index'])->name('customer.orders.index');
         Route::post('/orders', [ClientOrderController::class, 'store'])->name('customer.orders.store');
     });

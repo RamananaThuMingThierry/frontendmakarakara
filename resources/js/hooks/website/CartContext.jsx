@@ -212,6 +212,10 @@ export function CartProvider({ children }) {
     }
   };
 
+  const clearLocal = () => {
+    applyLocalCart([], isAuth ? String(user?.id ?? "auth") : "guest");
+  };
+
   const cartCount = useMemo(
     () => cart.reduce((sum, item) => sum + (item.qty || 0), 0),
     [cart]
@@ -235,6 +239,7 @@ export function CartProvider({ children }) {
     dec,
     remove,
     clear,
+    clearLocal,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

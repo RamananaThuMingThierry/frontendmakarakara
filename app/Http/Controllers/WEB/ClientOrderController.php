@@ -9,7 +9,7 @@ use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\StockReservation;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -149,8 +149,9 @@ class ClientOrderController extends Controller
 
     private function releaseExpiredReservations(int $userId): void
     {
-        $reservations = StockReservation::query()
-            ->where('created_by', $userId)
+        $reservations = Reservation::query()
+            ->with('items')
+            ->where('user_id', $userId)
             ->where('status', 'active')
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now())
@@ -158,50 +159,54 @@ class ClientOrderController extends Controller
             ->get();
 
         foreach ($reservations as $reservation) {
-            $inventory = Inventory::query()
-                ->where('product_id', $reservation->product_id)
-                ->where('city_id', $reservation->city_id)
-                ->lockForUpdate()
-                ->first();
+            foreach ($reservation->items as $reservationItem) {
+                $inventory = Inventory::query()
+                    ->where('product_id', $reservationItem->product_id)
+                    ->where('city_id', $reservationItem->city_id)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($inventory) {
-                $inventory->update([
-                    'reserved_quantity' => max(0, (int) $inventory->reserved_quantity - (int) $reservation->quantity),
-                ]);
+                if ($inventory) {
+                    $inventory->update([
+                        'reserved_quantity' => max(0, (int) $inventory->reserved_quantity - (int) $reservationItem->quantity),
+                    ]);
+                }
             }
 
-            $reservation->update(['status' => 'released']);
+            $reservation->markReleased('expired');
         }
     }
 
     private function consumeCartReservations(int $cartId, int $userId, int $orderId): void
     {
-        $reservations = StockReservation::query()
-            ->where('created_by', $userId)
+        $reservations = Reservation::query()
+            ->with('items')
+            ->where('user_id', $userId)
             ->where('status', 'active')
-            ->where('reference_type', Cart::class)
-            ->where('reference_id', $cartId)
+            ->where('cart_id', $cartId)
             ->lockForUpdate()
             ->get();
 
         foreach ($reservations as $reservation) {
-            $inventory = Inventory::query()
-                ->where('product_id', $reservation->product_id)
-                ->where('city_id', $reservation->city_id)
-                ->lockForUpdate()
-                ->first();
+            foreach ($reservation->items as $reservationItem) {
+                $inventory = Inventory::query()
+                    ->where('product_id', $reservationItem->product_id)
+                    ->where('city_id', $reservationItem->city_id)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($inventory) {
-                $inventory->update([
-                    'reserved_quantity' => max(0, (int) $inventory->reserved_quantity - (int) $reservation->quantity),
-                ]);
+                if ($inventory) {
+                    $inventory->update([
+                        'reserved_quantity' => max(0, (int) $inventory->reserved_quantity - (int) $reservationItem->quantity),
+                    ]);
+                }
             }
 
             $reservation->update([
-                'status' => 'consumed',
                 'reference_type' => Order::class,
                 'reference_id' => $orderId,
             ]);
+            $reservation->markConsumed($orderId);
         }
     }
 }

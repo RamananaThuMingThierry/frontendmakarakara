@@ -20,11 +20,12 @@ use App\Interface\PasswordResetCodeInterface;
 use App\Interface\PaymentMethodInterface;
 use App\Interface\ProductImageInterface;
 use App\Interface\ProductInterface;
+use App\Interface\ReservationInterface;
+use App\Interface\ReservationItemInterface;
 use App\Interface\ReviewInterface;
 use App\Interface\SettingsInterface;
 use App\Interface\SlideInterface;
 use App\Interface\StockMovementInterface;
-use App\Interface\StockReservationInterface;
 use App\Interface\TestimonialInterface;
 use App\Interface\UserInterface;
 use App\Models\User;
@@ -46,11 +47,12 @@ use App\Repositories\PasswordResetCodeRepository;
 use App\Repositories\PaymentMethodRepository;
 use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\ReservationItemRepository;
+use App\Repositories\ReservationRepository;
 use App\Repositories\ReviewRepository;
 use App\Repositories\SettingsRepository;
 use App\Repositories\SlideRepository;
 use App\Repositories\StockMovementRepository;
-use App\Repositories\StockReservationRepository;
 use App\Repositories\TestimonialRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
@@ -91,9 +93,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderItemInterface::class, OrderItemRepository::class);
         $this->app->bind(SettingsInterface::class, SettingsRepository::class);
         $this->app->bind(StockMovementInterface::class, StockMovementRepository::class);
-        $this->app->bind(StockReservationInterface::class, StockReservationRepository::class);
         $this->app->bind(ContactUsInterface::class, ContactUsRepository::class);
         $this->app->bind(GalleryInterface::class, GalleryRepository::class);
+        $this->app->bind(ReservationInterface::class, ReservationRepository::class);
+        $this->app->bind(ReservationItemInterface::class, ReservationItemRepository::class);
     }
 
     /**

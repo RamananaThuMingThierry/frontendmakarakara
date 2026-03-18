@@ -7,6 +7,7 @@ export default function ClientMenu() {
   const links = [
     { to: "/", label: "Retour au site", icon: "bi-arrow-left" },
     { to: "/account/profile", label: "Mon profil", icon: "bi-person" },
+    { to: "/account/reservations", label: "Mes reservations", icon: "bi-bookmark-check" },
     { to: "/account/orders", label: "Mes commandes", icon: "bi-bag-check" },
   ];
 

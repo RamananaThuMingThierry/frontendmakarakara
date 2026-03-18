@@ -21,4 +21,4 @@ interface UserInterface{
     public function restore(int $id): ?User;
 
     public function forceDelete(int $id): void;
-}   
+}

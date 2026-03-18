@@ -11,7 +11,7 @@ use Throwable;
 class BrandController extends Controller
 {
     public function __construct(private BrandService $brandService, private ActivityLogService $activityLogService){}
-    
+
     public function index()
     {
         try{
@@ -41,7 +41,7 @@ class BrandController extends Controller
                     'error' => $e->getMessage(),
                 ],
             ]);
-            
+
             return response()->json([
                 'message' => 'Erreur lors du chargement des brands.',
                 'error' => $e->getMessage()
@@ -101,7 +101,7 @@ class BrandController extends Controller
                     'error' => $e->getMessage(),
                 ],
             ]);
-            
+
             return response()->json([
                 'message' => 'Erreur lors de la création de la brand.',
                 'error' => $e->getMessage()
@@ -130,8 +130,8 @@ class BrandController extends Controller
                 'metadata' => [
                     'encrypted_id' => $encryptedId,
                 ],
-            ]);    
-        
+            ]);
+
             return response()->json(['message' => 'ID de brand invalide.'], 400);
         }
 
@@ -216,7 +216,7 @@ class BrandController extends Controller
                     'encrypted_id' => $encryptedId,
                     'decrypted_id' => $id
                 ],
-            ]);    
+            ]);
 
             return response()->json(['message' => 'Brand non trouvé.'], 404);
         }
@@ -257,7 +257,7 @@ class BrandController extends Controller
                 'user_id' => auth()->id(),
                 'action' => 'update_brand_failed',
                 'entity_type' => 'Brand',
-                'entity_id' => $brand->id,  
+                'entity_id' => $brand->id,
                 'color' => 'danger',
                 'method' => 'PUT',
                 'route' => 'brands.update',
@@ -273,7 +273,7 @@ class BrandController extends Controller
                 'message' => 'Erreur lors de la mise à jour de la brand.',
                 'error' => $e->getMessage()
             ], 500);
-        }    
+        }
     }
 
     /**
@@ -374,5 +374,5 @@ class BrandController extends Controller
             ], 500);
         }
 
-    }   
-}   
+    }
+}
