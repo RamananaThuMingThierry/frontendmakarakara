@@ -74,6 +74,7 @@ function LineChartCard({ data, granularity }) {
     granularity === "hourly"
       ? chartData.map((_, index) => index).filter((index) => index % 3 === 0)
       : chartData.map((_, index) => index);
+  const [hoveredPoint, setHoveredPoint] = useState(null);
 
   const pointsRevenue = chartData
     .map((item, index) => {
@@ -118,7 +119,8 @@ function LineChartCard({ data, granularity }) {
         <>
           <div className="row g-3">
             <div className="col-12 col-lg-9">
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: 300 }}>
+              <div className="position-relative">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: 300 }}>
                 <line x1="8" y1="90" x2="100" y2="90" stroke="#d1d5db" strokeWidth="0.5" />
                 <line x1="8" y1="10" x2="8" y2="90" stroke="#d1d5db" strokeWidth="0.5" />
                 <line x1="8" y1="70" x2="100" y2="70" stroke="#e5e7eb" strokeWidth="0.4" />
@@ -144,10 +146,40 @@ function LineChartCard({ data, granularity }) {
                     <g key={item.bucket}>
                       <circle cx={x} cy={revenueY} r="1.1" fill="#f0ad00" />
                       <circle cx={x} cy={ordersY} r="1" fill="#0d6efd" />
+                      <circle
+                        cx={x}
+                        cy={Math.min(revenueY, ordersY)}
+                        r="3.2"
+                        fill="transparent"
+                        style={{ cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredPoint(item)}
+                        onMouseLeave={() => setHoveredPoint(null)}
+                      />
                     </g>
                   );
                 })}
-              </svg>
+                </svg>
+
+                {hoveredPoint ? (
+                  <div
+                    className="position-absolute top-0 end-0 bg-white border rounded-3 shadow-sm p-3"
+                    style={{ minWidth: 220 }}
+                  >
+                    <div className="fw-semibold mb-1">{hoveredPoint.label}</div>
+                    <div className="small text-secondary">
+                      {granularity === "hourly" ? "Détail horaire" : "Détail période"}
+                    </div>
+                    <div className="small mt-2">
+                      <span className="text-warning fw-semibold">CA:</span>{" "}
+                      {formatPriceMGA(hoveredPoint.revenue_total)}
+                    </div>
+                    <div className="small">
+                      <span className="text-primary fw-semibold">Commandes:</span>{" "}
+                      {Number(hoveredPoint.orders_count || 0).toLocaleString("fr-FR")}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className="col-12 col-lg-3">
