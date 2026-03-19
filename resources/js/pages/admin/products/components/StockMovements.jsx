@@ -28,12 +28,17 @@ function formatType(type) {
 
 export default function StockMouvements({ product }) {
   const { lang } = useI18n();
+  const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+
   const tableRef = useRef(null);
   const dtRef = useRef(null);
-  const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+  const initializedRef = useRef(false);
+
   const movements = useMemo(() => {
     const list = Array.isArray(product?.stock_mouvements) ? product.stock_mouvements : [];
-    return [...list].sort((a, b) => new Date(b?.created_at || 0) - new Date(a?.created_at || 0));
+    return [...list].sort(
+      (a, b) => new Date(b?.created_at || 0) - new Date(a?.created_at || 0)
+    );
   }, [product?.stock_mouvements]);
 
   useEffect(() => {
@@ -44,46 +49,60 @@ export default function StockMouvements({ product }) {
 
     try {
       if ($.fn.dataTable.isDataTable(tableNode)) {
-        const existing = $table.DataTable();
-        existing.clear();
-        existing.destroy();
+        dtRef.current = $table.DataTable();
+      } else {
+        dtRef.current = $table.DataTable({
+          data: [],
+          destroy: true,
+          retrieve: true,
+          pageLength: 10,
+          lengthMenu: [10, 15, 25, 50, 100],
+          ordering: true,
+          searching: true,
+          responsive: true,
+          language: { url: DT_LANG_URL },
+          columns: [
+            {
+              data: null,
+              title: "#",
+              render: (d, t, row, meta) => meta.row + 1,
+            },
+            {
+              data: "created_at",
+              title: "Date",
+              render: (value) => formatDate(value),
+            },
+            {
+              data: "type",
+              title: "Type",
+              render: (value) => formatType(value),
+            },
+            { data: "city_from.name", title: "Ville source", defaultContent: "-" },
+            { data: "city_to.name", title: "Ville destination", defaultContent: "-" },
+            { data: "quantity", title: "Quantite", defaultContent: 0 },
+            { data: "stock_before", title: "Avant", defaultContent: "-" },
+            { data: "stock_after", title: "Apres", defaultContent: "-" },
+            { data: "user.name", title: "Utilisateur", defaultContent: "-" },
+            { data: "reason", title: "Motif", defaultContent: "-" },
+          ],
+        });
       }
-    } catch {}
 
-    if (tableNode.tBodies?.[0]) {
-      tableNode.tBodies[0].innerHTML = "";
+      initializedRef.current = true;
+    } catch (error) {
+      console.error("Erreur initialisation DataTable mouvements:", error);
     }
-
-    dtRef.current = $table.DataTable({
-      data: movements,
-      pageLength: 10,
-      lengthMenu: [10, 15, 25, 50, 100],
-      ordering: true,
-      searching: true,
-      responsive: true,
-      language: { url: DT_LANG_URL },
-      columns: [
-        { data: null, title: "#", render: (d, t, row, meta) => meta.row + 1 },
-        { data: "created_at", title: "Date", render: (value) => formatDate(value) },
-        { data: "type", title: "Type", render: (value) => formatType(value) },
-        { data: "city_from.name", title: "Ville source", defaultContent: "-" },
-        { data: "city_to.name", title: "Ville destination", defaultContent: "-" },
-        { data: "quantity", title: "Quantite", defaultContent: 0 },
-        { data: "stock_before", title: "Avant", defaultContent: "-" },
-        { data: "stock_after", title: "Apres", defaultContent: "-" },
-        { data: "user.name", title: "Utilisateur", defaultContent: "-" },
-        { data: "reason", title: "Motif", defaultContent: "-" },
-      ],
-    });
 
     return () => {
       try {
-        if (dtRef.current) {
-          dtRef.current.clear();
+        if (dtRef.current && $.fn.dataTable.isDataTable(tableNode)) {
           dtRef.current.destroy();
         }
       } catch {}
+
       dtRef.current = null;
+      initializedRef.current = false;
+
       if (tableNode.tBodies?.[0]) {
         tableNode.tBodies[0].innerHTML = "";
       }
@@ -91,19 +110,23 @@ export default function StockMouvements({ product }) {
   }, [DT_LANG_URL]);
 
   useEffect(() => {
-    if (!dtRef.current) return;
+    if (!dtRef.current || !initializedRef.current) return;
 
-    const dt = dtRef.current;
-    const page = dt.page();
-    const search = dt.search();
-    const order = dt.order();
+    try {
+      const dt = dtRef.current;
+      const page = dt.page();
+      const search = dt.search();
+      const order = dt.order();
 
-    dt.clear();
-    dt.rows.add(movements);
-    dt.draw(false);
-    dt.order(order).draw(false);
-    dt.search(search).draw(false);
-    dt.page(page).draw(false);
+      dt.clear();
+      dt.rows.add(movements);
+      dt.draw(false);
+      dt.order(order).draw(false);
+      dt.search(search).draw(false);
+      dt.page(page).draw(false);
+    } catch (error) {
+      console.error("Erreur mise à jour DataTable mouvements:", error);
+    }
   }, [movements]);
 
   return (

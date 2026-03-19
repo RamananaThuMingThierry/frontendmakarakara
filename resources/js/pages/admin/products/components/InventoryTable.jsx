@@ -8,7 +8,12 @@ import { useI18n } from "../../../../hooks/website/I18nContext";
 
 function formatDate(value) {
   if (!value) return "-";
-  return new Date(value).toLocaleString("fr-FR");
+
+  try {
+    return new Date(value).toLocaleString("fr-FR");
+  } catch {
+    return value;
+  }
 }
 
 function formatPrice(value) {
@@ -43,6 +48,7 @@ export default function InventoryTable({ product, reload }) {
   const tableRef = useRef(null);
   const dtRef = useRef(null);
   const inventoriesRef = useRef(inventories);
+  const initializedRef = useRef(false);
 
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(false);
@@ -113,80 +119,99 @@ export default function InventoryTable({ product, reload }) {
 
     try {
       if ($.fn.dataTable.isDataTable(tableNode)) {
-        const existing = $table.DataTable();
-        existing.clear();
-        existing.destroy();
+        dtRef.current = $table.DataTable();
+      } else {
+        dtRef.current = $table.DataTable({
+          data: [],
+          destroy: true,
+          retrieve: true,
+          pageLength: 10,
+          lengthMenu: [10, 15, 25, 50, 100],
+          ordering: true,
+          searching: true,
+          responsive: true,
+          language: { url: DT_LANG_URL },
+          columns: [
+            { data: "city.name", title: "Ville", defaultContent: "-" },
+            { data: "price", title: "Prix", render: (value) => {
+                return `<span class="text-primary fw-bold">${formatPrice(value)}</span>`;
+            } },
+            { data: "compare_price", title: "Prix barre", render: (value) => formatPrice(value) },
+            { data: "quantity", title: "Qte", defaultContent: 0 },
+            { data: "reserved_quantity", title: "Reserve", defaultContent: 0 },
+            { data: "min_stock", title: "Stock min", defaultContent: 0 },
+            {
+              data: "is_available",
+              title: "Disponible",
+              render: (value) =>
+                value
+                  ? '<span class="rounded-pill p-1 badge bg-success"><i class="bi bi-check"></i></span>'
+                  : '<span class="rounded-pill p-1 badge bg-danger"><i class="bi bi-x-circle"></i></span>',
+            },
+            {
+              data: "status",
+              title: "Statut",
+              render: (value) =>
+                `<span class="badge bg-${badgeStatus(value)}">${statusLabel(value)}</span>`,
+            },
+            {
+              data: "created_at",
+              title: "Creation",
+              render: (value) => formatDate(value),
+            },
+            {
+              data: null,
+              title: "Actions",
+              orderable: false,
+              searchable: false,
+              className: "text-end",
+              render: (d, t, row) => `
+                <button class="btn btn-sm btn-outline-info me-2 js-view" data-id="${row.id}">
+                  <i class="bi bi-eye me-1"></i> Voir
+                </button>
+                <button class="btn btn-sm btn-outline-primary me-2 js-edit" data-id="${row.id}">
+                  <i class="bi bi-pencil me-1"></i> Modifier
+                </button>
+                <button class="btn btn-sm btn-outline-success me-2 js-adjust" data-id="${row.id}">
+                  <i class="bi bi-sliders me-1"></i> Ajuster
+                </button>
+                <button class="btn btn-sm btn-outline-dark js-transfer" data-id="${row.id}">
+                  <i class="bi bi-arrow-left-right me-1"></i> Transfert
+                </button>
+              `,
+            },
+          ],
+        });
       }
-    } catch {}
 
-    if (tableNode.tBodies?.[0]) {
-      tableNode.tBodies[0].innerHTML = "";
+      initializedRef.current = true;
+    } catch (error) {
+      console.error("Erreur initialisation DataTable:", error);
     }
 
-    dtRef.current = $table.DataTable({
-      data: inventories,
-      pageLength: 10,
-      lengthMenu: [10, 15, 25, 50, 100],
-      ordering: true,
-      searching: true,
-      responsive: true,
-      language: { url: DT_LANG_URL },
-      columns: [
-        { data: "city.name", title: "Ville", defaultContent: "-" },
-        { data: "price", title: "Prix", render: (value) => formatPrice(value) },
-        { data: "compare_price", title: "Prix barre", render: (value) => formatPrice(value) },
-        { data: "quantity", title: "Qte", defaultContent: 0 },
-        { data: "reserved_quantity", title: "Reserve", defaultContent: 0 },
-        { data: "min_stock", title: "Stock min", defaultContent: 0 },
-        {
-          data: "is_available",
-          title: "Disponible",
-          render: (value) =>
-            value
-              ? '<span class="rounded-pill p-1 badge bg-success"><i class="bi bi-check"></i></span>'
-              : '<span class="rounded-pill p-1 badge bg-danger"><i class="bi bi-x-circle"></i></span>',
-        },
-        {
-          data: "status",
-          title: "Statut",
-          render: (value) => `<span class="badge bg-${badgeStatus(value)}">${statusLabel(value)}</span>`,
-        },
-        { data: "created_at", title: "Creation", render: (value) => formatDate(value) },
-        {
-          data: null,
-          title: "Actions",
-          orderable: false,
-          className: "text-end",
-          render: (d, t, row) => `
-            <button class="btn btn-sm btn-outline-info me-2 js-view" data-id="${row.id}">
-              <i class="bi bi-eye me-1"></i> Voir
-            </button>
-            <button class="btn btn-sm btn-outline-primary me-2 js-edit" data-id="${row.id}">
-              <i class="bi bi-pencil me-1"></i> Modifier
-            </button>
-            <button class="btn btn-sm btn-outline-success me-2 js-adjust" data-id="${row.id}">
-              <i class="bi bi-sliders me-1"></i> Ajuster
-            </button>
-            <button class="btn btn-sm btn-outline-dark js-transfer" data-id="${row.id}">
-              <i class="bi bi-arrow-left-right me-1"></i> Transfert
-            </button>
-          `,
-        },
-      ],
+    $table.on("click", ".js-view", (e) => {
+      const id = Number($(e.currentTarget).data("id"));
+      const row = inventoriesRef.current.find((item) => Number(item.id) === id);
+      if (row) openViewModal(row);
     });
 
-    const bindRowAction = (selector, handler) => {
-      $table.on("click", selector, (e) => {
-        const id = Number($(e.currentTarget).data("id"));
-        const row = inventoriesRef.current.find((item) => Number(item.id) === id);
-        if (row) handler(row);
-      });
-    };
+    $table.on("click", ".js-edit", (e) => {
+      const id = Number($(e.currentTarget).data("id"));
+      const row = inventoriesRef.current.find((item) => Number(item.id) === id);
+      if (row) openEditModal(row);
+    });
 
-    bindRowAction(".js-view", openViewModal);
-    bindRowAction(".js-edit", openEditModal);
-    bindRowAction(".js-adjust", openAdjustModal);
-    bindRowAction(".js-transfer", openTransferModal);
+    $table.on("click", ".js-adjust", (e) => {
+      const id = Number($(e.currentTarget).data("id"));
+      const row = inventoriesRef.current.find((item) => Number(item.id) === id);
+      if (row) openAdjustModal(row);
+    });
+
+    $table.on("click", ".js-transfer", (e) => {
+      const id = Number($(e.currentTarget).data("id"));
+      const row = inventoriesRef.current.find((item) => Number(item.id) === id);
+      if (row) openTransferModal(row);
+    });
 
     return () => {
       try {
@@ -197,13 +222,14 @@ export default function InventoryTable({ product, reload }) {
       } catch {}
 
       try {
-        if (dtRef.current) {
-          dtRef.current.clear();
+        if (dtRef.current && $.fn.dataTable.isDataTable(tableNode)) {
           dtRef.current.destroy();
         }
       } catch {}
 
       dtRef.current = null;
+      initializedRef.current = false;
+
       if (tableNode.tBodies?.[0]) {
         tableNode.tBodies[0].innerHTML = "";
       }
@@ -211,19 +237,23 @@ export default function InventoryTable({ product, reload }) {
   }, [DT_LANG_URL]);
 
   useEffect(() => {
-    if (!dtRef.current) return;
+    if (!dtRef.current || !initializedRef.current) return;
 
-    const dt = dtRef.current;
-    const page = dt.page();
-    const search = dt.search();
-    const order = dt.order();
+    try {
+      const dt = dtRef.current;
+      const page = dt.page();
+      const search = dt.search();
+      const order = dt.order();
 
-    dt.clear();
-    dt.rows.add(inventories);
-    dt.draw(false);
-    dt.order(order).draw(false);
-    dt.search(search).draw(false);
-    dt.page(page).draw(false);
+      dt.clear();
+      dt.rows.add(inventories);
+      dt.draw(false);
+      dt.order(order).draw(false);
+      dt.search(search).draw(false);
+      dt.page(page).draw(false);
+    } catch (error) {
+      console.error("Erreur mise à jour DataTable:", error);
+    }
   }, [inventories]);
 
   async function fetchCities() {
@@ -363,7 +393,10 @@ export default function InventoryTable({ product, reload }) {
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   }
 
   function handleAdjustChange(e) {
@@ -475,7 +508,7 @@ export default function InventoryTable({ product, reload }) {
         </div>
 
         <div className="table-responsive">
-          <table ref={tableRef} className="table table-sm align-middle">
+          <table ref={tableRef} className="table table-sm align-middle mb-0">
             <thead>
               <tr>
                 <th>Ville</th>
@@ -575,11 +608,14 @@ export default function InventoryTable({ product, reload }) {
             <div className="modal-content">
               <form onSubmit={handleSubmit}>
                 <div className="modal-header">
-                  <h5 className="modal-title">{editingRow ? "Modifier l'inventaire" : "Ajouter un inventaire"}</h5>
+                  <h5 className="modal-title">
+                    {editingRow ? "Modifier l'inventaire" : "Ajouter un inventaire"}
+                  </h5>
                   <button type="button" className="btn-close" onClick={closeCreateEditModal} />
                 </div>
                 <div className="modal-body">
                   {apiErrorMessage ? <div className="alert alert-danger">{apiErrorMessage}</div> : null}
+
                   <div className="mb-3">
                     <label className="form-label">Ville</label>
                     <select
@@ -597,32 +633,82 @@ export default function InventoryTable({ product, reload }) {
                         </option>
                       ))}
                     </select>
+                    {getFieldError("city_id") ? (
+                      <div className="invalid-feedback">{getFieldError("city_id")}</div>
+                    ) : null}
                   </div>
+
                   <div className="row g-3">
                     <div className="col-12 col-md-6">
                       <label className="form-label">Prix</label>
-                      <input type="number" name="price" className="form-control" value={form.price} onChange={handleChange} min="0" required />
+                      <input
+                        type="number"
+                        name="price"
+                        className={`form-control ${getFieldError("price") ? "is-invalid" : ""}`}
+                        value={form.price}
+                        onChange={handleChange}
+                        min="0"
+                        required
+                      />
                     </div>
+
                     <div className="col-12 col-md-6">
                       <label className="form-label">Prix barre</label>
-                      <input type="number" name="compare_price" className="form-control" value={form.compare_price} onChange={handleChange} min="0" />
+                      <input
+                        type="number"
+                        name="compare_price"
+                        className={`form-control ${getFieldError("compare_price") ? "is-invalid" : ""}`}
+                        value={form.compare_price}
+                        onChange={handleChange}
+                        min="0"
+                      />
                     </div>
+
                     <div className="col-12 col-md-6">
                       <label className="form-label">Quantite</label>
-                      <input type="number" name="quantity" className="form-control" value={form.quantity} onChange={handleChange} min="0" required />
+                      <input
+                        type="number"
+                        name="quantity"
+                        className={`form-control ${getFieldError("quantity") ? "is-invalid" : ""}`}
+                        value={form.quantity}
+                        onChange={handleChange}
+                        min="0"
+                        required
+                      />
                     </div>
+
                     <div className="col-12 col-md-6">
                       <label className="form-label">Stock minimum</label>
-                      <input type="number" name="min_stock" className="form-control" value={form.min_stock} onChange={handleChange} min="0" />
+                      <input
+                        type="number"
+                        name="min_stock"
+                        className={`form-control ${getFieldError("min_stock") ? "is-invalid" : ""}`}
+                        value={form.min_stock}
+                        onChange={handleChange}
+                        min="0"
+                      />
                     </div>
                   </div>
+
                   <div className="form-check mt-3">
-                    <input id="is_available" type="checkbox" name="is_available" className="form-check-input" checked={form.is_available} onChange={handleChange} />
-                    <label htmlFor="is_available" className="form-check-label">Disponible</label>
+                    <input
+                      id="is_available"
+                      type="checkbox"
+                      name="is_available"
+                      className="form-check-input"
+                      checked={form.is_available}
+                      onChange={handleChange}
+                    />
+                    <label htmlFor="is_available" className="form-check-label">
+                      Disponible
+                    </label>
                   </div>
                 </div>
+
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-light" onClick={closeCreateEditModal} disabled={submitting}>Annuler</button>
+                  <button type="button" className="btn btn-light" onClick={closeCreateEditModal} disabled={submitting}>
+                    Annuler
+                  </button>
                   <button type="submit" className="btn btn-primary" disabled={submitting}>
                     {submitting ? "Enregistrement..." : editingRow ? "Mettre a jour" : "Enregistrer"}
                   </button>
@@ -642,12 +728,15 @@ export default function InventoryTable({ product, reload }) {
                   <h5 className="modal-title">Ajuster le stock</h5>
                   <button type="button" className="btn-close" onClick={closeAdjustModal} />
                 </div>
+
                 <div className="modal-body">
                   {apiErrorMessage ? <div className="alert alert-danger">{apiErrorMessage}</div> : null}
+
                   <div className="mb-3">
                     <label className="form-label">Ville</label>
                     <input type="text" className="form-control" value={adjustingRow.city?.name || ""} disabled />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Type</label>
                     <select name="type" className="form-select" value={adjustForm.type} onChange={handleAdjustChange} required>
@@ -655,21 +744,48 @@ export default function InventoryTable({ product, reload }) {
                       <option value="down">Diminuer (-)</option>
                     </select>
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Quantite</label>
-                    <input type="number" name="quantity" className="form-control" value={adjustForm.quantity} onChange={handleAdjustChange} min="1" required />
+                    <input
+                      type="number"
+                      name="quantity"
+                      className="form-control"
+                      value={adjustForm.quantity}
+                      onChange={handleAdjustChange}
+                      min="1"
+                      required
+                    />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Raison</label>
-                    <input type="text" name="reason" className="form-control" value={adjustForm.reason} onChange={handleAdjustChange} required />
+                    <input
+                      type="text"
+                      name="reason"
+                      className="form-control"
+                      value={adjustForm.reason}
+                      onChange={handleAdjustChange}
+                      required
+                    />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Note</label>
-                    <textarea name="note" className="form-control" rows={3} value={adjustForm.note} onChange={handleAdjustChange} />
+                    <textarea
+                      name="note"
+                      className="form-control"
+                      rows={3}
+                      value={adjustForm.note}
+                      onChange={handleAdjustChange}
+                    />
                   </div>
                 </div>
+
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-light" onClick={closeAdjustModal} disabled={submitting}>Annuler</button>
+                  <button type="button" className="btn btn-light" onClick={closeAdjustModal} disabled={submitting}>
+                    Annuler
+                  </button>
                   <button type="submit" className="btn btn-success" disabled={submitting}>
                     {submitting ? "Validation..." : "Valider l'ajustement"}
                   </button>
@@ -689,36 +805,76 @@ export default function InventoryTable({ product, reload }) {
                   <h5 className="modal-title">Transferer le stock</h5>
                   <button type="button" className="btn-close" onClick={closeTransferModal} />
                 </div>
+
                 <div className="modal-body">
                   {apiErrorMessage ? <div className="alert alert-danger">{apiErrorMessage}</div> : null}
+
                   <div className="mb-3">
                     <label className="form-label">Ville source</label>
                     <input type="text" className="form-control" value={transferRow.city?.name || ""} disabled />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Ville de destination</label>
-                    <select name="city_to_id" className="form-select" value={transferForm.city_to_id} onChange={handleTransferChange} required>
+                    <select
+                      name="city_to_id"
+                      className="form-select"
+                      value={transferForm.city_to_id}
+                      onChange={handleTransferChange}
+                      required
+                    >
                       <option value="">-- Selectionner une ville --</option>
-                      {cities.filter((city) => city.id !== transferRow.city_id).map((city) => (
-                        <option key={city.id} value={city.id}>{city.name}</option>
-                      ))}
+                      {cities
+                        .filter((city) => city.id !== transferRow.city_id)
+                        .map((city) => (
+                          <option key={city.id} value={city.id}>
+                            {city.name}
+                          </option>
+                        ))}
                     </select>
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Quantite</label>
-                    <input type="number" name="quantity" className="form-control" value={transferForm.quantity} onChange={handleTransferChange} min="1" required />
+                    <input
+                      type="number"
+                      name="quantity"
+                      className="form-control"
+                      value={transferForm.quantity}
+                      onChange={handleTransferChange}
+                      min="1"
+                      required
+                    />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Raison</label>
-                    <input type="text" name="reason" className="form-control" value={transferForm.reason} onChange={handleTransferChange} required />
+                    <input
+                      type="text"
+                      name="reason"
+                      className="form-control"
+                      value={transferForm.reason}
+                      onChange={handleTransferChange}
+                      required
+                    />
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">Note</label>
-                    <textarea name="note" className="form-control" rows={3} value={transferForm.note} onChange={handleTransferChange} />
+                    <textarea
+                      name="note"
+                      className="form-control"
+                      rows={3}
+                      value={transferForm.note}
+                      onChange={handleTransferChange}
+                    />
                   </div>
                 </div>
+
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-light" onClick={closeTransferModal} disabled={submitting}>Annuler</button>
+                  <button type="button" className="btn btn-light" onClick={closeTransferModal} disabled={submitting}>
+                    Annuler
+                  </button>
                   <button type="submit" className="btn btn-dark" disabled={submitting}>
                     {submitting ? "Validation..." : "Valider le transfert"}
                   </button>
