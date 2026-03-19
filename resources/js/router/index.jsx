@@ -43,6 +43,7 @@ import ContactUsPage from "../pages/admin/contacts/ContactUsPage";
 import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
 import GalleryPage from "../pages/admin/gallery/GalleryPage";
 import ReservationsPage from "../pages/admin/reservations/ReservationsPage";
+import OrdersPage from "../pages/admin/orders/OrdersPage";
 import ClientLayout from "../layouts/ClientLayout";
 import Profile from "../pages/client/Profile";
 import Orders from "../pages/client/Orders";
@@ -107,7 +108,7 @@ export const router = createBrowserRouter([
           { path: "products/create", element: <CreateProductPage /> },
           { path: "categories/:categoryId/products/:productId", element: <ProductManagePage /> },
           { path: "categories/:categoryId/products/:productId/edit", element: <EditProductPage /> },
-          // { path: "orders", element: <OrdersPage /> },
+          { path: "orders", element: <OrdersPage /> },
           { path: "coupons", element: <CouponsPage /> },
           { path: "testimonials", element: <TestimonialPage /> },
           { path: "gallery", element: <GalleryPage /> },

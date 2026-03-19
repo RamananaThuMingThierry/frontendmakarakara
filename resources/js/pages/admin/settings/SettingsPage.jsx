@@ -112,6 +112,8 @@ export default function SettingsPage() {
     phone: "",
     email: "",
     address: "",
+    logo: "",
+    logoFile: null,
     facebook: "",
     instagram: "",
     whatsapp: "",
@@ -121,14 +123,21 @@ export default function SettingsPage() {
 
   async function loadAbout() {
     const res = await settingsApi.show();
-    setAbout((prev) => ({ ...prev, ...(res?.value || {}) }));
+    setAbout((prev) => ({ ...prev, ...(res?.value || {}), logoFile: null }));
   }
 
   async function saveAbout() {
     setAboutSaving(true);
     setAlert(null);
     try {
-      const res = await settingsApi.update(about);
+      const payload = {
+        ...about,
+        logo: about.logoFile || null,
+      };
+      delete payload.logoFile;
+
+      const res = await settingsApi.update(payload);
+      setAbout((prev) => ({ ...prev, ...(res?.data || {}), logoFile: null }));
       setAlert({
         type: "success",
         text: res?.message || "À propos mis à jour avec succès.",
@@ -575,6 +584,23 @@ async function confirmDeletePaymentMethod() {
                 />
               </Field>
 
+              <Field
+                label="Logo"
+                hint="Utilisé dans les emails et factures PDF envoyés aux clients."
+              >
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setAbout((p) => ({
+                      ...p,
+                      logoFile: e.target.files?.[0] || null,
+                    }))
+                  }
+                />
+              </Field>
+
               <div className="row">
                 <div className="col-md-6">
                   <Field label="Téléphone">
@@ -658,6 +684,20 @@ async function confirmDeletePaymentMethod() {
             <div className="bg-white border rounded-3 p-3">
               <h6 className="mb-2">Aperçu rapide</h6>
               <div className="border rounded-3 p-3">
+                {about.logo || about.logoFile ? (
+                  <div className="mb-3">
+                    <img
+                      src={
+                        about.logoFile
+                          ? URL.createObjectURL(about.logoFile)
+                          : imageUrl(about.logo)
+                      }
+                      alt={about.title || "Logo plateforme"}
+                      className="rounded border bg-light"
+                      style={{ width: 96, height: 96, objectFit: "contain" }}
+                    />
+                  </div>
+                ) : null}
                 <div className="fw-bold">{about.title || "—"}</div>
                 <div className="text-muted small mb-2">
                   {about.description || "—"}

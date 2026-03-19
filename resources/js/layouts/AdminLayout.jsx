@@ -20,7 +20,7 @@ const NAV = [
     { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Dashboard" },
     { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
     { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
-    //   { to: "/admin/orders", icon: "bi-receipt", label: "Orders", badge: "New" },
+    { to: "/admin/orders", icon: "bi-receipt", label: "Orders" },
     { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
     { to: "/admin/testimonials", icon: "bi-chat-square-quote", label: "Testimonials" },
     { to: "/admin/gallery", icon: "bi-card-image", label: "Gallery" },

@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethodCode;
+use App\Enums\PaymentStatus;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +23,7 @@ class Order extends Model
         'discount_total',
         'delivery_fee',
         'coupon_code',
+        'payment_method',
         'payment_method_id',
         'payment_reference',
         'total',
@@ -29,6 +33,9 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'status' => OrderStatus::class,
+        'payment_status' => PaymentStatus::class,
+        'payment_method' => PaymentMethodCode::class,
         'subtotal' => 'decimal:2',
         'discount_total' => 'decimal:2',
         'delivery_fee' => 'decimal:2',
@@ -89,6 +96,16 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    public function receipt()
+    {
+        return $this->hasOne(Receipt::class);
+    }
+
     public function delivery()
     {
         return $this->hasOne(Delivery::class);
@@ -104,7 +121,7 @@ class Order extends Model
      */
     public function scopeActive($query)
     {
-        return $query->whereNotIn('status', ['canceled']);
+        return $query->whereNotIn('status', [OrderStatus::CANCELLED->value]);
     }
 
     /**
@@ -125,7 +142,7 @@ class Order extends Model
      */
     public function markAsPaid()
     {
-        $this->update(['payment_status' => 'paid']);
+        $this->update(['payment_status' => PaymentStatus::PAID]);
     }
 
     /**
@@ -133,7 +150,7 @@ class Order extends Model
      */
     public function cancel()
     {
-        $this->update(['status' => 'canceled']);
+        $this->update(['status' => OrderStatus::CANCELLED]);
     }
 
     public function coupons()

@@ -129,8 +129,11 @@ export default function Checkout() {
           delivery_fee: deliveryFee,
           total: grandTotal,
           coupon_code: couponCode,
-          payment_method: form.payment_method,
+          payment_method: order?.payment_method || form.payment_method,
           status: order?.status || "pending",
+          payment_status:
+            order?.payment_status ||
+            (form.payment_method === "mobile_money" ? "pending_verification" : "unpaid"),
           address: {
             full_name: form.full_name,
             phone: form.phone,
@@ -350,6 +353,12 @@ export default function Checkout() {
                     <span className="text-secondary">(MVola / Orange / Airtel)</span>
                   </span>
                 </label>
+              </div>
+
+              <div className="alert alert-info mt-3 mb-0">
+                {form.payment_method === "mobile_money"
+                  ? "Le choix Mobile Money ne valide pas le paiement. La commande sera creee avec un paiement en attente de verification."
+                  : "Le choix espece cree une commande non payee. Le paiement sera confirme ulterieurement."}
               </div>
 
               <button

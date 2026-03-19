@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
+use App\Http\Controllers\WEB\ADMIN\OrderWorkflowController;
+use App\Http\Controllers\WEB\ADMIN\OrderController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\ADMIN\ReservationController;
 use App\Http\Controllers\WEB\AuthController;
@@ -170,6 +172,14 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+        Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
+        Route::get('orders/{encryptedId}', [OrderController::class, 'show'])->name('admin.orders.show');
+        Route::post('orders/{encryptedId}/confirm', [OrderWorkflowController::class, 'confirm'])->name('admin.orders.confirm');
+        Route::post('orders/{encryptedId}/processing', [OrderWorkflowController::class, 'startProcessing'])->name('admin.orders.processing');
+        Route::post('orders/{encryptedId}/mark-paid', [OrderWorkflowController::class, 'markAsPaid'])->name('admin.orders.markPaid');
+        Route::post('orders/{encryptedId}/send-receipt', [OrderWorkflowController::class, 'sendReceipt'])->name('admin.orders.sendReceipt');
+        Route::post('orders/{encryptedId}/cancel', [OrderWorkflowController::class, 'cancel'])->name('admin.orders.cancel');
+        Route::post('orders/{encryptedId}/deliver', [OrderWorkflowController::class, 'markAsDelivered'])->name('admin.orders.deliver');
         Route::get('reservations', [ReservationController::class, 'index'])->name('admin.reservations.index');
         Route::get('reservations/{encryptedId}', [ReservationController::class, 'show'])->name('admin.reservations.show');
 
@@ -199,5 +209,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('/my-reservations/{reservationId}', [CUSTOMERReservationController::class, 'destroy'])->name('customer.reservations.destroy');
         Route::get('/my-orders', [ClientOrderController::class, 'index'])->name('customer.orders.index');
         Route::post('/orders', [ClientOrderController::class, 'store'])->name('customer.orders.store');
+        Route::get('/my-orders/{orderId}/invoice', [ClientOrderController::class, 'downloadInvoice'])->name('customer.orders.invoice');
+        Route::delete('/my-orders/{orderId}', [ClientOrderController::class, 'destroy'])->name('customer.orders.destroy');
     });
 });

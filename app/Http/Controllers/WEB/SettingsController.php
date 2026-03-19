@@ -8,6 +8,7 @@ use App\Services\ActivityLogService;
 use App\Services\SettingsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SettingsController extends Controller
@@ -25,6 +26,19 @@ class SettingsController extends Controller
     public function update(SettingRequest $request): JsonResponse
     {
         try {
+            Log::info('admin.settings.update.request', [
+                'content_type' => $request->header('Content-Type'),
+                'has_file_logo' => $request->hasFile('logo'),
+                'all' => $request->except(['logo']),
+                'logo' => $request->file('logo')
+                    ? [
+                        'original_name' => $request->file('logo')->getClientOriginalName(),
+                        'mime_type' => $request->file('logo')->getMimeType(),
+                        'size' => $request->file('logo')->getSize(),
+                    ]
+                    : null,
+            ]);
+
             $data  = $request->validated();
             $value = $this->settingService->updateAboutPlatform($data);
 
