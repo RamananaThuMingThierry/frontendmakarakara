@@ -84,7 +84,7 @@ class ReservationController extends Controller
         try {
             $reservation = $this->reservationService->getReservationById(
                 $id,
-                relations: ['items.product:id,name', 'items.city:id,name', 'user:id,name,email', 'createdBy:id,name,email']
+                relations: ['items.product:id,name,price', 'items.city:id,name', 'user:id,name,email', 'createdBy:id,name,email']
             );
 
             if (! $reservation) {
@@ -96,7 +96,7 @@ class ReservationController extends Controller
             $reservationItems = $this->reservationItemService->getAllReservationItems(
                 keys: 'reservation_id',
                 values: $reservation->id,
-                relations: ['product:id,name', 'city:id,name']
+                relations: ['product:id,name,price', 'city:id,name']
             );
 
             $reservation->setRelation('items', $reservationItems);
@@ -175,6 +175,7 @@ class ReservationController extends Controller
             'reservation_id' => $reservationItem->reservation_id,
             'product_id' => $reservationItem->product_id,
             'product_name' => $reservationItem->product?->name,
+            'product_price' => $reservationItem->product?->price !== null ? (float) $reservationItem->product->price : null,
             'city_id' => $reservationItem->city_id,
             'city_name' => $reservationItem->city?->name,
             'quantity' => (int) $reservationItem->quantity,

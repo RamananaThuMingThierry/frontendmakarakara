@@ -1,5 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { adminReservationsApi } from "../../../api/admin_reservations";
+import { useI18n } from "../../../hooks/website/I18nContext";
+
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-bs5";
 
 const STATUS_BADGES = {
   active: "warning",
@@ -29,15 +34,31 @@ function formatSource(item) {
   return "Reservation";
 }
 
+function formatPrice(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  return `${Number(value).toLocaleString("fr-FR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} Ar`;
+}
+
 export default function ReservationsPage() {
+  const { lang } = useI18n();
+  const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showOpen, setShowOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+
+  const tableRef = useRef(null);
+  const dtRef = useRef(null);
+  const itemsRef = useRef(items);
+  const itemsTableRef = useRef(null);
+  const itemsDtRef = useRef(null);
 
   async function load({ mode = "initial" } = {}) {
     if (mode === "initial") setLoading(true);
@@ -59,24 +80,9 @@ export default function ReservationsPage() {
     load({ mode: "initial" });
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return items;
-
-    return items.filter((item) =>
-      [
-        item.id,
-        item.user_name,
-        item.user_email,
-        item.product_name,
-        item.city_name,
-        item.status,
-        item.release_reason,
-      ]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(q))
-    );
-  }, [items, search]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   async function openShow(item) {
     setShowOpen(true);
@@ -100,6 +106,196 @@ export default function ReservationsPage() {
     setSelected(null);
   }
 
+  useEffect(() => {
+    const tableNode = tableRef.current;
+    if (loading || !tableNode) return;
+
+    const $table = $(tableNode);
+
+    try {
+      $table.off("click", ".js-show");
+    } catch {}
+
+    try {
+      if ($.fn.dataTable.isDataTable(tableNode)) {
+        const existing = $table.DataTable();
+        existing.clear();
+        existing.destroy();
+      }
+    } catch {}
+
+    if (tableNode.tBodies?.[0]) {
+      tableNode.tBodies[0].innerHTML = "";
+    }
+
+    dtRef.current = $table.DataTable({
+      data: items,
+      pageLength: 10,
+      lengthMenu: [10, 15, 25, 50, 100],
+      ordering: true,
+      searching: true,
+      responsive: true,
+      language: { url: DT_LANG_URL },
+      columns: [
+        {
+          data: null,
+          title: "#",
+          render: (d, t, row, meta) => meta.row + 1,
+        },
+        {
+          data: null,
+          title: "Client",
+          render: (value, type, row) => `
+            <div class="fw-semibold">${row.user_name || "-"}</div>
+            <div class="small text-muted">${row.user_email || "-"}</div>
+          `,
+        },
+        { data: "product_name", title: "Produit", defaultContent: "-" },
+        { data: "city_name", title: "Ville", defaultContent: "-" },
+        { data: "quantity", title: "Quantite", defaultContent: 0 },
+        {
+          data: null,
+          title: "Source",
+          render: (value, type, row) => formatSource(row),
+        },
+        {
+          data: "status",
+          title: "Statut",
+          render: (value) =>
+            `<span class="badge text-bg-${STATUS_BADGES[value] || "secondary"}">${STATUS_LABELS[value] || value || "-"}</span>`,
+        },
+        {
+          data: "reserved_at",
+          title: "Date",
+          render: (value) => formatDate(value),
+        },
+        {
+          data: null,
+          title: "Actions",
+          orderable: false,
+          searchable: false,
+          className: "text-end",
+          render: (value, type, row) => `
+            <button class="btn btn-sm btn-outline-primary js-show" data-id="${row.id}">
+              <i class="bi bi-eye me-1"></i>
+              Voir
+            </button>
+          `,
+        },
+      ],
+    });
+
+    $table.on("click", ".js-show", (e) => {
+      const id = Number($(e.currentTarget).data("id"));
+      const item = itemsRef.current.find((current) => Number(current.id) === id);
+      if (item) openShow(item);
+    });
+
+    return () => {
+      try {
+        $table.off("click", ".js-show");
+      } catch {}
+
+      try {
+        if (dtRef.current) {
+          dtRef.current.clear();
+          dtRef.current.destroy();
+        }
+      } catch {}
+
+      dtRef.current = null;
+      if (tableNode.tBodies?.[0]) {
+        tableNode.tBodies[0].innerHTML = "";
+      }
+    };
+  }, [DT_LANG_URL, loading]);
+
+  useEffect(() => {
+    if (!dtRef.current) return;
+
+    const dt = dtRef.current;
+    const page = dt.page();
+    const search = dt.search();
+    const order = dt.order();
+
+    dt.clear();
+    dt.rows.add(items);
+    dt.draw(false);
+    dt.order(order).draw(false);
+    dt.search(search).draw(false);
+    dt.page(page).draw(false);
+  }, [items]);
+
+  useEffect(() => {
+    const tableNode = itemsTableRef.current;
+    const reservationItems = Array.isArray(selected?.items) ? selected.items : [];
+
+    if (!showOpen || showLoading || !selected || !tableNode || reservationItems.length === 0) {
+      if (itemsDtRef.current) {
+        try {
+          itemsDtRef.current.clear();
+          itemsDtRef.current.destroy();
+        } catch {}
+        itemsDtRef.current = null;
+      }
+
+      if (tableNode?.tBodies?.[0]) {
+        tableNode.tBodies[0].innerHTML = "";
+      }
+      return;
+    }
+
+    const $table = $(tableNode);
+
+    try {
+      if ($.fn.dataTable.isDataTable(tableNode)) {
+        const existing = $table.DataTable();
+        existing.clear();
+        existing.destroy();
+      }
+    } catch {}
+
+    if (tableNode.tBodies?.[0]) {
+      tableNode.tBodies[0].innerHTML = "";
+    }
+
+    itemsDtRef.current = $table.DataTable({
+      data: reservationItems,
+      pageLength: 5,
+      lengthMenu: [5, 10, 25, 50],
+      ordering: true,
+      searching: true,
+      responsive: true,
+      language: { url: DT_LANG_URL },
+      columns: [
+        { data: "product_name", title: "Produit", defaultContent: "-" },
+        { data: "city_name", title: "Ville", defaultContent: "-" },
+        {
+          data: "product_price",
+          title: "Prix",
+          render: (value) => {
+            return `<span class="text-primary fw-bold">${formatPrice(value)}</span>`;
+          },
+        },
+        { data: "quantity", title: "Quantite", defaultContent: 0 },
+      ],
+    });
+
+    return () => {
+      try {
+        if (itemsDtRef.current) {
+          itemsDtRef.current.clear();
+          itemsDtRef.current.destroy();
+        }
+      } catch {}
+
+      itemsDtRef.current = null;
+      if (tableNode.tBodies?.[0]) {
+        tableNode.tBodies[0].innerHTML = "";
+      }
+    };
+  }, [DT_LANG_URL, selected, showLoading, showOpen]);
+
   return (
     <div className="container-fluid">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
@@ -110,15 +306,6 @@ export default function ReservationsPage() {
         </div>
 
         <div className="d-flex gap-2">
-          <input
-            className="form-control"
-            style={{ width: 320 }}
-            placeholder="Rechercher client, produit, ville..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            disabled={loading}
-          />
-
           <button
             className="btn btn-outline-secondary"
             onClick={() => load({ mode: "refresh" })}
@@ -148,11 +335,9 @@ export default function ReservationsPage() {
               <span className="spinner-border spinner-border-sm" />
               Chargement...
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center text-muted py-4">Aucune reservation trouvee.</div>
           ) : (
             <div className="table-responsive">
-              <table className="table align-middle mb-0">
+              <table ref={tableRef} className="table align-middle mb-0">
                 <thead>
                   <tr className="text-muted small">
                     <th style={{ width: 70 }}>#</th>
@@ -166,33 +351,7 @@ export default function ReservationsPage() {
                     <th className="text-end" style={{ width: 140 }}>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filtered.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="fw-semibold">{item.user_name || "-"}</div>
-                        <div className="small text-muted">{item.user_email || "-"}</div>
-                      </td>
-                      <td>{item.product_name || "-"}</td>
-                      <td>{item.city_name || "-"}</td>
-                      <td>{item.quantity}</td>
-                      <td>{formatSource(item)}</td>
-                      <td>
-                        <span className={`badge text-bg-${STATUS_BADGES[item.status] || "secondary"}`}>
-                          {STATUS_LABELS[item.status] || item.status}
-                        </span>
-                      </td>
-                      <td>{formatDate(item.reserved_at)}</td>
-                      <td className="text-end">
-                        <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)}>
-                          <i className="bi bi-eye me-1" />
-                          Voir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                <tbody />
               </table>
             </div>
           )}
@@ -202,10 +361,10 @@ export default function ReservationsPage() {
       {showOpen && (
         <>
           <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-dialog modal-xl modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Detail de la reservation</h5>
+                  <h5 className="modal-title text-warning">Detail de la reservation</h5>
                   <button type="button" className="btn-close" onClick={closeShow} disabled={showLoading} />
                 </div>
 
@@ -221,7 +380,7 @@ export default function ReservationsPage() {
                         <div className="border rounded-3 p-3 h-100">
                           <div className="text-muted small mb-1">Client</div>
                           <div className="fw-semibold">{selected.user_name || "-"}</div>
-                          <div className="small text-muted">{selected.user_email || "-"}</div>
+                          <div className="small text-primary">{selected.user_email || "-"}</div>
 
                           <hr />
 
@@ -274,23 +433,16 @@ export default function ReservationsPage() {
                           <div className="text-muted small mb-2">Items de la reservation</div>
                           {Array.isArray(selected.items) && selected.items.length > 0 ? (
                             <div className="table-responsive">
-                              <table className="table align-middle mb-0">
+                              <table ref={itemsTableRef} className="table align-middle mb-0">
                                 <thead>
                                   <tr className="text-muted small">
                                     <th>Produit</th>
                                     <th>Ville</th>
+                                    <th>Prix</th>
                                     <th>Quantite</th>
                                   </tr>
                                 </thead>
-                                <tbody>
-                                  {selected.items.map((reservationItem) => (
-                                    <tr key={reservationItem.id}>
-                                      <td>{reservationItem.product_name || "-"}</td>
-                                      <td>{reservationItem.city_name || "-"}</td>
-                                      <td>{reservationItem.quantity}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
+                                <tbody />
                               </table>
                             </div>
                           ) : (
