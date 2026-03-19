@@ -4,6 +4,7 @@ use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\ADMIN\OrderWorkflowController;
 use App\Http\Controllers\WEB\ADMIN\OrderController;
+use App\Http\Controllers\WEB\ADMIN\DashboardController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\ADMIN\ReservationController;
 use App\Http\Controllers\WEB\AuthController;
@@ -172,6 +173,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
         Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
         Route::get('orders/{encryptedId}', [OrderController::class, 'show'])->name('admin.orders.show');
         Route::post('orders/{encryptedId}/confirm', [OrderWorkflowController::class, 'confirm'])->name('admin.orders.confirm');

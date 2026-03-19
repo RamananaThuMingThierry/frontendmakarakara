@@ -100,6 +100,7 @@ export const router = createBrowserRouter([
         ),
         children: [
           { index: true, element: <AdminDashboard /> },
+          { path: "dashboard", element: <AdminDashboard /> },
           // { path: "products", element: <ProductsPage /> },
           { path: "brands", element: <BrandsPage /> },
           { path: "categories", element: <CategoriesPage /> },
