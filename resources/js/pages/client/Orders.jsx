@@ -41,10 +41,11 @@ const PAYMENT_STATUS_COLORS = {
 };
 
 function canDownloadInvoice(order) {
-  return Boolean(order?.invoice?.number) && String(order?.status || "") !== "cancelled";
+  return Boolean(order?.invoice?.number) && ["confirmed", "processing", "delivered"].includes(String(order?.status || ""));
 }
 
-function canCancelOrder(status) {
+function canCancelOrder(status, paymentStatus) {
+  if (String(paymentStatus || "") === "paid") return false;
   return ["pending", "confirmed", "processing"].includes(String(status || ""));
 }
 
@@ -160,7 +161,7 @@ export default function Orders() {
                 <span className={`badge text-bg-${PAYMENT_STATUS_COLORS[order.payment_status] || "secondary"}`}>
                   {PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status}
                 </span>
-                {canCancelOrder(order.status) ? (
+                {canCancelOrder(order.status, order.payment_status) ? (
                   <button
                     type="button"
                     className="btn btn-outline-danger btn-sm"

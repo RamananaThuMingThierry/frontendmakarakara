@@ -199,7 +199,7 @@ export default function OrderSuccess() {
               <div className="d-flex justify-content-between text-secondary mb-2">
                 <span>Livraison</span>
                 <span className="fw-semibold">
-                  {deliveryFee === 0 ? "Gratuite" : formatPriceMGA(deliveryFee)}
+                  {deliveryFee > 0 ? formatPriceMGA(deliveryFee) : "A confirmer par l'administration"}
                 </span>
               </div>
 
@@ -217,10 +217,10 @@ export default function OrderSuccess() {
               {paymentMethod === "cash" ? (
                 <div className="text-secondary">
                   <p className="mb-2">
-                    Vous payerez <span className="fw-semibold">{formatPriceMGA(total)}</span> a la livraison.
+                    Le total final a payer sera confirme apres definition du frais de livraison par l'administration.
                   </p>
                   <div className="alert alert-warning mb-0">
-                    Une facture initiale non payee a ete creee. Merci de preparer le montant exact si possible.
+                    La commande reste en attente de confirmation. L'administration fixera le frais de livraison avant confirmation finale.
                   </div>
                 </div>
               ) : (

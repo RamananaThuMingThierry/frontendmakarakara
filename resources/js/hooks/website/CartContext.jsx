@@ -37,11 +37,22 @@ function writeCartOwner(owner) {
   localStorage.setItem(CART_OWNER_KEY, owner || "guest");
 }
 
+function getCartItemKey(product) {
+  const inventoryId = product?.inventory_id ?? null;
+  const productId = product?.product_id ?? product?.id ?? null;
+  const cityId = product?.city_id ?? null;
+
+  if (inventoryId) return `inventory:${inventoryId}`;
+  if (productId && cityId) return `product:${productId}:city:${cityId}`;
+  if (productId) return `product:${productId}`;
+  return `product:unknown:${Date.now()}`;
+}
+
 function normalizeProduct(product) {
   const productId = product.product_id ?? product.id;
 
   return {
-    id: productId,
+    id: getCartItemKey(product),
     product_id: productId,
     inventory_id: product.inventory_id ?? null,
     city_id: product.city_id ?? null,
@@ -64,8 +75,9 @@ export function CartProvider({ children }) {
   }, []);
 
   const applyLocalCart = (nextCart, owner = readCartOwner()) => {
-    setCart(nextCart);
-    writeLocalCart(nextCart, owner);
+    const normalizedCart = Array.isArray(nextCart) ? nextCart.map(normalizeProduct) : [];
+    setCart(normalizedCart);
+    writeLocalCart(normalizedCart, owner);
     writeCartOwner(owner);
   };
 
@@ -122,6 +134,15 @@ export function CartProvider({ children }) {
       } catch (error) {
         if (cancelled) return;
         console.error("Cart sync failed", error);
+        try {
+          const response = await getMyCart();
+          if (cancelled) return;
+          applyRemotePayload(response?.data);
+          hydratedUserIdRef.current = currentUserId;
+        } catch (refreshError) {
+          if (cancelled) return;
+          console.error("Cart refresh after sync failure failed", refreshError);
+        }
       } finally {
         if (!cancelled) setSyncing(false);
       }
@@ -135,9 +156,10 @@ export function CartProvider({ children }) {
   }, [isAuth, hydrating, user?.id]);
 
   const updateServerItem = async (productId, quantity, nextLocalCart, itemMeta = null) => {
+    const previousCart = cart;
     applyLocalCart(nextLocalCart, isAuth ? String(user?.id ?? "auth") : "guest");
 
-    if (!isAuth) return;
+    if (!isAuth) return { ok: true };
 
     setSyncing(true);
 
@@ -154,8 +176,22 @@ export function CartProvider({ children }) {
       }
 
       applyRemotePayload(response?.data);
+      return { ok: true, data: response?.data ?? null };
     } catch (error) {
       console.error("Cart item update failed", error);
+      const message =
+        error?.response?.data?.errors?.city_id?.[0] ||
+        error?.response?.data?.message ||
+        "Impossible de mettre a jour le panier.";
+
+      try {
+        const response = await getMyCart();
+        applyRemotePayload(response?.data);
+      } catch {
+        applyLocalCart(previousCart, String(user?.id ?? "auth"));
+      }
+
+      return { ok: false, error: message };
     } finally {
       setSyncing(false);
     }
@@ -180,7 +216,7 @@ export function CartProvider({ children }) {
 
   const getProductKey = (productOrId) => {
     if (typeof productOrId === "object" && productOrId !== null) {
-      return productOrId.product_id ?? productOrId.id;
+      return getCartItemKey(productOrId);
     }
 
     return productOrId;
@@ -191,7 +227,7 @@ export function CartProvider({ children }) {
   const setQty = (id, qty) => {
     const nextQty = Math.max(0, parseInt(qty, 10) || 0);
     const current = cart.find((item) => item.id === id);
-    if (!current) return;
+    if (!current) return Promise.resolve({ ok: false, error: "Produit introuvable dans le panier." });
 
     const nextCart = cart
       .map((item) => (item.id === id ? { ...item, qty: nextQty } : item))
@@ -225,6 +261,24 @@ export function CartProvider({ children }) {
     applyLocalCart([], isAuth ? String(user?.id ?? "auth") : "guest");
   };
 
+  const refreshCart = async () => {
+    if (!isAuth) {
+      applyLocalCart(readLocalCart("guest"), "guest");
+      return;
+    }
+
+    setSyncing(true);
+
+    try {
+      const response = await getMyCart();
+      applyRemotePayload(response?.data);
+    } catch (error) {
+      console.error("Cart refresh failed", error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const cartCount = useMemo(
     () => cart.reduce((sum, item) => sum + (item.qty || 0), 0),
     [cart]
@@ -235,10 +289,37 @@ export function CartProvider({ children }) {
     [cart]
   );
 
+  const cartCityIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          cart
+            .map((item) => item.city_id)
+            .filter((value) => value !== null && value !== undefined && value !== "")
+            .map((value) => String(value))
+        )
+      ),
+    [cart]
+  );
+
+  const cartCityNames = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          cart
+            .map((item) => item.city_name)
+            .filter((value) => String(value || "").trim() !== "")
+        )
+      ),
+    [cart]
+  );
+
   const value = {
     cart,
     cartCount,
     total,
+    cartCityIds,
+    cartCityNames,
     syncing,
     getQty,
     getQtyByProduct,
@@ -249,6 +330,7 @@ export function CartProvider({ children }) {
     remove,
     clear,
     clearLocal,
+    refreshCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

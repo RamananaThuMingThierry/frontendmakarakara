@@ -21,6 +21,7 @@ class OrderController extends Controller
                     'user:id,name,email',
                     'items:id,order_id,product_name,quantity,unit_price,line_total',
                     'address:id,full_name,phone,address_line1,address_line2,city_name,region',
+                    'paymentMethod:id,name,code,image,is_active',
                     'invoice:id,order_id,number,status,issued_at',
                     'receipt:id,order_id,number,paid_at,payment_method',
                 ])
@@ -69,6 +70,7 @@ class OrderController extends Controller
                     'user:id,name,email',
                     'items:id,order_id,product_name,quantity,unit_price,line_total',
                     'address:id,full_name,phone,address_line1,address_line2,city_name,region,latitude,longitude',
+                    'paymentMethod:id,name,code,image,is_active',
                     'invoice:id,order_id,number,status,issued_at',
                     'receipt:id,order_id,number,paid_at,payment_method',
                 ])
@@ -108,6 +110,10 @@ class OrderController extends Controller
     {
         $itemsCount = $order->items->count();
         $quantity = (int) $order->items->sum('quantity');
+        $paymentMethodLabel = $order->paymentMethod?->name
+            ?? $order->paymentMethod?->code
+            ?? $order->payment_method?->value
+            ?? $order->payment_method;
 
         return [
             'id' => $order->id,
@@ -117,7 +123,9 @@ class OrderController extends Controller
             'user_email' => $order->user?->email,
             'status' => $order->status?->value ?? $order->status,
             'payment_status' => $order->payment_status?->value ?? $order->payment_status,
-            'payment_method' => $order->payment_method?->value ?? $order->payment_method,
+            'payment_method' => $paymentMethodLabel,
+            'payment_method_name' => $paymentMethodLabel,
+            'payment_method_code' => $order->paymentMethod?->code ?? ($order->payment_method?->value ?? $order->payment_method),
             'subtotal' => (float) $order->subtotal,
             'discount_total' => (float) $order->discount_total,
             'delivery_fee' => (float) $order->delivery_fee,

@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\WEB;
 
 use Exception;
-use Illuminate\Http\Request;
-use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Services\AuthService;
 use App\Services\ActivityLogService;
+use App\Services\PassswordResetService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class AuthController extends Controller
 {
-public function __construct(private AuthService $auth, private ActivityLogService $activityLogService) {}
+    public function __construct(
+        private AuthService $auth,
+        private ActivityLogService $activityLogService,
+        private PassswordResetService $passwordResetService,
+    ) {}
 
     public function login(LoginRequest $request)
     {
@@ -235,6 +240,50 @@ public function __construct(private AuthService $auth, private ActivityLogServic
                 'message' => 'Impossible d envoyer l email de verification pour le moment.',
             ], 500);
         }
+    }
+
+    public function forgot(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $this->passwordResetService->sendResetCode($data['email']);
+
+        return response()->json([
+            'message' => 'Un code de verification valable 15 minutes a ete envoyé.',
+            'expires_in_minutes' => 15,
+        ], 200);
+    }
+
+    public function verifyResetCode(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
+        ]);
+
+        $this->passwordResetService->verifyCode($data['email'], $data['code']);
+
+        return response()->json([
+            'message' => 'Code valide.',
+            'verified' => true,
+        ], 200);
+    }
+
+    public function reset(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $this->passwordResetService->resetPassword($data['email'], $data['code'], $data['password']);
+
+        return response()->json([
+            'message' => 'Mot de passe reinitialise avec succes.',
+        ], 200);
     }
 
 

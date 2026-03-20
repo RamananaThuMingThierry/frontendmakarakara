@@ -64,6 +64,13 @@ function getGoogleMapsUrl(address) {
   return `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
 
+function getPaymentMethodLabel(paymentMethod) {
+  if (!paymentMethod) return "-";
+  if (typeof paymentMethod === "string") return paymentMethod;
+
+  return paymentMethod.name || paymentMethod.code || paymentMethod.label || "-";
+}
+
 export default function OrdersPage() {
   const { lang } = useI18n();
   const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
@@ -76,6 +83,8 @@ export default function OrdersPage() {
   const [showOpen, setShowOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState("");
+  const [deliveryFeeInput, setDeliveryFeeInput] = useState("");
+  const [notesInput, setNotesInput] = useState("");
 
   const tableRef = useRef(null);
   const dtRef = useRef(null);
@@ -111,10 +120,14 @@ export default function OrdersPage() {
     setShowOpen(true);
     setShowLoading(true);
     setSelected(null);
+    setDeliveryFeeInput("");
+    setNotesInput("");
 
     try {
       const data = await adminOrdersApi.show(item.encrypted_id || item.id);
       setSelected(data);
+      setDeliveryFeeInput(String(data?.delivery_fee ?? 0));
+      setNotesInput(data?.notes || "");
     } catch (e) {
       setError(e?.response?.data?.message || "Impossible de charger le detail de la commande.");
       setShowOpen(false);
@@ -127,6 +140,8 @@ export default function OrdersPage() {
     if (showLoading || actionLoading) return;
     setShowOpen(false);
     setSelected(null);
+    setDeliveryFeeInput("");
+    setNotesInput("");
   }
 
   async function runAction(actionName, request) {
@@ -137,6 +152,8 @@ export default function OrdersPage() {
     try {
       const data = await request(selected.encrypted_id);
       setSelected(data);
+      setDeliveryFeeInput(String(data?.delivery_fee ?? 0));
+      setNotesInput(data?.notes || "");
       setItems((current) => current.map((item) => (item.id === data.id ? data : item)));
       await load({ mode: "refresh" });
     } catch (e) {
@@ -172,6 +189,10 @@ export default function OrdersPage() {
 
   function canSendReceipt(order) {
     return order?.payment_status === "paid" && !order?.receipt?.sent_at;
+  }
+
+  function canUpdateDeliveryFee(order) {
+    return order?.status === "pending";
   }
 
   useEffect(() => {
@@ -469,7 +490,30 @@ export default function OrdersPage() {
                           <hr />
 
                           <div className="text-muted small mb-1">Notes</div>
-                          <div>{selected.notes || "-"}</div>
+                          <div className="mb-2">
+                            <textarea
+                              className="form-control"
+                              rows={4}
+                              value={notesInput}
+                              onChange={(e) => setNotesInput(e.target.value)}
+                              placeholder="Ajouter une note interne sur cette commande..."
+                              disabled={!!actionLoading}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-warning"
+                            disabled={!!actionLoading}
+                            onClick={() =>
+                              runAction("notes", (id) =>
+                                adminOrdersApi.updateNotes(id, {
+                                  notes: notesInput,
+                                })
+                              )
+                            }
+                          >
+                            {actionLoading === "notes" ? "..." : "Enregistrer la note"}
+                          </button>
                         </div>
                       </div>
 
@@ -490,7 +534,39 @@ export default function OrdersPage() {
                           </div>
 
                           <div className="text-muted small mb-1">Moyen de paiement</div>
-                          <div className="mb-3">{selected.payment_method || "-"}</div>
+                          <div className="mb-3">{getPaymentMethodLabel(selected.payment_method_name || selected.payment_method)}</div>
+
+                          <div className="text-muted small mb-1">Frais de livraison</div>
+                          <div className="mb-3">
+                            <div className="input-group">
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className="form-control"
+                                value={deliveryFeeInput}
+                                onChange={(e) => setDeliveryFeeInput(e.target.value)}
+                                disabled={!canUpdateDeliveryFee(selected) || !!actionLoading}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-outline-warning"
+                                disabled={!canUpdateDeliveryFee(selected) || !!actionLoading}
+                                onClick={() =>
+                                  runAction("delivery_fee", (id) =>
+                                    adminOrdersApi.updateDeliveryFee(id, {
+                                      delivery_fee: Number(deliveryFeeInput || 0),
+                                    })
+                                  )
+                                }
+                              >
+                                {actionLoading === "delivery_fee" ? "..." : "Enregistrer"}
+                              </button>
+                            </div>
+                            <div className="small text-muted mt-2">
+                              Ce montant est defini par l'admin selon la distance de livraison. `0` signifie livraison gratuite. Le frais doit etre fixe avant confirmation.
+                            </div>
+                          </div>
 
                           <div className="text-muted small mb-1">Facture</div>
                           <div className="mb-3">{selected.invoice?.number || "-"}</div>
@@ -501,8 +577,16 @@ export default function OrdersPage() {
                           <div className="text-muted small mb-1">Recu envoye le</div>
                           <div className="mb-3">{formatDate(selected.receipt?.sent_at)}</div>
 
+                          <div className="text-muted small mb-1">Sous-total</div>
+                          <div className="mb-3">{formatPrice(selected.subtotal)}</div>
+
+                          <div className="text-muted small mb-1">Remise</div>
+                          <div className="mb-3">{formatPrice(selected.discount_total)}</div>
+
                           <div className="text-muted small mb-1">Total</div>
                           <div className="fw-bold text-danger">{formatPrice(selected.total)}</div>
+
+                          <div className="small text-muted">Le total inclut le frais de livraison defini pour cette commande.</div>
                         </div>
                       </div>
 

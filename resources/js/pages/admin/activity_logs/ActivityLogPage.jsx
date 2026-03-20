@@ -18,7 +18,6 @@ function decodeLabel(label) {
 function PrettyJSON({ value }) {
   let obj = value;
 
-  // si metadata arrive en string JSON (au cas où)
   if (typeof obj === "string") {
     try {
       obj = JSON.parse(obj);
@@ -39,43 +38,98 @@ function PrettyJSON({ value }) {
   );
 }
 
-function getActionStyle(actionRaw = "") {
-  const a = String(actionRaw).toLowerCase();
+function getActionStyle(log = {}) {
+  const action = String(log?.action ?? "").toLowerCase();
+  const color = String(log?.color ?? "").toLowerCase();
+  const status = Number(log?.status_code ?? 0);
+  const method = String(log?.method ?? "").toUpperCase();
 
-  const failed = a.includes("failed") || a.includes("error");
-
-  // prefix
-  const isCreate = a.startsWith("create_");
-  const isUpdate = a.startsWith("update_");
-  const isDelete = a.startsWith("delete_") || a.startsWith("remove_");
-  const isShow = a.startsWith("show_");
-  const isView = a.startsWith("view_");
-
-  // Bootstrap badge classes + icon + border color
-  if (failed) {
-    return { badge: "text-bg-danger", icon: "bi-x-octagon", border: "border-danger" };
-  }
-  if (isDelete) {
-    return { badge: "text-bg-danger", icon: "bi-trash3", border: "border-danger" };
-  }
-  if (isUpdate) {
-    return { badge: "text-bg-warning", icon: "bi-pencil-square", border: "border-warning" };
-  }
-  if (isCreate) {
-    return { badge: "text-bg-success", icon: "bi-plus-circle", border: "border-success" };
-  }
-  if (isShow || isView) {
-    return { badge: "text-bg-primary", icon: "bi-eye", border: "border-primary" };
+  if (color === "danger" || status >= 500 || action.includes("failed") || action.includes("error")) {
+    return { badge: "text-bg-danger", icon: "bi-x-octagon", border: "border-danger-subtle" };
   }
 
-  // fallback
-  return { badge: "text-bg-secondary", icon: "bi-activity", border: "border-secondary" };
+  if (color === "warning" || status >= 400) {
+    return { badge: "text-bg-warning", icon: "bi-exclamation-triangle", border: "border-warning-subtle" };
+  }
+
+  if (color === "success" || method === "POST" || action.startsWith("create")) {
+    return { badge: "text-bg-success", icon: "bi-check-circle", border: "border-success-subtle" };
+  }
+
+  if (color === "primary" || method === "PUT" || method === "PATCH" || action.startsWith("update")) {
+    return { badge: "text-bg-primary", icon: "bi-pencil-square", border: "border-primary-subtle" };
+  }
+
+  if (method === "DELETE" || action.startsWith("delete")) {
+    return { badge: "text-bg-danger", icon: "bi-trash3", border: "border-danger-subtle" };
+  }
+
+  return { badge: "text-bg-secondary", icon: "bi-activity", border: "border-secondary-subtle" };
+}
+
+function methodBadgeClass(method) {
+  switch (String(method ?? "").toUpperCase()) {
+    case "GET":
+      return "text-bg-info";
+    case "POST":
+      return "text-bg-success";
+    case "PUT":
+    case "PATCH":
+      return "text-bg-primary";
+    case "DELETE":
+      return "text-bg-danger";
+    default:
+      return "text-bg-secondary";
+  }
+}
+
+function statusBadgeClass(statusCode) {
+  const status = Number(statusCode ?? 0);
+
+  if (status >= 500) return "text-bg-danger";
+  if (status >= 400) return "text-bg-warning";
+  if (status >= 200) return "text-bg-success";
+  return "text-bg-secondary";
+}
+
+function compactText(value, fallback = "—") {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function buildSummaryFields(log) {
+  return [
+    { label: "Message", value: log?.message },
+    { label: "Utilisateur", value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
+    { label: "Entite", value: log?.entity_type ? `${log.entity_type}${log?.entity_id ? ` #${log.entity_id}` : ""}` : "" },
+    { label: "Route", value: log?.route },
+    { label: "URL", value: log?.url },
+  ].filter((item) => String(item.value ?? "").trim() !== "");
+}
+
+function buildDetailFields(log) {
+  return [
+    { label: "ID", value: log?.id },
+    { label: "Action", value: log?.action },
+    { label: "Couleur", value: log?.color },
+    { label: "Methode", value: log?.method },
+    { label: "Status HTTP", value: log?.status_code },
+    { label: "Utilisateur", value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
+    { label: "User ID", value: log?.user_id },
+    { label: "Entite", value: log?.entity_type },
+    { label: "Entity ID", value: log?.entity_id },
+    { label: "Route", value: log?.route },
+    { label: "URL", value: log?.url },
+    { label: "Message", value: log?.message },
+    { label: "Cree le", value: formatDate(log?.created_at) },
+    { label: "Modifie le", value: formatDate(log?.updated_at) },
+  ].filter((item) => item.value !== null && item.value !== undefined && String(item.value).trim() !== "");
 }
 
 export default function ActivityLogPage() {
   const { t } = useI18n();
 
-  const [pager, setPager] = useState(null); // paginator laravel
+  const [pager, setPager] = useState(null);
   const [page, setPage] = useState(1);
 
   const [loading, setLoading] = useState(true);
@@ -84,7 +138,6 @@ export default function ActivityLogPage() {
 
   const [q, setQ] = useState("");
 
-  // Toast (même pattern que Brands)
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
   function showToast(type, message) {
     setToast({ open: true, type, message });
@@ -92,11 +145,9 @@ export default function ActivityLogPage() {
     showToast._t = window.setTimeout(() => setToast((x) => ({ ...x, open: false })), 3500);
   }
 
-  // Modal show
   const [showOpen, setShowOpen] = useState(false);
   const [showing, setShowing] = useState(null);
 
-  // Modal delete
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -129,21 +180,37 @@ export default function ActivityLogPage() {
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;
-    return rows.filter((r) => {
-      const user = r?.user?.name || r?.user?.email || "";
-      return (
-        String(r?.id ?? "").includes(s) ||
-        String(r?.action ?? "").toLowerCase().includes(s) ||
-        String(r?.entity_type ?? "").toLowerCase().includes(s) ||
-        String(r?.entity_id ?? "").includes(s) ||
-        String(user).toLowerCase().includes(s)
-      );
-    });
+
+    return rows.filter((r) =>
+      [
+        r?.id,
+        r?.action,
+        r?.color,
+        r?.entity_type,
+        r?.entity_id,
+        r?.method,
+        r?.route,
+        r?.url,
+        r?.status_code,
+        r?.message,
+        r?.user?.name,
+        r?.user?.email,
+        JSON.stringify(r?.metadata ?? ""),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(s)
+    );
   }, [rows, q]);
 
-  function openShow(row) {
-    setShowing(row);
+  async function openShow(row) {
     setShowOpen(true);
+    setShowing(row);
+
+    try {
+      const fullLog = await activityLogsApi.show(getRowId(row));
+      setShowing(fullLog);
+    } catch {}
   }
 
   function closeShow() {
@@ -169,7 +236,6 @@ export default function ActivityLogPage() {
     try {
       await activityLogsApi.remove(getRowId(deleteTarget));
       showToast("success", t("activityLogs.toast.deleted", "Deleted."));
-      // recharge la page courante (si plus d'items, reculer page si besoin)
       await load({ page, mode: "refresh" });
       setDeleteOpen(false);
       setDeleteTarget(null);
@@ -183,7 +249,6 @@ export default function ActivityLogPage() {
 
   return (
     <div className="container-fluid">
-      {/* Header */}
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
           <h4 className="mb-1">{t("activityLogs.title", "Activity logs")}</h4>
@@ -197,8 +262,8 @@ export default function ActivityLogPage() {
         <div className="d-flex gap-2">
           <input
             className="form-control"
-            style={{ width: 300 }}
-            placeholder={t("activityLogs.search", "Search (local)")}
+            style={{ width: 320 }}
+            placeholder={t("activityLogs.search", "Search in all visible fields")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             disabled={loading}
@@ -224,8 +289,7 @@ export default function ActivityLogPage() {
         </div>
       </div>
 
-      {/* Body */}
-      <div className="card border-0 shadow-sm" style={{  backgroundColor: "#f6f6f6" }}>
+      <div className="card border-0 shadow-sm" style={{ backgroundColor: "#f6f6f6" }}>
         <div className="card-body">
           {err ? <div className="alert alert-danger">{err}</div> : null}
 
@@ -234,87 +298,91 @@ export default function ActivityLogPage() {
               <span className="spinner-border spinner-border-sm" />
               {t("activityLogs.loading", "Loading...")}
             </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center text-muted py-4">{t("activityLogs.empty", "No logs found.")}</div>
           ) : (
             <>
-              {/* Cards grid */}
-              {filtered.length === 0 ? (
-                <div className="text-center text-muted py-4">{t("activityLogs.empty", "No logs found.")}</div>
-              ) : (
-                <div className="row g-3">
-                  {filtered.map((r) => {
-                    const userLabel =
-                      r?.user?.name || r?.user?.email || (r?.user_id ? `#${r.user_id}` : "—");
-                    const entity = r?.entity_type ? `${r.entity_type} #${r.entity_id ?? "—"}` : "—";
+              <div className="row g-3">
+                {filtered.map((r) => {
+                  const style = getActionStyle(r);
+                  const summaryFields = buildSummaryFields(r).slice(0, 3);
 
-                    const s = getActionStyle(r.action);
-
-                    return (
-                      <div className="col-12 col-md-6 col-xl-4" key={r.id}>
-                        <div className={`card h-100 border-0 ${s.border} shadow-sm`}>
-                          <div className="card-body">
-                            <div className="d-flex align-items-start justify-content-between gap-2">
-                              <div>
-                                <div className="text-muted small">
-                                  {t("activityLogs.card.id", "Log")} #{r.id}
-                                </div>
+                  return (
+                    <div className="col-12 col-md-6 col-xl-4" key={r.id}>
+                      <div className={`card h-100 border ${style.border} shadow-sm`}>
+                        <div className="card-body d-flex flex-column gap-3">
+                          <div className="d-flex align-items-start justify-content-between gap-2">
+                            <div>
+                              <div className="text-muted small">
+                                {t("activityLogs.card.id", "Log")} #{r.id}
                               </div>
-
-                              <div className="d-flex gap-2">
-                                <div className="mt-1">
-                                  <span className={`badge ${s.badge}`}>
-                                    <i className={`bi ${s.icon} me-1`} />
-                                    {r.action}
-                                  </span>
-                                </div>
-                              </div>
+                              <div className="fw-semibold text-break">{compactText(r.action)}</div>
                             </div>
 
-                            <hr />
-
-                            <div className="mb-2">
-                              <div className="text-muted small">{t("activityLogs.card.entity", "Entity")}</div>
-                              <div className="fw-semibold">{entity}</div>
-                            </div>
-
-                            <div className="mb-2">
-                              <div className="text-muted small">{t("activityLogs.card.user", "User")}</div>
-                              <div>{userLabel}</div>
-                            </div>
-
-                            <div className="mb-0">
-                              <div className="text-muted small">{t("activityLogs.card.date", "Date")}</div>
-                              <div className="text-muted">{formatDate(r.created_at)}</div>
-                            </div>
+                            <span className={`badge ${style.badge}`}>
+                              <i className={`bi ${style.icon} me-1`} />
+                              {compactText(r.color, "log")}
+                            </span>
                           </div>
 
-                          {/* Footer actions (optionnel) */}
-                          <div className="card-footer bg-white border-0 pt-0">
-                            <div className="d-flex justify-content-end gap-2">
-                              <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(r)}>
-                                <i className="bi bi-eye me-2" />
-                                {t("activityLogs.actions.show", "Show")}
-                              </button>
-                              <button className="btn btn-sm btn-outline-danger" onClick={() => onDeleteAsk(r)}>
-                                <i className="bi bi-trash3 me-2" />
-                                {t("activityLogs.actions.delete", "Delete")}
-                              </button>
-                            </div>
+                          <div className="d-flex flex-wrap gap-2">
+                            {r?.method ? (
+                              <span className={`badge ${methodBadgeClass(r.method)}`}>{r.method}</span>
+                            ) : null}
+                            {r?.status_code ? (
+                              <span className={`badge ${statusBadgeClass(r.status_code)}`}>{r.status_code}</span>
+                            ) : null}
+                            {r?.entity_type ? (
+                              <span className="badge text-bg-light border text-dark">
+                                {r.entity_type}
+                                {r?.entity_id ? ` #${r.entity_id}` : ""}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          {r?.message ? (
+                            <div className="small text-dark bg-light rounded-3 p-3">{r.message}</div>
+                          ) : null}
+
+                          <div className="d-flex flex-column gap-2">
+                            {summaryFields.map((item) => (
+                              <div key={item.label}>
+                                <div className="text-muted small">{item.label}</div>
+                                <div className="text-break">{compactText(item.value)}</div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="mt-auto pt-2 border-top">
+                            <div className="text-muted small">{t("activityLogs.card.date", "Date")}</div>
+                            <div className="text-break">{formatDate(r.created_at)}</div>
+                          </div>
+                        </div>
+
+                        <div className="card-footer bg-white border-0 pt-0">
+                          <div className="d-flex justify-content-end gap-2">
+                            <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(r)}>
+                              <i className="bi bi-eye me-2" />
+                              {t("activityLogs.actions.show", "Show")}
+                            </button>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => onDeleteAsk(r)}>
+                              <i className="bi bi-trash3 me-2" />
+                              {t("activityLogs.actions.delete", "Delete")}
+                            </button>
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
 
-              {/* Pagination */}
               {pager?.links?.length ? (
                 <div className="d-flex justify-content-center mt-3">
                   <div className="btn-group">
                     {pager.links.map((l, idx) => {
                       const disabled = !l.url;
                       const active = !!l.active;
-
                       const nextPage = l.url ? Number(new URL(l.url).searchParams.get("page")) : null;
 
                       return (
@@ -336,11 +404,10 @@ export default function ActivityLogPage() {
         </div>
       </div>
 
-      {/* Modal show */}
       {showOpen && (
         <>
           <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-dialog modal-xl modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
                   <h5 className="modal-title">{t("activityLogs.show.title", "Log details")}</h5>
@@ -351,33 +418,31 @@ export default function ActivityLogPage() {
                   {showing ? (
                     <div className="row g-3">
                       <div className="col-12 col-lg-5">
-                        <div className="border rounded-3 p-3">
-                          <div className="text-muted small mb-1">{t("activityLogs.show.action", "Action")}</div>
-                          <div className="fw-semibold">
-                            <span className="badge text-bg-dark">{showing.action}</span>
+                        <div className="border rounded-3 p-3 h-100">
+                          <div className="d-flex flex-wrap gap-2 mb-3">
+                            {showing?.action ? <span className="badge text-bg-dark">{showing.action}</span> : null}
+                            {showing?.method ? (
+                              <span className={`badge ${methodBadgeClass(showing.method)}`}>{showing.method}</span>
+                            ) : null}
+                            {showing?.status_code ? (
+                              <span className={`badge ${statusBadgeClass(showing.status_code)}`}>{showing.status_code}</span>
+                            ) : null}
+                            {showing?.color ? <span className="badge text-bg-secondary">{showing.color}</span> : null}
                           </div>
 
-                          <hr />
-
-                          <div className="text-muted small mb-1">{t("activityLogs.show.entity", "Entity")}</div>
-                          <div className="fw-semibold">
-                            {showing?.entity_type ? `${showing.entity_type} #${showing?.entity_id ?? "—"}` : "—"}
+                          <div className="d-flex flex-column gap-3">
+                            {buildDetailFields(showing).map((item) => (
+                              <div key={item.label}>
+                                <div className="text-muted small mb-1">{item.label}</div>
+                                <div className="text-break">{compactText(item.value)}</div>
+                              </div>
+                            ))}
                           </div>
-
-                          <hr />
-
-                          <div className="text-muted small mb-1">{t("activityLogs.show.user", "User")}</div>
-                          <div>{showing?.user?.name || showing?.user?.email || (showing?.user_id ? `#${showing.user_id}` : "—")}</div>
-
-                          <hr />
-
-                          <div className="text-muted small mb-1">{t("activityLogs.show.date", "Date")}</div>
-                          <div className="text-muted">{formatDate(showing.created_at)}</div>
                         </div>
                       </div>
 
                       <div className="col-12 col-lg-7">
-                        <div className="border rounded-3 p-3">
+                        <div className="border rounded-3 p-3 h-100">
                           <div className="text-muted small mb-2">{t("activityLogs.show.metadata", "Metadata")}</div>
                           <PrettyJSON value={showing.metadata} />
                         </div>
@@ -399,7 +464,6 @@ export default function ActivityLogPage() {
         </>
       )}
 
-      {/* Modal delete */}
       {deleteOpen && (
         <>
           <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
@@ -444,7 +508,6 @@ export default function ActivityLogPage() {
         </>
       )}
 
-      {/* Toast */}
       {toast.open && (
         <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}>
           <div className={`toast show text-bg-${toast.type} border-0`}>

@@ -14,3 +14,8 @@ export async function cancelMyReservation(reservationId) {
   const { data } = await api.delete(`/my-reservations/${reservationId}`);
   return data;
 }
+
+export async function checkoutMyReservation(reservationId) {
+  const { data } = await api.post(`/my-reservations/${reservationId}/checkout`);
+  return data;
+}

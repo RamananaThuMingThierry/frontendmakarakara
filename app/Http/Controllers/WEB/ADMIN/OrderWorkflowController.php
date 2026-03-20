@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderWorkflowService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -41,6 +42,32 @@ class OrderWorkflowController extends Controller
     public function sendReceipt(string $encryptedId): JsonResponse
     {
         return $this->handleAction($encryptedId, fn (Order $order) => $this->orderWorkflowService->sendReceipt($order), 'Recu envoye au client.');
+    }
+
+    public function updateDeliveryFee(Request $request, string $encryptedId): JsonResponse
+    {
+        $validated = $request->validate([
+            'delivery_fee' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        return $this->handleAction(
+            $encryptedId,
+            fn (Order $order) => $this->orderWorkflowService->updateDeliveryFee($order, (float) $validated['delivery_fee']),
+            'Frais de livraison mis a jour.'
+        );
+    }
+
+    public function updateNotes(Request $request, string $encryptedId): JsonResponse
+    {
+        $validated = $request->validate([
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        return $this->handleAction(
+            $encryptedId,
+            fn (Order $order) => $this->orderWorkflowService->updateNotes($order, $validated['notes'] ?? null),
+            'Note de commande mise a jour.'
+        );
     }
 
     private function handleAction(string $encryptedId, callable $callback, string $message): JsonResponse

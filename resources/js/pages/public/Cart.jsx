@@ -40,12 +40,8 @@ export default function Cart() {
   // Subtotal = total du context (sans livraison / sans remise)
   const subtotal = total;
 
-  // ✅ Delivery fee (démo). Plus tard: calcul selon ville / distance GPS.
-  const deliveryFee = useMemo(() => {
-    // exemple: si sous-total >= 150 000 => livraison gratuite
-    if (subtotal >= 150000) return 0;
-    return cartCount ? 0 : 0;
-  }, [subtotal, cartCount]);
+  // Le frais de livraison est maintenant defini par l'admin au cas par cas.
+  const deliveryFee = useMemo(() => 0, []);
 
   const discountTotal = appliedCoupon?.discount || 0;
 
@@ -347,14 +343,14 @@ export default function Cart() {
               <div className="d-flex justify-content-between text-secondary mb-2">
                 <span>Livraison</span>
                 <span className="fw-semibold">
-                  {deliveryFee === 0 ? "Gratuite" : formatPriceMGA(deliveryFee)}
+                  A confirmer par l'administration
                 </span>
               </div>
 
               <hr />
 
               <div className="d-flex justify-content-between">
-                <span className="fw-bold">Total</span>
+                <span className="fw-bold">Total provisoire</span>
                 <span className="fw-bold text-danger">{formatPriceMGA(grandTotal)}</span>
               </div>
 
@@ -376,7 +372,7 @@ export default function Cart() {
               </div>
 
               <small className="text-secondary d-block mt-2">
-                Paiement à la livraison ou mobile money
+                Le frais de livraison sera confirme par l'administration selon la distance, et peut etre gratuit.
               </small>
             </div>
           </div>

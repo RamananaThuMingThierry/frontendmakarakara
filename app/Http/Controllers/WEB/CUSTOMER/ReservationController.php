@@ -250,6 +250,89 @@ class ReservationController extends Controller
         }
     }
 
+    public function checkout(Request $request, int $reservationId)
+    {
+        $user = $request->user();
+
+        try {
+            $payload = DB::transaction(function () use ($user, $reservationId) {
+                $this->releaseExpiredReservations($user->id);
+
+                $reservation = Reservation::query()
+                    ->with('items')
+                    ->where('id', $reservationId)
+                    ->where('user_id', $user->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $reservation) {
+                    throw ValidationException::withMessages([
+                        'reservation' => ['Reservation introuvable.'],
+                    ]);
+                }
+
+                if ($reservation->status !== 'active' || $reservation->is_expired) {
+                    throw ValidationException::withMessages([
+                        'reservation' => ['Seule une reservation active peut etre transformee en commande.'],
+                    ]);
+                }
+
+                $cart = Cart::query()->firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['status' => 'active']
+                );
+
+                $cart->items()->delete();
+
+                $products = \App\Models\Product::query()
+                    ->whereIn('id', $reservation->items->pluck('product_id')->all())
+                    ->get(['id', 'price'])
+                    ->keyBy('id');
+
+                foreach ($reservation->items as $reservationItem) {
+                    $product = $products->get((int) $reservationItem->product_id);
+
+                    if (! $product) {
+                        throw ValidationException::withMessages([
+                            'reservation' => ['Un produit reserve est introuvable.'],
+                        ]);
+                    }
+
+                    $cart->items()->create([
+                        'product_id' => (int) $reservationItem->product_id,
+                        'quantity' => (int) $reservationItem->quantity,
+                        'unit_price' => (float) $product->price,
+                        'city_id' => $reservationItem->city_id,
+                        'inventory_id' => null,
+                    ]);
+                }
+
+                if ((int) $reservation->cart_id !== (int) $cart->id) {
+                    $reservation->update([
+                        'cart_id' => $cart->id,
+                    ]);
+                }
+
+                return [
+                    'reservation' => $this->formatCustomerReservation($reservation->fresh(['items.product:id,name', 'items.city:id,name'])),
+                    'cart_id' => $cart->id,
+                ];
+            });
+
+            return response()->json([
+                'message' => 'Reservation chargee dans le panier. Vous pouvez passer a la commande.',
+                'data' => $payload,
+            ], 200);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Impossible de preparer cette reservation pour la commande.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function destroy(Request $request, int $reservationId)
     {
         $user = $request->user();

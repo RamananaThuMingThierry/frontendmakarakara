@@ -361,6 +361,11 @@ export default function Shop() {
           </div>
         </div>
 
+        <div className="alert alert-info border-0 shadow-sm mb-4">
+          Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, choisissez uniquement
+          les produits de Antananarivo. Pour une autre ville, faites une autre commande.
+        </div>
+
         {error && <div className="alert alert-danger mb-4">{error}</div>}
 
         <div className="text-secondary small mb-3">
@@ -420,6 +425,10 @@ export default function Shop() {
                         {p.description.length > 90 ? `${p.description.slice(0, 90)}...` : p.description}
                       </p>
                     )}
+
+                    <div className="small text-secondary mb-2">
+                      Livraison pour la ville : <span className="fw-semibold">{p.city_name || "-"}</span>
+                    </div>
 
                     <div className="mt-auto">
                       <div className="fw-bold text-danger">{formatPriceMGA(p.price)}</div>

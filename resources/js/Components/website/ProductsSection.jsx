@@ -356,6 +356,11 @@ export default function ProductsSection() {
 
         {error ? <div className="alert alert-danger mb-4">{error}</div> : null}
 
+        <div className="alert alert-info border-0 shadow-sm mb-4">
+          Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, prenez uniquement
+          les produits de Antananarivo. Pour une autre ville, faites une commande separee.
+        </div>
+
         <div className="text-secondary small mb-3">
           {loading ? "Chargement des produits..." : `${filtered.length} produit(s) affiché(s)`}
         </div>
@@ -413,6 +418,24 @@ export default function ProductsSection() {
                       </p>
                     )}
 
+                    {p.city_names.length > 0 ? (
+                      <div className="mb-3">
+                        <div className="small text-secondary mb-1">Villes disponibles</div>
+                        <div className="d-flex flex-wrap gap-1">
+                          {p.city_names.slice(0, 3).map((cityName) => (
+                            <span key={cityName} className="badge rounded-pill text-bg-light border">
+                              {cityName}
+                            </span>
+                          ))}
+                          {p.city_names.length > 3 ? (
+                            <span className="badge rounded-pill text-bg-secondary">
+                              +{p.city_names.length - 3}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div className="d-flex align-items-center gap-2 mb-2">
                       <Stars value={p.rating} />
                       <small className="text-secondary">
@@ -430,7 +453,13 @@ export default function ProductsSection() {
                     </div>
 
                     <div className="mt-auto pt-2">
-                      <AddToCartToggle product={p} variant="compact" />
+                      {p.city_count > 1 ? (
+                        <Link to={`/product/${p.product_encrypted_id}`} className="btn btn-outline-dark btn-sm w-100">
+                          Choisir une ville
+                        </Link>
+                      ) : (
+                        <AddToCartToggle product={p} variant="compact" />
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from '../../hooks/website/CartContext';
 import { useFavorites } from "../../hooks/website/FavoritesContext";
 import SearchBar from "./SearchBar";
@@ -7,6 +8,7 @@ import { useAuth } from "../../hooks/website/AuthContext";
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cartCount } = useCart();
   const { favCount } = useFavorites();
   const { isAuth, roles, user, logout } = useAuth();
@@ -20,19 +22,46 @@ export default function Header() {
     { to: "/contact", label: "Contact" },
   ];
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = (onClosed) => {
     const offcanvasEl = document.getElementById("mainNav");
-    if (!offcanvasEl) return;
+    if (!offcanvasEl) {
+      if (typeof onClosed === "function") onClosed();
+      return;
+    }
 
     const instance = Offcanvas.getInstance(offcanvasEl) || Offcanvas.getOrCreateInstance(offcanvasEl);
+    const finishClose = () => {
+      offcanvasEl.removeEventListener("hidden.bs.offcanvas", finishClose);
+      if (typeof onClosed === "function") onClosed();
+    };
+
+    if (!offcanvasEl.classList.contains("show")) {
+      finishClose();
+      return;
+    }
+
+    offcanvasEl.addEventListener("hidden.bs.offcanvas", finishClose, { once: true });
     instance.hide();
   };
 
   const handleMobileNavigation = (to) => (event) => {
     event.preventDefault();
-    closeMobileMenu();
-    navigate(to);
+    closeMobileMenu(() => navigate(to));
   };
+
+  useEffect(() => {
+    const offcanvasEl = document.getElementById("mainNav");
+    const instance = offcanvasEl ? Offcanvas.getInstance(offcanvasEl) : null;
+
+    if (instance && offcanvasEl.classList.contains("show")) {
+      instance.hide();
+    }
+
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("overflow");
+    document.body.style.removeProperty("padding-right");
+    document.querySelectorAll(".offcanvas-backdrop").forEach((backdrop) => backdrop.remove());
+  }, [location.pathname]);
 
   return (
     <>

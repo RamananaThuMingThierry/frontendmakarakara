@@ -1,8 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/website/AuthContext";
 
 export default function ClientMenu() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const links = [
     { to: "/", label: "Retour au site", icon: "bi-arrow-left" },
@@ -10,6 +11,11 @@ export default function ClientMenu() {
     { to: "/account/reservations", label: "Mes reservations", icon: "bi-bookmark-check" },
     { to: "/account/orders", label: "Mes commandes", icon: "bi-bag-check" },
   ];
+
+  async function handleLogout() {
+    await logout();
+    navigate("/login", { replace: true, state: { message: "Vous etes deconnecte." } });
+  }
 
   return (
     <div className="bg-white rounded-4 shadow-sm p-4">
@@ -24,9 +30,7 @@ export default function ClientMenu() {
           <NavLink
             key={item.to}
             to={item.to}
-            className={({ isActive }) =>
-              `btn text-start ${isActive ? "btn-dark" : "btn-outline-dark"}`
-            }
+            className={({ isActive }) => `btn text-start ${isActive ? "btn-dark" : "btn-outline-dark"}`}
           >
             <i className={`bi ${item.icon} me-2`} />
             {item.label}
@@ -34,9 +38,9 @@ export default function ClientMenu() {
         ))}
       </div>
 
-      <button className="btn btn-outline-danger w-100 mt-4" type="button" onClick={logout}>
+      <button className="btn btn-outline-danger w-100 mt-4" type="button" onClick={handleLogout}>
         <i className="bi bi-box-arrow-right me-2" />
-        Déconnexion
+        Deconnexion
       </button>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { cancelMyReservation, listMyReservations } from "../../api/client_reservations";
+import { useNavigate } from "react-router-dom";
+import { cancelMyReservation, checkoutMyReservation, listMyReservations } from "../../api/client_reservations";
+import { useCart } from "../../hooks/website/CartContext";
 
 const STATUS_LABELS = {
   active: "Active",
@@ -14,10 +16,14 @@ const STATUS_COLORS = {
 };
 
 export default function Reservations() {
+  const navigate = useNavigate();
+  const { refreshCart } = useCart();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
+  const [checkoutingId, setCheckoutingId] = useState(null);
   const [error, setError] = useState("");
+  const [actionMessage, setActionMessage] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +52,7 @@ export default function Reservations() {
 
   const handleCancel = async (reservationId) => {
     setError("");
+    setActionMessage(null);
     setCancellingId(reservationId);
 
     try {
@@ -57,10 +64,33 @@ export default function Reservations() {
             : reservation
         )
       );
+      setActionMessage({
+        type: "success",
+        text: "Reservation annulee avec succes.",
+      });
     } catch (err) {
       setError(err?.response?.data?.message || "Impossible d'annuler la reservation.");
     } finally {
       setCancellingId(null);
+    }
+  };
+
+  const handleCheckout = async (reservationId) => {
+    setError("");
+    setActionMessage({
+      type: "info",
+      text: "Reservation en cours de transformation en commande...",
+    });
+    setCheckoutingId(reservationId);
+
+    try {
+      await checkoutMyReservation(reservationId);
+      await refreshCart();
+      navigate("/checkout");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Impossible de preparer cette reservation pour la commande.");
+    } finally {
+      setCheckoutingId(null);
     }
   };
 
@@ -110,6 +140,7 @@ export default function Reservations() {
       </div>
 
       {error ? <div className="alert alert-danger">{error}</div> : null}
+      {actionMessage ? <div className={`alert alert-${actionMessage.type}`}>{actionMessage.text}</div> : null}
 
       {reservations.length === 0 ? (
         <div className="bg-white rounded-4 shadow-sm p-5 text-center text-secondary">
@@ -171,12 +202,20 @@ export default function Reservations() {
                 ) : null}
 
                 {isActive ? (
-                  <div className="mt-3">
+                  <div className="mt-3 d-flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-warning btn-sm"
+                      onClick={() => handleCheckout(reservation.id)}
+                      disabled={checkoutingId === reservation.id || cancellingId === reservation.id}
+                    >
+                      {checkoutingId === reservation.id ? "Preparation..." : "Passer a la commande"}
+                    </button>
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => handleCancel(reservation.id)}
-                      disabled={cancellingId === reservation.id}
+                      disabled={cancellingId === reservation.id || checkoutingId === reservation.id}
                     >
                       {cancellingId === reservation.id ? "Annulation..." : "Annuler la reservation"}
                     </button>

@@ -232,7 +232,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="admin-page">
+    <div className="admin-page" style={{ "--admin-sidebar-width": `${sidebarWidth}px` }}>
       <div className="admin-shell">
         {/* Desktop Sidebar */}
         <aside className="sidebar desktop d-none d-lg-flex flex-column p-3" style={{ width: sidebarWidth }}>
@@ -242,13 +242,13 @@ export default function AdminLayout() {
             </div>
           </div>
 
-          <nav className="mt-2">
+          <nav className="mt-2 sidebar-nav">
             {NAV.map((item) => (
               <SidebarItem key={item.to ?? item.action} item={item} collapsed={collapsed} onAction={handleAction} />
             ))}
           </nav>
 
-          <div className="mt-auto pt-3 border-top border-secondary">
+          <div className="mt-auto pt-3 border-top border-secondary sidebar-footer">
             <a
               className={`btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2 ${
                 collapsed ? "px-2" : ""
@@ -265,7 +265,7 @@ export default function AdminLayout() {
         {/* Mobile Drawer */}
         {drawerOpen && <div className="drawer-overlay" onClick={() => setDrawerOpen(false)} />}
         <aside className={`sidebar-drawer d-lg-none ${drawerOpen ? "open" : ""}`}>
-          <div className="p-3">
+          <div className="p-3 sidebar-drawer-inner">
             <div className="d-flex align-items-start justify-content-between mb-3">
               <div>
                 <div className="fw-bold text-warning fs-5">MAKARAKARA</div>
@@ -275,13 +275,13 @@ export default function AdminLayout() {
               </button>
             </div>
 
-            <nav className="mt-2">
+            <nav className="mt-2 sidebar-nav">
               {NAV.map((item) => (
                 <SidebarItem key={item.to ?? item.action} item={item} collapsed={false} onAction={handleAction} />
               ))}
             </nav>
 
-            <div className="mt-3 pt-3 border-top border-secondary">
+            <div className="mt-3 pt-3 border-top border-secondary sidebar-footer">
               <a className="btn btn-outline-light w-100" href="/">
                 <i className="bi bi-arrow-left me-2" />
                 Retour site

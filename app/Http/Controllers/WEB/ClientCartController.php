@@ -35,6 +35,7 @@ class ClientCartController extends Controller
 
         $cart = DB::transaction(function () use ($request, $validated) {
             $cart = $this->getOrCreateCart($request);
+            $cartCityId = $this->resolveCartCityId($cart);
             $payload = collect($validated['items']);
             $products = Product::query()
                 ->whereIn('id', $payload->pluck('product_id')->all())
@@ -63,6 +64,8 @@ class ClientCartController extends Controller
                 }
 
                 $cityId = isset($item['city_id']) ? (int) $item['city_id'] : ($inventory?->city_id ? (int) $inventory->city_id : null);
+                $this->ensureSingleCityCart($cartCityId, $cityId);
+                $cartCityId = $cartCityId ?: $cityId;
 
                 $cartItem = $cart->items()->firstOrNew([
                     'product_id' => (int) $item['product_id'],
@@ -100,6 +103,7 @@ class ClientCartController extends Controller
             $cart = $this->getOrCreateCart($request);
             $quantity = (int) $validated['quantity'];
             $inventory = null;
+            $cartCityId = $this->resolveCartCityId($cart);
 
             if (! empty($validated['inventory_id'])) {
                 $inventory = Inventory::query()
@@ -116,6 +120,7 @@ class ClientCartController extends Controller
             $cityId = isset($validated['city_id'])
                 ? (int) $validated['city_id']
                 : ($inventory?->city_id ? (int) $inventory->city_id : null);
+            $this->ensureSingleCityCart($cartCityId, $cityId);
             $existing = $cart->items()->where('product_id', $product->id)->first();
 
             if ($quantity <= 0) {
@@ -243,6 +248,33 @@ class ClientCartController extends Controller
             }
 
             $reservation->markReleased('cart_cleared');
+        }
+    }
+
+    private function resolveCartCityId(Cart $cart): ?int
+    {
+        $cityIds = $cart->items()
+            ->whereNotNull('city_id')
+            ->pluck('city_id')
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->values();
+
+        return $cityIds->count() === 1 ? $cityIds->first() : null;
+    }
+
+    private function ensureSingleCityCart(?int $cartCityId, ?int $incomingCityId): void
+    {
+        if (! $cartCityId || ! $incomingCityId) {
+            return;
+        }
+
+        if ($cartCityId !== $incomingCityId) {
+            throw ValidationException::withMessages([
+                'city_id' => [
+                    'Une commande doit contenir les produits d\'une seule ville. Finalisez ou videz le panier avant d\'ajouter une autre ville.',
+                ],
+            ]);
         }
     }
 }

@@ -40,4 +40,14 @@ export const adminOrdersApi = {
     const res = await api.post(`/admin/orders/${id}/deliver`);
     return res.data.data ?? res.data;
   },
+
+  async updateDeliveryFee(id, payload) {
+    const res = await api.put(`/admin/orders/${id}/delivery-fee`, payload);
+    return res.data.data ?? res.data;
+  },
+
+  async updateNotes(id, payload) {
+    const res = await api.put(`/admin/orders/${id}/notes`, payload);
+    return res.data.data ?? res.data;
+  },
 };

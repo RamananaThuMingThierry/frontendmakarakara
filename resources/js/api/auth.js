@@ -20,3 +20,18 @@ export async function logoutApi() {
   const { data } = await api.post("/logout");
   return data;
 }
+
+export async function forgotPasswordApi(payload) {
+  const { data } = await api.post("/forgot-password", payload);
+  return data;
+}
+
+export async function verifyResetCodeApi(payload) {
+  const { data } = await api.post("/forgot-password/verify-code", payload);
+  return data;
+}
+
+export async function resetPasswordApi(payload) {
+  const { data } = await api.post("/reset-password", payload);
+  return data;
+}

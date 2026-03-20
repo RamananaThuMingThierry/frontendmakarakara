@@ -1,5 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { loginApi, meApi, logoutApi, registerApi } from "../../api/auth";
+import {
+  forgotPasswordApi,
+  loginApi,
+  meApi,
+  logoutApi,
+  registerApi,
+  resetPasswordApi,
+  verifyResetCodeApi,
+} from "../../api/auth";
 import { logoutAdminApi } from "../../api/admin";
 import { setApiToken } from "../../api/axios";
 
@@ -226,6 +234,73 @@ useEffect(() => {
     }
   }, [applyAuthState]);
 
+  const forgotPassword = useCallback(async ({ email }) => {
+    setLoading(true);
+
+    try {
+      const data = await forgotPasswordApi({ email });
+      return {
+        ok: true,
+        message: data?.message,
+        expiresInMinutes: data?.expires_in_minutes ?? 15,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: e?.response?.data?.message,
+        errors: e?.response?.data?.errors,
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const verifyResetCode = useCallback(async ({ email, code }) => {
+    setLoading(true);
+
+    try {
+      const data = await verifyResetCodeApi({ email, code });
+      return {
+        ok: true,
+        message: data?.message,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: e?.response?.data?.message,
+        errors: e?.response?.data?.errors,
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const resetPassword = useCallback(async ({ email, code, password }) => {
+    setLoading(true);
+
+    try {
+      const data = await resetPasswordApi({
+        email,
+        code,
+        password,
+        password_confirmation: password,
+      });
+
+      return {
+        ok: true,
+        message: data?.message,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: e?.response?.data?.message,
+        errors: e?.response?.data?.errors,
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await logoutApi();
@@ -250,13 +325,32 @@ useEffect(() => {
       hydrating,
       login,
       register,
+      forgotPassword,
+      verifyResetCode,
+      resetPassword,
       logout,
       logoutAdmin,
       refreshUser,
       replaceAuthUser,
       hasRole: (role) => (Array.isArray(roles) ? roles.includes(role) : false),
     }),
-    [user, roles, token, isAuth, loading, hydrating, login, register, logout, logoutAdmin, refreshUser, replaceAuthUser]
+    [
+      user,
+      roles,
+      token,
+      isAuth,
+      loading,
+      hydrating,
+      login,
+      register,
+      forgotPassword,
+      verifyResetCode,
+      resetPassword,
+      logout,
+      logoutAdmin,
+      refreshUser,
+      replaceAuthUser,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

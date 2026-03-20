@@ -12,13 +12,39 @@ min-height: 100vh;
 
 /* Sidebar desktop */
 .sidebar{
-background: #111827;
+    background: #111827;
     color: #fff;
     height: 100vh;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: var(--admin-sidebar-width, 280px);
+    overflow: hidden;
     transition: width .18s ease;
     border-right: 1px solid rgba(255,255,255,.08);
+    z-index: 1030;
+}
+
+.sidebar-nav{
+flex: 1 1 auto;
+min-height: 0;
+overflow-y: auto;
+overflow-x: hidden;
+padding-right: .25rem;
+}
+
+.sidebar-nav::-webkit-scrollbar{
+width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb{
+background: rgba(255,255,255,.18);
+border-radius: 999px;
+}
+
+.sidebar-footer{
+flex-shrink: 0;
+background: #111827;
 }
 
 .sidebar-link{
@@ -45,6 +71,7 @@ min-width: 0;
 display: flex;
 flex-direction: column;
 min-height: 100vh;
+margin-left: var(--admin-sidebar-width, 280px);
 }
 
 .admin-main{
@@ -129,13 +156,22 @@ display: block;
 position: fixed;
 inset: 0 auto 0 0;
 width: 280px;
+height: 100vh;
 transform: translateX(-100%);
 transition: transform .18s ease;
 z-index: 1045;
 background: #111827;
 color: #fff;
+overflow: hidden;
 }
 .sidebar-drawer.open{ transform: translateX(0); }
+
+.sidebar-drawer-inner{
+height: 100%;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
 
 .drawer-overlay{
 position: fixed;
@@ -148,7 +184,10 @@ z-index: 1040;
 @media (max-width: 991.98px){
 .sidebar.desktop{ display: none !important; }
 .admin-shell{ display: block; }
-.admin-content{ min-height: 100vh; }
+.admin-content{
+min-height: 100vh;
+margin-left: 0;
+}
 }
 
 @media (max-width: 575.98px){

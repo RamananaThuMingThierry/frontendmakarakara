@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethodCode;
 use App\Enums\PaymentStatus;
+use App\Mail\AdminNewOrderNotificationMail;
 use App\Mail\OrderInvoiceMail;
 use App\Mail\OrderReceiptMail;
 use App\Models\Address;
@@ -18,7 +19,10 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\Reservation;
+use App\Models\ReservationItem;
+use App\Models\StockMovement;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -76,7 +80,7 @@ class OrderWorkflowService
             }
 
             $discountTotal = 0.0;
-            $deliveryFee = $subtotal >= 150000 ? 0.0 : 5000.0;
+            $deliveryFee = 0.0;
             $total = max(0, $subtotal - $discountTotal) + $deliveryFee;
 
             $address = Address::create([
@@ -106,6 +110,7 @@ class OrderWorkflowService
                 'payment_reference' => null,
                 'total' => $total,
                 'notes' => $validated['notes'] ?? null,
+                'city_id' => $this->resolveOrderCityId($cart),
                 'address_id' => $address->id,
             ]);
 
@@ -135,14 +140,17 @@ class OrderWorkflowService
             return $this->freshOrder($order);
         });
 
-        $this->sendInvoiceIfNeeded($order);
+        $this->notifyAdminAboutNewOrder($order);
 
         return $this->freshOrder($order);
     }
 
     public function confirmOrder(Order $order): Order
     {
-        return $this->transitionOrder($order, OrderStatus::CONFIRMED);
+        $updated = $this->transitionOrder($order, OrderStatus::CONFIRMED);
+        $this->sendInvoiceIfNeeded($updated);
+
+        return $this->freshOrder($updated);
     }
 
     public function startProcessing(Order $order): Order
@@ -183,6 +191,12 @@ class OrderWorkflowService
         return DB::transaction(function () use ($order) {
             $order->refresh();
 
+            if ($order->payment_status === PaymentStatus::PAID) {
+                throw ValidationException::withMessages([
+                    'order' => ['Une commande marquee payee ne peut plus etre annulee.'],
+                ]);
+            }
+
             if ($order->status === OrderStatus::DELIVERED) {
                 throw ValidationException::withMessages([
                     'order' => ['Une commande livree ne peut plus etre annulee.'],
@@ -208,7 +222,7 @@ class OrderWorkflowService
     public function markAsDelivered(Order $order): Order
     {
         return DB::transaction(function () use ($order) {
-            $order->refresh();
+            $order = $this->freshOrder($order);
 
             if (! in_array($order->status, [OrderStatus::CONFIRMED, OrderStatus::PROCESSING], true)) {
                 throw ValidationException::withMessages([
@@ -216,6 +230,7 @@ class OrderWorkflowService
                 ]);
             }
 
+            $this->decrementInventoryForDeliveredOrder($order);
             $order->update(['status' => OrderStatus::DELIVERED]);
 
             return $this->freshOrder($order);
@@ -250,6 +265,44 @@ class OrderWorkflowService
 
             $receipt->update([
                 'sent_at' => now(),
+            ]);
+
+            return $this->freshOrder($order);
+        });
+    }
+
+    public function updateDeliveryFee(Order $order, float $deliveryFee): Order
+    {
+        return DB::transaction(function () use ($order, $deliveryFee) {
+            $order->refresh();
+
+            if ($order->status !== OrderStatus::PENDING) {
+                throw ValidationException::withMessages([
+                    'delivery_fee' => ['Le frais de livraison doit etre defini avant la confirmation de la commande.'],
+                ]);
+            }
+
+            $normalizedDeliveryFee = max(0, round($deliveryFee, 2));
+            $total = max(0, (float) $order->subtotal - (float) $order->discount_total) + $normalizedDeliveryFee;
+
+            $order->update([
+                'delivery_fee' => $normalizedDeliveryFee,
+                'total' => $total,
+            ]);
+
+            return $this->freshOrder($order);
+        });
+    }
+
+    public function updateNotes(Order $order, ?string $notes): Order
+    {
+        return DB::transaction(function () use ($order, $notes) {
+            $order->refresh();
+
+            $normalizedNotes = is_null($notes) ? null : trim($notes);
+
+            $order->update([
+                'notes' => $normalizedNotes !== '' ? $normalizedNotes : null,
             ]);
 
             return $this->freshOrder($order);
@@ -389,6 +442,156 @@ class OrderWorkflowService
         } catch (Throwable $exception) {
             report($exception);
         }
+    }
+
+    private function notifyAdminAboutNewOrder(Order $order): void
+    {
+        $platform = $this->settingsService->getAboutPlatform();
+        $adminEmail = trim((string) ($platform['email'] ?? ''));
+
+        if ($adminEmail === '') {
+            return;
+        }
+
+        try {
+            Mail::to($adminEmail)->send(
+                new AdminNewOrderNotificationMail($this->freshOrder($order), $platform)
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+    }
+
+    private function decrementInventoryForDeliveredOrder(Order $order): void
+    {
+        $reservationItems = ReservationItem::query()
+            ->selectRaw('product_id, city_id, SUM(quantity) as reserved_quantity_sum')
+            ->whereHas('reservation', function ($query) use ($order) {
+                $query->where('order_id', $order->id)->where('status', 'consumed');
+            })
+            ->groupBy('product_id', 'city_id')
+            ->get()
+            ->groupBy('product_id');
+
+        foreach ($order->items as $item) {
+            $remainingQuantity = (int) $item->quantity;
+            $productReservationItems = collect($reservationItems->get($item->product_id, []));
+
+            foreach ($productReservationItems as $reservationItem) {
+                if ($remainingQuantity <= 0) {
+                    break;
+                }
+
+                $allocatedQuantity = min($remainingQuantity, (int) $reservationItem->reserved_quantity_sum);
+                if ($allocatedQuantity <= 0) {
+                    continue;
+                }
+
+                $this->decrementInventoryStock(
+                    productId: (int) $item->product_id,
+                    cityId: (int) $reservationItem->city_id,
+                    quantity: $allocatedQuantity,
+                    orderId: (int) $order->id
+                );
+
+                $remainingQuantity -= $allocatedQuantity;
+            }
+
+            if ($remainingQuantity > 0) {
+                $fallbackCityId = $order->city_id ? (int) $order->city_id : null;
+                $this->decrementInventoryStockWithFallback(
+                    productId: (int) $item->product_id,
+                    fallbackCityId: $fallbackCityId,
+                    quantity: $remainingQuantity,
+                    orderId: (int) $order->id
+                );
+            }
+        }
+    }
+
+    private function decrementInventoryStockWithFallback(int $productId, ?int $fallbackCityId, int $quantity, int $orderId): void
+    {
+        if ($fallbackCityId) {
+            $this->decrementInventoryStock($productId, $fallbackCityId, $quantity, $orderId);
+            return;
+        }
+
+        $inventories = Inventory::query()
+            ->where('product_id', $productId)
+            ->lockForUpdate()
+            ->get();
+
+        if ($inventories->count() !== 1) {
+            throw ValidationException::withMessages([
+                'inventory' => ['Impossible de determiner la ville de stock pour un produit de cette commande.'],
+            ]);
+        }
+
+        $inventory = $inventories->first();
+        $this->decrementInventoryStock($productId, (int) $inventory->city_id, $quantity, $orderId);
+    }
+
+    private function decrementInventoryStock(int $productId, int $cityId, int $quantity, int $orderId): void
+    {
+        $inventory = Inventory::query()
+            ->where('product_id', $productId)
+            ->where('city_id', $cityId)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $inventory) {
+            throw ValidationException::withMessages([
+                'inventory' => ['Inventaire introuvable pour un produit de cette commande.'],
+            ]);
+        }
+
+        $oldQuantity = (int) $inventory->quantity;
+        if ($quantity > $oldQuantity) {
+            throw ValidationException::withMessages([
+                'inventory' => ['Le stock disponible est insuffisant pour marquer cette commande comme livree.'],
+            ]);
+        }
+
+        $newQuantity = $oldQuantity - $quantity;
+        $newStatus = $newQuantity <= 0
+            ? 'out_of_stock'
+            : ($newQuantity <= (int) $inventory->min_stock ? 'low' : 'ok');
+
+        $inventory->update([
+            'quantity' => $newQuantity,
+            'is_available' => $newQuantity > 0,
+            'status' => $newStatus,
+        ]);
+
+        StockMovement::create([
+            'product_id' => $productId,
+            'city_from_id' => $cityId,
+            'city_to_id' => null,
+            'type' => 'out',
+            'quantity' => $quantity,
+            'stock_before' => $oldQuantity,
+            'stock_after' => $newQuantity,
+            'reason' => 'order_delivered',
+            'note' => 'Sortie de stock apres livraison de commande',
+            'reference_type' => Order::class,
+            'reference_id' => $orderId,
+            'created_by' => Auth::id(),
+        ]);
+    }
+
+    private function resolveOrderCityId(?Cart $cart): ?int
+    {
+        if (! $cart) {
+            return null;
+        }
+
+        $cityIds = $cart->items()
+            ->whereNotNull('city_id')
+            ->pluck('city_id')
+            ->unique()
+            ->values();
+
+        return $cityIds->count() === 1 ? (int) $cityIds->first() : null;
     }
 
     private function releaseExpiredReservations(int $userId): void

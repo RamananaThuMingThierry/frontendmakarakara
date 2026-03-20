@@ -19,6 +19,15 @@ function inferPaymentKind(method) {
     : "mobile_money";
 }
 
+function canUseGeolocation() {
+  if (typeof window === "undefined") return false;
+
+  const hostname = window.location.hostname;
+  const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+
+  return Boolean(window.isSecureContext || isLocalhost);
+}
+
 export default function Checkout() {
   const { cart, cartCount, total, clear } = useCart();
   const navigate = useNavigate();
@@ -52,6 +61,8 @@ export default function Checkout() {
   const [geoError, setGeoError] = useState("");
   const [geoMeta, setGeoMeta] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [formError, setFormError] = useState("");
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(true);
   const [paymentMethodsError, setPaymentMethodsError] = useState("");
@@ -116,11 +127,27 @@ export default function Checkout() {
     });
   }, [paymentMethodsLoading, activePaymentMethods]);
 
-  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const update = (k, v) => {
+    setForm((f) => ({ ...f, [k]: v }));
+    setFieldErrors((current) => {
+      if (!current[k]) return current;
+      const next = { ...current };
+      delete next[k];
+      return next;
+    });
+    setFormError("");
+  };
 
   const getLocation = (options = {}) => {
     if (!navigator.geolocation) {
       setGeoError("La geolocalisation n'est pas supportee sur cet appareil.");
+      return;
+    }
+
+    if (!canUseGeolocation()) {
+      setGeoError(
+        "La geolocalisation du navigateur exige une connexion securisee. Utilisez HTTPS ou localhost, ou saisissez manuellement la latitude et la longitude."
+      );
       return;
     }
 
@@ -139,7 +166,14 @@ export default function Checkout() {
       },
       (err) => {
         if (!options.silent) {
-          setGeoError(`Impossible de recuperer votre position (${err.message}).`);
+          const message = String(err?.message || "");
+          const secureContextError = message.toLowerCase().includes("only secure origins are allowed");
+
+          setGeoError(
+            secureContextError
+              ? "La geolocalisation du navigateur exige HTTPS ou localhost. Utilisez une connexion securisee, ou renseignez manuellement la latitude et la longitude."
+              : `Impossible de recuperer votre position (${message}).`
+          );
         }
         setGeoLoading(false);
       },
@@ -152,7 +186,7 @@ export default function Checkout() {
 
     const autoDetect = async () => {
       try {
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation || !canUseGeolocation()) return;
 
         if (!navigator.permissions?.query) {
           getLocation({ silent: true });
@@ -172,22 +206,40 @@ export default function Checkout() {
   }, [form.latitude, form.longitude, isAuth]);
 
   const validate = () => {
-    if (!cartCount) return "Votre panier est vide.";
-    if (!form.full_name.trim()) return "Veuillez saisir votre nom.";
-    if (!form.phone.trim()) return "Veuillez saisir votre telephone.";
-    if (!form.city_name.trim()) return "Veuillez saisir la ville.";
-    if (!form.address_line1.trim()) return "Veuillez saisir l'adresse.";
-    if (!activePaymentMethods.length) return "Aucun moyen de paiement actif n'est disponible pour le moment.";
-    if (!form.payment_method) return "Veuillez choisir un moyen de paiement.";
-    if (!form.latitude || !form.longitude) {
-      return "Veuillez autoriser la localisation ou renseigner votre latitude et longitude avant de valider.";
+    const nextErrors = {};
+
+    if (!form.full_name.trim()) nextErrors.full_name = "Veuillez saisir votre nom.";
+    if (!form.phone.trim()) nextErrors.phone = "Veuillez saisir votre telephone.";
+    if (!form.city_name.trim()) nextErrors.city_name = "Veuillez saisir la ville.";
+    if (!form.address_line1.trim()) nextErrors.address_line1 = "Veuillez saisir l'adresse.";
+    if (!form.payment_method) nextErrors.payment_method = "Veuillez choisir un moyen de paiement.";
+
+    if (!cartCount) {
+      return {
+        form: "Votre panier est vide.",
+        fields: nextErrors,
+      };
     }
-    return null;
+
+    if (!activePaymentMethods.length) {
+      return {
+        form: "Aucun moyen de paiement actif n'est disponible pour le moment.",
+        fields: nextErrors,
+      };
+    }
+
+    return {
+      form: "",
+      fields: nextErrors,
+    };
   };
 
   const submitOrder = async () => {
-    const err = validate();
-    if (err) return alert(err);
+    const validation = validate();
+    setFieldErrors(validation.fields);
+    setFormError(validation.form);
+
+    if (validation.form || Object.keys(validation.fields).length > 0) return;
 
     setSubmitting(true);
 
@@ -206,8 +258,8 @@ export default function Checkout() {
         address_line2: form.address_line2 || null,
         city_name: form.city_name,
         region: form.region || null,
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
+        latitude: form.latitude ? Number(form.latitude) : null,
+        longitude: form.longitude ? Number(form.longitude) : null,
       },
       items: cart.map((i) => ({
         product_id: i.product_id ?? i.id,
@@ -250,7 +302,17 @@ export default function Checkout() {
         },
       });
     } catch (error) {
-      alert(error?.response?.data?.message || "Impossible de creer la commande.");
+      const apiErrors = error?.response?.data?.errors || {};
+
+      setFieldErrors((current) => ({
+        ...current,
+        full_name: apiErrors["address.full_name"]?.[0] || current.full_name,
+        phone: apiErrors["address.phone"]?.[0] || current.phone,
+        city_name: apiErrors["address.city_name"]?.[0] || current.city_name,
+        address_line1: apiErrors["address.address_line1"]?.[0] || current.address_line1,
+        payment_method: apiErrors.payment_method_id?.[0] || current.payment_method,
+      }));
+      setFormError(error?.response?.data?.message || "Impossible de creer la commande.");
     } finally {
       setSubmitting(false);
     }
@@ -307,24 +369,30 @@ export default function Checkout() {
             <div className="bg-white rounded-4 shadow-sm p-4">
               <h5 className="fw-bold mb-3">Informations client</h5>
 
+              {formError ? <div className="alert alert-danger py-2">{formError}</div> : null}
+
               <div className="row g-3">
                 <div className="col-12">
                   <label className="form-label">Nom complet *</label>
+                  {fieldErrors.full_name ? <span className="text-danger small d-block mb-1">{fieldErrors.full_name}</span> : null}
                   <input
-                    className="form-control"
+                    className={`form-control ${fieldErrors.full_name ? "is-invalid" : ""}`}
                     value={form.full_name}
                     onChange={(e) => update("full_name", e.target.value)}
                     placeholder="Ex: RAKOTO Jean"
+                    required
                   />
                 </div>
 
                 <div className="col-12">
                   <label className="form-label">Telephone *</label>
+                  {fieldErrors.phone ? <span className="text-danger small d-block mb-1">{fieldErrors.phone}</span> : null}
                   <input
-                    className="form-control"
+                    className={`form-control ${fieldErrors.phone ? "is-invalid" : ""}`}
                     value={form.phone}
                     onChange={(e) => update("phone", e.target.value)}
                     placeholder="Ex: 034 12 345 67"
+                    required
                   />
                 </div>
               </div>
@@ -336,8 +404,9 @@ export default function Checkout() {
               <div className="row g-3">
                 <div className="col-12">
                   <label className="form-label">Ville *</label>
+                  {fieldErrors.city_name ? <span className="text-danger small d-block mb-1">{fieldErrors.city_name}</span> : null}
                   <input
-                    className="form-control"
+                    className={`form-control ${fieldErrors.city_name ? "is-invalid" : ""}`}
                     value={form.city_name}
                     onChange={(e) => update("city_name", e.target.value)}
                     placeholder="Ex: Antananarivo"
@@ -346,11 +415,13 @@ export default function Checkout() {
 
                 <div className="col-12">
                   <label className="form-label">Adresse *</label>
+                  {fieldErrors.address_line1 ? <span className="text-danger small d-block mb-1">{fieldErrors.address_line1}</span> : null}
                   <input
-                    className="form-control"
+                    className={`form-control ${fieldErrors.address_line1 ? "is-invalid" : ""}`}
                     value={form.address_line1}
                     onChange={(e) => update("address_line1", e.target.value)}
                     placeholder="Quartier, rue, lot..."
+                    required
                   />
                 </div>
 
@@ -375,7 +446,7 @@ export default function Checkout() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Position GPS *</label>
+                  <label className="form-label">Position GPS (optionnel)</label>
 
                   <div className="d-flex flex-column flex-md-row gap-2">
                     <input
@@ -426,7 +497,8 @@ export default function Checkout() {
                   ) : (
                     <small className="text-secondary d-block mt-2">
                       Autorisez la geolocalisation pour accelerer la livraison. Si besoin, vous pouvez aussi coller
-                      manuellement la latitude et la longitude.
+                      manuellement la latitude et la longitude. La detection automatique fonctionne sur HTTPS ou
+                      localhost. Vous pouvez valider la commande meme sans position GPS.
                     </small>
                   )}
                 </div>
@@ -451,6 +523,9 @@ export default function Checkout() {
                 <div className="text-secondary small">Chargement des moyens de paiement...</div>
               ) : activePaymentMethods.length ? (
                 <>
+                  {fieldErrors.payment_method ? (
+                    <span className="text-danger small d-block mb-2">{fieldErrors.payment_method}</span>
+                  ) : null}
                   <div className="d-flex flex-column gap-2">
                     {activePaymentMethods.map((method) => {
                       const isMobileMoney = inferPaymentKind(method) === "mobile_money";
@@ -528,14 +603,14 @@ export default function Checkout() {
               <div className="d-flex justify-content-between text-secondary mb-2">
                 <span>Livraison</span>
                 <span className="fw-semibold">
-                  {deliveryFee === 0 ? "Gratuite" : formatPriceMGA(deliveryFee)}
+                  A confirmer par l'administration
                 </span>
               </div>
 
               <hr />
 
               <div className="d-flex justify-content-between">
-                <span className="fw-bold">Total</span>
+                <span className="fw-bold">Total provisoire</span>
                 <span className="fw-bold text-danger">{formatPriceMGA(grandTotal)}</span>
               </div>
 
@@ -554,7 +629,7 @@ export default function Checkout() {
               </div>
 
               <small className="text-secondary d-block mt-3">
-                En validant, vous acceptez les conditions de vente et le partage de votre position pour la livraison.
+                En validant, vous acceptez les conditions de vente. Le frais de livraison sera fixe par l'administration selon la distance et peut etre gratuit.
               </small>
             </div>
           </div>
