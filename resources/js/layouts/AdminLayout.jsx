@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../../css/admin.css";
 import { useAuth } from "../hooks/website/AuthContext";
 import { useI18n } from "../hooks/website/I18nContext";
+import { adminNotificationsApi } from "../api/admin_notifications";
 
 function buildAvatarUrl(path) {
   if (!path) return null;
@@ -118,6 +119,24 @@ function SidebarItem({ item, collapsed, onAction }) {
   );
 }
 
+function formatNotificationDate(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString("fr-FR");
+}
+
+function notificationBadgeClass(severity) {
+  switch (severity) {
+    case "danger":
+      return "text-bg-danger";
+    case "warning":
+      return "text-bg-warning";
+    case "success":
+      return "text-bg-success";
+    default:
+      return "text-bg-primary";
+  }
+}
+
 function ConfirmModal({ open, title, message, confirmText, loading, onCancel, onConfirm }) {
   if (!open) return null;
 
@@ -167,6 +186,10 @@ export default function AdminLayout() {
 
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const { isAuth, logoutAdmin, roles, user } = useAuth();
   const nav = useNavigate();
@@ -179,6 +202,7 @@ export default function AdminLayout() {
       if (e.key === "Escape") {
         setDrawerOpen(false);
         setLogoutOpen(false);
+        setNotificationsOpen(false);
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -211,7 +235,39 @@ export default function AdminLayout() {
     };
   }, [drawerOpen, logoutOpen]);
 
+  useEffect(() => {
+    setNotificationsOpen(false);
+  }, [location.pathname]);
+
   const sidebarWidth = useMemo(() => (collapsed ? 84 : 280), [collapsed]);
+
+  async function loadNotifications() {
+    if (!isAuth || !(Array.isArray(roles) && roles.includes("admin"))) return;
+
+    setNotificationsLoading(true);
+    try {
+      const result = await adminNotificationsApi.summary(6);
+      setNotificationItems(Array.isArray(result?.items) ? result.items : []);
+      setUnreadCount(Number(result?.unread_count || 0));
+    } catch {
+      setNotificationItems([]);
+      setUnreadCount(0);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!isAuth || !(Array.isArray(roles) && roles.includes("admin"))) return;
+
+    loadNotifications();
+
+    const intervalId = window.setInterval(() => {
+      loadNotifications();
+    }, 60000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isAuth, roles]);
 
   function handleAction(action) {
     if (action === "logout") {
@@ -229,6 +285,26 @@ export default function AdminLayout() {
     } finally {
       setLogoutLoading(false);
     }
+  }
+
+  async function handleNotificationClick(item) {
+    try {
+      if (!item?.is_read) {
+        const result = await adminNotificationsApi.markAsRead(item.id);
+        setUnreadCount(result.unreadCount);
+      }
+    } catch {}
+
+    setNotificationsOpen(false);
+    nav(item?.action_url || "/admin/notifications");
+  }
+
+  async function handleMarkAllNotificationsAsRead() {
+    try {
+      await adminNotificationsApi.markAllAsRead();
+      setUnreadCount(0);
+      setNotificationItems((items) => items.map((item) => ({ ...item, is_read: true, read_at: new Date().toISOString() })));
+    } catch {}
   }
 
   return (
@@ -316,10 +392,88 @@ export default function AdminLayout() {
                 <span className="badge bg-warning text-dark">Admin</span>
               </div>
 
-              <div className="d-flex align-items-center gap-2">
-                <button className="btn btn-outline-dark btn-sm" type="button">
-                  <i className="bi bi-bell" />
-                </button>
+              <div className="d-flex align-items-center gap-2 position-relative">
+                <div className="position-relative">
+                  <button
+                    className="btn btn-outline-dark btn-sm position-relative"
+                    type="button"
+                    onClick={() => {
+                      const next = !notificationsOpen;
+                      setNotificationsOpen(next);
+                      if (!notificationsOpen) loadNotifications();
+                    }}
+                  >
+                    <i className="bi bi-bell" />
+                    {unreadCount > 0 ? (
+                      <span
+                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger"
+                        style={{ fontSize: 10 }}
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    ) : null}
+                  </button>
+
+                  {notificationsOpen ? (
+                    <div
+                      className="position-absolute end-0 mt-2 bg-white border rounded-4 shadow-sm"
+                      style={{ width: 360, maxWidth: "calc(100vw - 2rem)", zIndex: 1050 }}
+                    >
+                      <div className="p-3 border-bottom d-flex align-items-center justify-content-between gap-2">
+                        <div>
+                          <div className="fw-semibold">Notifications</div>
+                          <div className="small text-secondary">{unreadCount} non lue(s)</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-link text-decoration-none"
+                          onClick={handleMarkAllNotificationsAsRead}
+                          disabled={!unreadCount}
+                        >
+                          Tout lire
+                        </button>
+                      </div>
+
+                      <div style={{ maxHeight: 420, overflowY: "auto" }}>
+                        {notificationsLoading ? (
+                          <div className="p-3 text-secondary small">Chargement...</div>
+                        ) : notificationItems.length ? (
+                          notificationItems.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`w-100 text-start border-0 bg-transparent p-3 border-bottom ${item.is_read ? "opacity-75" : ""}`}
+                              onClick={() => handleNotificationClick(item)}
+                            >
+                              <div className="d-flex align-items-start justify-content-between gap-2 mb-1">
+                                <span className={`badge ${notificationBadgeClass(item.severity)}`}>{item.category || "info"}</span>
+                                {!item.is_read ? <span className="badge text-bg-warning">Nouveau</span> : null}
+                              </div>
+                              <div className="fw-semibold small">{item.title}</div>
+                              <div className="small text-secondary">{item.message}</div>
+                              <div className="small text-muted mt-1">{formatNotificationDate(item.created_at)}</div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-3 text-secondary small">Aucune notification.</div>
+                        )}
+                      </div>
+
+                      <div className="p-3">
+                        <button
+                          type="button"
+                          className="btn btn-warning w-100"
+                          onClick={() => {
+                            setNotificationsOpen(false);
+                            nav("/admin/notifications");
+                          }}
+                        >
+                          Voir plus
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
 
                 <div className="dropdown">
                     <button

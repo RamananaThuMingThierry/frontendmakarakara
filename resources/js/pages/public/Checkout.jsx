@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
 import { useAuth } from "../../hooks/website/AuthContext";
 import { createOrder } from "../../api/client_orders";
+import { listClientAddresses } from "../../api/client_addresses";
 import { listActivePaymentMethods } from "../../api/public_payment_methods";
 
 function formatPriceMGA(value) {
@@ -66,6 +67,9 @@ export default function Checkout() {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(true);
   const [paymentMethodsError, setPaymentMethodsError] = useState("");
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [savedAddressesLoading, setSavedAddressesLoading] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const activePaymentMethods = useMemo(
     () => paymentMethods.filter((method) => method?.is_active),
@@ -79,6 +83,54 @@ export default function Checkout() {
       phone: user?.phone || current.phone,
     }));
   }, [user?.name, user?.phone]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadAddresses() {
+      if (!isAuth) {
+        setSavedAddresses([]);
+        setSavedAddressesLoading(false);
+        return;
+      }
+
+      setSavedAddressesLoading(true);
+
+      try {
+        const data = await listClientAddresses();
+        if (!mounted) return;
+
+        const list = Array.isArray(data) ? data : [];
+        setSavedAddresses(list);
+
+        const defaultAddress = list.find((item) => item?.is_default) || list[0] || null;
+        if (defaultAddress) {
+          setSelectedAddressId(String(defaultAddress.encrypted_id || defaultAddress.id));
+          setForm((current) => ({
+            ...current,
+            full_name: defaultAddress.full_name || current.full_name,
+            phone: defaultAddress.phone || current.phone,
+            address_line1: defaultAddress.address_line1 || "",
+            address_line2: defaultAddress.address_line2 || "",
+            city_name: defaultAddress.city_name || "",
+            region: defaultAddress.region || "",
+            latitude: defaultAddress.latitude || "",
+            longitude: defaultAddress.longitude || "",
+          }));
+        }
+      } catch {
+        if (mounted) setSavedAddresses([]);
+      } finally {
+        if (mounted) setSavedAddressesLoading(false);
+      }
+    }
+
+    loadAddresses();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuth]);
 
   useEffect(() => {
     let mounted = true;
@@ -136,6 +188,28 @@ export default function Checkout() {
       return next;
     });
     setFormError("");
+  };
+
+  const applySavedAddress = (addressId) => {
+    setSelectedAddressId(addressId);
+
+    const address = savedAddresses.find(
+      (item) => String(item.encrypted_id || item.id) === String(addressId)
+    );
+
+    if (!address) return;
+
+    setForm((current) => ({
+      ...current,
+      full_name: address.full_name || current.full_name,
+      phone: address.phone || current.phone,
+      address_line1: address.address_line1 || "",
+      address_line2: address.address_line2 || "",
+      city_name: address.city_name || "",
+      region: address.region || "",
+      latitude: address.latitude || "",
+      longitude: address.longitude || "",
+    }));
   };
 
   const getLocation = (options = {}) => {
@@ -400,6 +474,35 @@ export default function Checkout() {
               <hr className="my-4" />
 
               <h5 className="fw-bold mb-3">Adresse de livraison</h5>
+
+              <div className="mb-3">
+                <label className="form-label">Adresse enregistree</label>
+                <select
+                  className="form-select"
+                  value={selectedAddressId}
+                  onChange={(e) => applySavedAddress(e.target.value)}
+                  disabled={savedAddressesLoading || !savedAddresses.length}
+                >
+                  <option value="">
+                    {savedAddressesLoading
+                      ? "Chargement des adresses..."
+                      : savedAddresses.length
+                        ? "Choisir une adresse enregistree"
+                        : "Aucune adresse enregistree"}
+                  </option>
+                  {savedAddresses.map((address) => (
+                    <option key={address.id} value={String(address.encrypted_id || address.id)}>
+                      {address.label || address.city_name || "Adresse"}
+                      {address.is_default ? " - Par defaut" : ""}
+                    </option>
+                  ))}
+                </select>
+                {savedAddresses.length ? (
+                  <small className="text-secondary d-block mt-2">
+                    Vous pouvez gerer vos adresses depuis votre espace client.
+                  </small>
+                ) : null}
+              </div>
 
               <div className="row g-3">
                 <div className="col-12">

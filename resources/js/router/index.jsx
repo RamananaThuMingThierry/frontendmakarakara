@@ -44,6 +44,7 @@ import TestimonialPage from "../pages/admin/testimonials/TestimonialPage";
 import GalleryPage from "../pages/admin/gallery/GalleryPage";
 import ReservationsPage from "../pages/admin/reservations/ReservationsPage";
 import OrdersPage from "../pages/admin/orders/OrdersPage";
+import AdminNotificationsPage from "../pages/admin/notifications/AdminNotificationsPage";
 import ClientLayout from "../layouts/ClientLayout";
 import Profile from "../pages/client/Profile";
 import Orders from "../pages/client/Orders";
@@ -117,6 +118,7 @@ export const router = createBrowserRouter([
           { path: "sliders", element: <SlidesPage /> },
           { path: "users", element: <UsersPage /> },
           { path: "contacts", element: <ContactUsPage /> },
+          { path: "notifications", element: <AdminNotificationsPage /> },
           { path: "activity-logs", element: <ActivityLogPage /> },
           { path: "settings", element: <SettingsPage /> },
           { path: "account", element: <AdminAccountPage /> },

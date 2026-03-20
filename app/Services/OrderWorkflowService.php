@@ -31,7 +31,10 @@ use Throwable;
 
 class OrderWorkflowService
 {
-    public function __construct(private readonly SettingsService $settingsService) {}
+    public function __construct(
+        private readonly SettingsService $settingsService,
+        private readonly AdminNotificationService $adminNotificationService
+    ) {}
 
     public const ALLOWED_TRANSITIONS = [
         OrderStatus::PENDING->value => [
@@ -141,6 +144,7 @@ class OrderWorkflowService
         });
 
         $this->notifyAdminAboutNewOrder($order);
+        $this->adminNotificationService->notifyNewOrder($order);
 
         return $this->freshOrder($order);
     }
@@ -562,6 +566,11 @@ class OrderWorkflowService
             'is_available' => $newQuantity > 0,
             'status' => $newStatus,
         ]);
+
+        $this->adminNotificationService->notifyInventoryAlert(
+            $inventory->fresh(['product:id,name', 'city:id,name']),
+            (string) $inventory->getOriginal('status')
+        );
 
         StockMovement::create([
             'product_id' => $productId,

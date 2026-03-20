@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ContactUsRequest;
 use App\Mail\ContactUsNotification;
 use App\Services\ActivityLogService;
+use App\Services\AdminNotificationService;
 use App\Services\ContactUsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,7 +16,8 @@ class ContactUsController extends Controller
 {
     public function __construct(
         private ContactUsService $contactUsService,
-        private ActivityLogService $activityLogService
+        private ActivityLogService $activityLogService,
+        private AdminNotificationService $adminNotificationService
     ) {}
 
     public function index()
@@ -86,6 +88,8 @@ public function store(ContactUsRequest $request)
 
             return $contact;
         });
+
+        $this->adminNotificationService->notifyNewContact($contact);
 
         return response()->json([
             'message' => 'Message envoyé avec succès.',

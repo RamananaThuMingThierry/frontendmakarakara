@@ -8,6 +8,7 @@ use App\Http\Requests\InventoryRequest;
 use App\Http\Requests\InventoryTransfertRequest;
 use App\Models\Inventory;
 use App\Services\ActivityLogService;
+use App\Services\AdminNotificationService;
 use App\Services\InventoryPriceHistoryService;
 use App\Services\InventoryService;
 use App\Services\StockMovementService;
@@ -22,7 +23,8 @@ class InventoryController extends Controller
         private readonly InventoryService $inventoryService,
         private readonly StockMovementService $stockMovementService,
         private readonly ActivityLogService $activityLogService,
-        private readonly InventoryPriceHistoryService $inventoryPriceHistoryService
+        private readonly InventoryPriceHistoryService $inventoryPriceHistoryService,
+        private readonly AdminNotificationService $adminNotificationService
     ) {}
 
     /**
@@ -128,6 +130,9 @@ class InventoryController extends Controller
                 ];
 
                 $movement = $this->stockMovementService->createStockMovement($movementPayload);
+                $this->adminNotificationService->notifyInventoryAlert(
+                    $inventory->fresh(['product:id,name', 'city:id,name'])
+                );
 
                 return [
                     'inventory'   => $inventory,
@@ -269,7 +274,12 @@ class InventoryController extends Controller
             }
 
             // 1️⃣ Mise à jour inventaire
+            $previousStatus = (string) $inventory->status;
             $updatedInventory = $this->inventoryService->updateInventory($id, $data);
+            $this->adminNotificationService->notifyInventoryAlert(
+                $updatedInventory->fresh(['product:id,name', 'city:id,name']),
+                $previousStatus
+            );
 
             return response()->json([
                 'message' => 'Inventaire mis à jour avec succès.',
@@ -390,9 +400,14 @@ class InventoryController extends Controller
 
                 $movement = $this->stockMovementService->createStockMovement($movementPayload);
 
+                $previousStatus = (string) $inventory->status;
                 $updatedInventory = $this->inventoryService->updateInventory($id, [
                     'quantity' => $newQuantity
                 ]);
+                $this->adminNotificationService->notifyInventoryAlert(
+                    $updatedInventory->fresh(['product:id,name', 'city:id,name']),
+                    $previousStatus
+                );
 
                 $this->activityLogService->createActivityLog([
                     'user_id' => Auth::id(),
@@ -543,9 +558,14 @@ class InventoryController extends Controller
                     $oldDestinationQuantity = (int) $destinationInventory->quantity;
                     $newDestinationQuantity = $oldDestinationQuantity + $transferQty;
 
+                    $destinationPreviousStatus = (string) $destinationInventory->status;
                     $updatedDestinationInventory = $this->inventoryService->updateInventory(
                         $destinationInventory->id,
                         ['quantity' => $newDestinationQuantity]
+                    );
+                    $this->adminNotificationService->notifyInventoryAlert(
+                        $updatedDestinationInventory->fresh(['product:id,name', 'city:id,name']),
+                        $destinationPreviousStatus
                     );
                 } else {
                     $updatedDestinationInventory = $this->inventoryService->createInventory([
@@ -554,12 +574,20 @@ class InventoryController extends Controller
                         'quantity'   => $transferQty,
                         'price'      => $sourceInventory->price,
                     ]);
+                    $this->adminNotificationService->notifyInventoryAlert(
+                        $updatedDestinationInventory->fresh(['product:id,name', 'city:id,name'])
+                    );
                 }
 
                 // Mise à jour inventaire source
+                $sourcePreviousStatus = (string) $sourceInventory->status;
                 $updatedSourceInventory = $this->inventoryService->updateInventory($id, [
                     'quantity' => $newSourceQuantity
                 ]);
+                $this->adminNotificationService->notifyInventoryAlert(
+                    $updatedSourceInventory->fresh(['product:id,name', 'city:id,name']),
+                    $sourcePreviousStatus
+                );
 
                 /**
                  * 1. Mouvement OUT : sortie depuis la source

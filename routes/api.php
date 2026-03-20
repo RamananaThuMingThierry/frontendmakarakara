@@ -4,6 +4,7 @@ use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\ADMIN\OrderWorkflowController;
 use App\Http\Controllers\WEB\ADMIN\OrderController;
+use App\Http\Controllers\WEB\ADMIN\AdminNotificationController;
 use App\Http\Controllers\WEB\ADMIN\DashboardController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\ADMIN\ReservationController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\WEB\CityController;
 use App\Http\Controllers\WEB\ContactUsController;
 use App\Http\Controllers\WEB\CouponController;
 use App\Http\Controllers\WEB\ClientAccountController;
+use App\Http\Controllers\WEB\ClientAddressController;
 use App\Http\Controllers\WEB\ClientCartController;
 use App\Http\Controllers\WEB\ClientOrderController;
 use App\Http\Controllers\WEB\CUSTOMER\ReservationController as CUSTOMERReservationController;
@@ -176,6 +178,10 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::get('notifications-summary', [AdminNotificationController::class, 'summary'])->name('admin.notifications.summary');
+        Route::post('notifications/{notificationId}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+        Route::post('notifications/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.readAll');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
         Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
         Route::get('orders/{encryptedId}', [OrderController::class, 'show'])->name('admin.orders.show');
@@ -205,6 +211,13 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('/account', [ClientAccountController::class, 'show'])->name('customer.account.show');
         Route::put('/account', [ClientAccountController::class, 'update'])->name('customer.account.update');
         Route::put('/account/password', [ClientAccountController::class, 'changePassword'])->name('customer.account.password.update');
+        Route::get('/my-addresses', [ClientAddressController::class, 'index'])->name('customer.addresses.index');
+        Route::post('/my-addresses', [ClientAddressController::class, 'store'])->name('customer.addresses.store');
+        Route::put('/my-addresses/{addressId}', [ClientAddressController::class, 'update'])->name('customer.addresses.update');
+        Route::delete('/my-addresses/{addressId}', [ClientAddressController::class, 'destroy'])->name('customer.addresses.destroy');
+    });
+
+    Route::group([], function () {
         Route::get('/my-cart', [ClientCartController::class, 'show'])->name('customer.cart.show');
         Route::post('/my-cart/sync', [ClientCartController::class, 'sync'])->name('customer.cart.sync');
         Route::put('/my-cart/items/{product}', [ClientCartController::class, 'upsertItem'])->name('customer.cart.items.upsert');

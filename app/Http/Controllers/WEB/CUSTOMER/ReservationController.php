@@ -8,6 +8,7 @@ use App\Models\Inventory;
 use App\Models\Reservation;
 use App\Models\ReservationItem;
 use App\Services\ActivityLogService;
+use App\Services\AdminNotificationService;
 use App\Services\ReservationItemService;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class ReservationController extends Controller
         private readonly ReservationService $reservationService,
         private readonly ReservationItemService $reservationItemService,
         private readonly ActivityLogService $activityLogService,
+        private readonly AdminNotificationService $adminNotificationService,
     ) {}
 
     public function index()
@@ -145,10 +147,19 @@ class ReservationController extends Controller
                 return [
                     'cart_id' => $cart->id,
                     'expires_at' => $expiresAt->toISOString(),
+                    'reservation_id' => $reservation->id,
                     'reservation' => $this->formatCustomerReservation($reservation),
                     'cart_cleared' => true,
                 ];
             });
+
+            $reservation = Reservation::query()
+                ->with(['user', 'items.product', 'items.city'])
+                ->find($payload['reservation_id']);
+
+            if ($reservation) {
+                $this->adminNotificationService->notifyNewReservation($reservation);
+            }
 
             return response()->json([
                 'message' => 'Reservation creee avec succes. Elle expire dans 24 heures si aucune commande n est pas passee.',
