@@ -121,6 +121,47 @@ class DashboardController extends Controller
             ])
             ->values();
 
+        $cityRevenue = Order::query()
+            ->join('cities', 'cities.id', '=', 'orders.city_id')
+            ->whereNotNull('orders.city_id')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->selectRaw('orders.city_id as city_id')
+            ->selectRaw('cities.name as city_name')
+            ->selectRaw('COUNT(*) as orders_count')
+            ->selectRaw('SUM(CASE WHEN orders.payment_status = ? THEN orders.total ELSE 0 END) as revenue_total', [PaymentStatus::PAID->value])
+            ->groupBy('orders.city_id', 'cities.name');
+
+        $cityQuantities = OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->whereNotNull('orders.city_id')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->selectRaw('orders.city_id as city_id')
+            ->selectRaw('SUM(CASE WHEN orders.status != ? THEN order_items.quantity ELSE 0 END) as quantity_sold', [OrderStatus::CANCELLED->value])
+            ->groupBy('orders.city_id');
+
+        $citySales = DB::query()
+            ->fromSub($cityRevenue, 'city_revenue')
+            ->leftJoinSub($cityQuantities, 'city_quantities', function ($join) {
+                $join->on('city_revenue.city_id', '=', 'city_quantities.city_id');
+            })
+            ->selectRaw('city_revenue.city_id as city_id')
+            ->selectRaw('city_revenue.city_name as city_name')
+            ->selectRaw('city_revenue.orders_count as orders_count')
+            ->selectRaw('COALESCE(city_quantities.quantity_sold, 0) as quantity_sold')
+            ->selectRaw('city_revenue.revenue_total as revenue_total')
+            ->orderByDesc('revenue_total')
+            ->orderByDesc('quantity_sold')
+            ->limit(10)
+            ->get()
+            ->map(fn ($row) => [
+                'city_id' => (int) $row->city_id,
+                'city_name' => $row->city_name,
+                'orders_count' => (int) $row->orders_count,
+                'quantity_sold' => (int) $row->quantity_sold,
+                'revenue_total' => (float) $row->revenue_total,
+            ])
+            ->values();
+
         $recentOrders = Order::query()
             ->with(['user:id,name,email'])
             ->latest()
@@ -168,6 +209,7 @@ class DashboardController extends Controller
                 'status_breakdown' => $statusBreakdown,
                 'payment_breakdown' => $paymentBreakdown,
                 'top_products' => $topProducts,
+                'city_sales' => $citySales,
                 'recent_orders' => $recentOrders,
                 'recent_activity' => $recentActivity,
             ],

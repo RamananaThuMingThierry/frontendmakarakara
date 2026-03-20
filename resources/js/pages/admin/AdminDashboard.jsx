@@ -66,6 +66,25 @@ function StatCard({ title, value, hint, icon, tone = "warning" }) {
   );
 }
 
+function StatCardXL({ title, value, hint, icon, tone = "warning" }) {
+  return (
+    <div className="col-12">
+      <div className="bg-white rounded-4 shadow-sm p-3 h-100 border">
+        <div className="d-flex align-items-start justify-content-between gap-3">
+          <div>
+            <div className="text-secondary small">{title}</div>
+            <div className="fw-bold fs-4">{value}</div>
+            {hint ? <div className="small text-secondary mt-1">{hint}</div> : null}
+          </div>
+          <div className={`fs-3 text-${tone}`}>
+            <i className={`bi ${icon}`} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LineChartCard({ data, granularity }) {
   const chartData = data.length ? data : [];
   const maxRevenue = Math.max(...chartData.map((item) => Number(item.revenue_total || 0)), 1);
@@ -267,6 +286,88 @@ function TopProductsBarChart({ title, data }) {
   );
 }
 
+function CitySalesChart({ data }) {
+  const maxValue = Math.max(...data.map((item) => Number(item.revenue_total || 0)), 1);
+
+  return (
+    <div className="bg-white rounded-4 shadow-sm p-4 border h-100">
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <div className="fw-semibold">Chiffre d'affaires par ville</div>
+          <div className="small text-secondary">CA des produits vendus par ville</div>
+        </div>
+        <span className="small text-secondary">Top 10</span>
+      </div>
+
+      {data.length ? (
+        <div className="d-flex flex-column gap-3">
+          {data.map((item) => (
+            <div key={item.city_id || item.city_name}>
+              <div className="d-flex align-items-center justify-content-between small mb-1 gap-3">
+                <div className="fw-semibold text-truncate">{item.city_name}</div>
+                <div className="text-end">
+                  <div>{formatPriceMGA(item.revenue_total)}</div>
+                  <div className="text-secondary">{Number(item.orders_count || 0).toLocaleString("fr-FR")} commandes</div>
+                </div>
+              </div>
+              <div className="progress" style={{ height: 12 }}>
+                <div
+                  className="progress-bar bg-success"
+                  style={{ width: `${(Number(item.revenue_total || 0) / maxValue) * 100}%` }}
+                />
+              </div>
+              <div className="small text-secondary mt-1">{Number(item.quantity_sold || 0).toLocaleString("fr-FR")} produits vendus</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-secondary">Aucune vente par ville sur cette periode.</div>
+      )}
+    </div>
+  );
+}
+
+function CityQuantityChart({ data }) {
+  const maxValue = Math.max(...data.map((item) => Number(item.quantity_sold || 0)), 1);
+
+  return (
+    <div className="bg-white rounded-4 shadow-sm p-4 border h-100">
+      <div className="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <div className="fw-semibold">Quantite vendue par ville</div>
+          <div className="small text-secondary">Volume de produits vendus par ville</div>
+        </div>
+        <span className="small text-secondary">Top 10</span>
+      </div>
+
+      {data.length ? (
+        <div className="d-flex flex-column gap-3">
+          {data.map((item) => (
+            <div key={item.city_id || item.city_name}>
+              <div className="d-flex align-items-center justify-content-between small mb-1 gap-3">
+                <div className="fw-semibold text-truncate">{item.city_name}</div>
+                <div className="text-end">
+                  <div>{Number(item.quantity_sold || 0).toLocaleString("fr-FR")} produits</div>
+                  <div className="text-secondary">{formatPriceMGA(item.revenue_total)}</div>
+                </div>
+              </div>
+              <div className="progress" style={{ height: 12 }}>
+                <div
+                  className="progress-bar bg-primary"
+                  style={{ width: `${(Number(item.quantity_sold || 0) / maxValue) * 100}%` }}
+                />
+              </div>
+              <div className="small text-secondary mt-1">{Number(item.orders_count || 0).toLocaleString("fr-FR")} commandes</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-secondary">Aucune vente par ville sur cette periode.</div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [filters, setFilters] = useState({
     mode: "daily",
@@ -326,9 +427,11 @@ export default function AdminDashboard() {
   const statusBreakdown = dashboard?.status_breakdown || [];
   const paymentBreakdown = dashboard?.payment_breakdown || [];
   const topProducts = dashboard?.top_products || [];
+  const citySales = dashboard?.city_sales || [];
   const recentOrders = dashboard?.recent_orders || [];
   const recentActivity = dashboard?.recent_activity || [];
   const seriesGranularity = dashboard?.filters?.series_granularity || "daily";
+  const bestCity = citySales[0] || null;
 
   const periodLabel = useMemo(() => {
     if (!dashboard?.filters) return "";
@@ -470,6 +573,17 @@ export default function AdminDashboard() {
               icon="bi-box-seam"
               tone="success"
             />
+            <StatCardXL
+              title="Ville au plus fort CA"
+              value={bestCity?.city_name || "-"}
+              hint={
+                bestCity
+                  ? `${formatPriceMGA(bestCity.revenue_total)} - ${Number(bestCity.quantity_sold || 0).toLocaleString("fr-FR")} produits`
+                  : "Aucune vente par ville"
+              }
+              icon="bi-geo-alt"
+              tone="success"
+            />
           </div>
 
           <div className="row g-2">
@@ -481,8 +595,8 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-4 shadow-sm p-4 border h-100">
                 <div className="fw-semibold mb-3">Points d’attention admin</div>
                 <div className="row">
-                  <div className="col-md-3">
-                          <div className="border rounded-4 p-3">
+                  <div className="col-md-3 mb-2 ">
+                          <div className="border rounded-4 p-3 h-100">
                     <div className="small text-secondary">Paiements à valider</div>
                     <div className="fw-bold fs-5">{summary.pending_payments_count || 0}</div>
                     <Link to="/admin/orders" className="small">
@@ -491,8 +605,8 @@ export default function AdminDashboard() {
                   </div>
                   </div>
 
-                  <div className="col-md-3">
-                  <div className="border rounded-4 p-3">
+                  <div className="col-md-3 mb-2 ">
+                  <div className="border rounded-4 p-3 h-100">
                     <div className="small text-secondary">Commandes en attente</div>
                     <div className="fw-bold fs-5">{summary.pending_orders_count || 0}</div>
                     <Link to="/admin/orders" className="small">
@@ -501,8 +615,8 @@ export default function AdminDashboard() {
                   </div>
                   </div>
 
-                  <div className="col-md-3">
-                  <div className="border rounded-4 p-3">
+                  <div className="col-md-3 mb-2 ">
+                  <div className="border rounded-4 p-3 h-100">
                     <div className="small text-secondary">Réservations actives</div>
                     <div className="fw-bold fs-5">{summary.active_reservations_count || 0}</div>
                     <Link to="/admin/reservations" className="small">
@@ -511,8 +625,8 @@ export default function AdminDashboard() {
                   </div>
                   </div>
 
-                  <div className="col-md-3">
-                  <div className="border rounded-4 p-3">
+                  <div className="col-md-3 mb-2 ">
+                  <div className="border rounded-4 p-3 h-100">
                     <div className="small text-secondary">Catalogue actif</div>
                     <div className="fw-bold fs-5">{summary.active_products_count || 0}</div>
                     <Link to="/admin/categories" className="small">
@@ -540,6 +654,18 @@ export default function AdminDashboard() {
               <TopProductsBarChart title="Top produits vendus" data={topProducts} />
             </div>
 
+            <div className="col-12 xl col-xl-6">
+              <CitySalesChart data={citySales} />
+            </div>
+          </div>
+
+          <div className="row g-4">
+            <div className="col-12">
+              <CityQuantityChart data={citySales} />
+            </div>
+          </div>
+
+          <div className="row g-4">
             <div className="col-12 xl col-xl-6">
               <div className="bg-white rounded-4 shadow-sm p-4 border h-100">
                 <div className="d-flex align-items-center justify-content-between mb-3">
@@ -594,6 +720,46 @@ export default function AdminDashboard() {
                 </div>
                 <div className="small text-secondary mt-3">
                   Affichage des 10 dernières commandes.
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12 xl col-xl-6">
+              <div className="bg-white rounded-4 shadow-sm p-4 border h-100">
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <div className="fw-semibold">Commandes par ville</div>
+                  <span className="small text-secondary">Top 10 villes</span>
+                </div>
+
+                <div className="table-responsive">
+                  <table className="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Ville</th>
+                        <th>Commandes</th>
+                        <th>Produits</th>
+                        <th>CA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {citySales.length ? (
+                        citySales.map((item) => (
+                          <tr key={item.city_id || item.city_name}>
+                            <td className="fw-semibold">{item.city_name}</td>
+                            <td>{Number(item.orders_count || 0).toLocaleString("fr-FR")}</td>
+                            <td>{Number(item.quantity_sold || 0).toLocaleString("fr-FR")}</td>
+                            <td>{formatPriceMGA(item.revenue_total)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="text-center text-secondary py-4">
+                            Aucune donnee par ville.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
