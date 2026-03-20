@@ -35,7 +35,8 @@ class ClientOrderController extends Controller
     {
         $validated = $request->validate([
             'coupon_code' => ['nullable', 'string', 'max:100'],
-            'payment_method' => ['required', 'string', 'in:cash,mobile_money'],
+            'payment_method_id' => ['required', 'integer', 'exists:payment_methods,id'],
+            'payment_method' => ['nullable', 'string', 'in:cash,mobile_money'],
             'notes' => ['nullable', 'string'],
             'address.full_name' => ['required', 'string', 'max:255'],
             'address.phone' => ['required', 'string', 'max:50'],

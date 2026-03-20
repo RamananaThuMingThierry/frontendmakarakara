@@ -18,14 +18,16 @@ export default function OrderSuccess() {
   const total = Number(data?.total || 0);
   const couponCode = data?.coupon_code || null;
   const paymentMethod = data?.payment_method || "cash";
+  const paymentMethodName = data?.payment_method_name || null;
   const paymentStatus = data?.payment_status || "unpaid";
   const orderStatus = data?.status || "pending";
   const address = data?.address || null;
 
   const paymentTitle = useMemo(() => {
+    if (paymentMethodName) return paymentMethodName;
     if (paymentMethod === "mobile_money") return "Mobile money";
     return "Espece";
-  }, [paymentMethod]);
+  }, [paymentMethod, paymentMethodName]);
 
   const paymentStatusLabel = useMemo(() => {
     const labels = {

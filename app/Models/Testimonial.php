@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Product;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,8 @@ class Testimonial extends Model
         'name',
         'photo_url',
         'city',
+        'target_type',
+        'product_id',
         'product_used',
         'rating',
         'message',
@@ -22,6 +25,7 @@ class Testimonial extends Model
 
     protected $casts = [
         'rating' => 'integer',
+        'product_id' => 'integer',
         'position' => 'integer',
         'is_active' => 'boolean',
     ];
@@ -42,5 +46,10 @@ class Testimonial extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

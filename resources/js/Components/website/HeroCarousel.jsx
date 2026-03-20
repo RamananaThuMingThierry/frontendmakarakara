@@ -1,28 +1,77 @@
+import { useEffect, useMemo, useState } from "react";
+import { slidesApi } from "../../api/slides";
+
+const FALLBACK_SLIDES = [
+  {
+    id: "fallback-1",
+    title: "Sublimez vos cheveux",
+    subtitle: "Decouvrez notre gamme exclusive de soins capillaires et d'accessoires de qualite professionnelle.",
+    image_url: "/website/images/slide_1.jpg",
+    position: 1,
+  },
+  {
+    id: "fallback-2",
+    title: "Nouveautes et meilleures ventes",
+    subtitle: "Retrouvez les produits preferes de nos clientes et les offres du moment dans la boutique.",
+    image_url: "/website/images/slide_2.jpg",
+    position: 2,
+  },
+];
+
+function getImageUrl(path) {
+  if (!path) return "/website/images/slide_1.jpg";
+  if (/^https?:\/\//i.test(path)) return path;
+  return `/${String(path).replace(/^\/+/, "")}`;
+}
+
+function getButtonConfig(slide) {
+  const text = `${slide?.title || ""} ${slide?.subtitle || ""}`.toLowerCase();
+
+  if (text.includes("avis") || text.includes("temoign")) {
+    return { label: "Laisser un avis", href: "/testimonials" };
+  }
+
+  return { label: "Voir la boutique", href: "/shop" };
+}
+
 export default function HeroCarousel() {
-  const slides = [
-    {
-      id: 1,
-      image: "/website/images/slide_1.jpg",
-      title: "Sublimez vos cheveux",
-      text:
-        "Découvrez notre gamme exclusive de soins capillaires et accessoires de qualité professionnelle.",
-      button: { label: "Découvrir la collection", href: "/shop" },
-    },
-    {
-      id: 2,
-      image: "/website/images/slide_2.jpg",
-      title: "Nouveautés & Best sellers",
-      text: "Les produits préférés de nos clientes, disponibles maintenant.",
-      button: { label: "Voir la boutique", href: "/shop" },
-    },
-    {
-      id: 3,
-      image: "/website/images/slide_3.jpg",
-      title: "Nouveautés & Best sellers",
-      text: "Les produits préférés de nos clientes, disponibles maintenant.",
-      button: { label: "Voir la boutique", href: "/shop" },
-    },
-  ];
+  const [slides, setSlides] = useState(FALLBACK_SLIDES);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        const data = await slidesApi.publicList();
+        if (cancelled) return;
+
+        const items = Array.isArray(data) ? data : [];
+        if (items.length > 0) {
+          setSlides(items);
+        }
+      } catch {
+        if (!cancelled) {
+          setSlides(FALLBACK_SLIDES);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const orderedSlides = useMemo(() => {
+    return [...slides].sort((a, b) => Number(a?.position || 0) - Number(b?.position || 0));
+  }, [slides]);
+
+  const activeSlides = orderedSlides.length > 0 ? orderedSlides : FALLBACK_SLIDES;
 
   return (
     <section className="position-relative">
@@ -32,91 +81,94 @@ export default function HeroCarousel() {
         data-bs-ride="carousel"
         data-bs-interval="5000"
       >
-        {/* Indicators */}
-        <div className="carousel-indicators">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              data-bs-target="#heroCarousel"
-              data-bs-slide-to={i}
-              className={i === 0 ? "active" : ""}
-              aria-current={i === 0 ? "true" : undefined}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-        </div>
-
-        {/* Slides */}
-        <div className="carousel-inner">
-          {slides.map((s, i) => (
-            <div key={s.id} className={`carousel-item ${i === 0 ? "active" : ""}`}>
-              {/* Image */}
-              <img
-                src={s.image}
-                className="d-block w-100"
-                alt={s.title}
-                style={{ height: "750px", objectFit: "cover" }}
+        {activeSlides.length > 1 && (
+          <div className="carousel-indicators">
+            {activeSlides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                data-bs-target="#heroCarousel"
+                data-bs-slide-to={i}
+                className={i === 0 ? "active" : ""}
+                aria-current={i === 0 ? "true" : undefined}
+                aria-label={`Diapositive ${i + 1}`}
               />
+            ))}
+          </div>
+        )}
 
-              {/* Overlay content */}
-              <div className="carousel-caption text-start">
-                <div className="container">
-                  <div className="col-12 col-lg-6">
-                    <h1 className="display-5 fw-bold">{s.title}</h1>
-                    <p className="lead">{s.text}</p>
-                    <a className="btn btn-dark px-4" href={s.button.href}>
-                      {s.button.label}
-                    </a>
+        <div className="carousel-inner">
+          {activeSlides.map((slide, i) => {
+            const button = getButtonConfig(slide);
 
-                    {/* Mini stats (optionnel) */}
-                    <div className="d-flex gap-4 mt-4">
-                      <div>
-                        <div className="fw-bold">5000+</div>
-                        <small className="text-white-50">Clients satisfaits</small>
-                      </div>
-                      <div>
-                        <div className="fw-bold">5000+</div>
-                        <small className="text-white-50">Clients satisfaits</small>
-                      </div>
-                      <div>
-                        <div className="fw-bold">5000+</div>
-                        <small className="text-white-50">Clients satisfaits</small>
+            return (
+              <div key={slide.id || i} className={`carousel-item ${i === 0 ? "active" : ""}`}>
+                <img
+                  src={getImageUrl(slide.image_url)}
+                  className="d-block w-100"
+                  alt={slide.title || `Slide ${i + 1}`}
+                  style={{ height: "750px", objectFit: "cover" }}
+                />
+
+                <div
+                  className="position-absolute top-0 start-0 w-100 h-100"
+                  style={{ background: "rgba(0,0,0,0.35)" }}
+                />
+
+                <div className="carousel-caption text-start">
+                  <div className="container">
+                    <div className="col-12 col-lg-7">
+                      <h1 className="display-5 fw-bold">{slide.title || "Bienvenue"}</h1>
+                      <p className="lead">{slide.subtitle || "Decouvrez nos produits et services."}</p>
+                      <a className="btn btn-dark px-4" href={button.href}>
+                        {button.label}
+                      </a>
+
+                      <div className="d-flex flex-wrap gap-4 mt-4">
+                        <div>
+                          <div className="fw-bold">{loading ? "..." : activeSlides.length}</div>
+                          <small className="text-white-50">Slides actifs</small>
+                        </div>
+                        <div>
+                          <div className="fw-bold">Livraison</div>
+                          <small className="text-white-50">Coordonnees GPS</small>
+                        </div>
+                        <div>
+                          <div className="fw-bold">Avis</div>
+                          <small className="text-white-50">Produits et plateforme</small>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Dark overlay for readability */}
-              <div
-                className="position-absolute top-0 start-0 w-100 h-100"
-                style={{ background: "rgba(0,0,0,0.25)" }}
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Controls */}
-        <button
-          className="carousel-control-prev"
-          type="button"
-          data-bs-target="#heroCarousel"
-          data-bs-slide="prev"
-        >
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Previous</span>
-        </button>
+        {activeSlides.length > 1 && (
+          <>
+            <button
+              className="carousel-control-prev"
+              type="button"
+              data-bs-target="#heroCarousel"
+              data-bs-slide="prev"
+            >
+              <span className="carousel-control-prev-icon" aria-hidden="true" />
+              <span className="visually-hidden">Precedent</span>
+            </button>
 
-        <button
-          className="carousel-control-next"
-          type="button"
-          data-bs-target="#heroCarousel"
-          data-bs-slide="next"
-        >
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Next</span>
-        </button>
+            <button
+              className="carousel-control-next"
+              type="button"
+              data-bs-target="#heroCarousel"
+              data-bs-slide="next"
+            >
+              <span className="carousel-control-next-icon" aria-hidden="true" />
+              <span className="visually-hidden">Suivant</span>
+            </button>
+          </>
+        )}
       </div>
     </section>
   );

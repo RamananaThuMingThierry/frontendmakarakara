@@ -1,6 +1,11 @@
 import api from "./axios";
 
 export const slidesApi = {
+  async publicList() {
+    const res = await api.get("/slides");
+    return res.data.data ?? res.data;
+  },
+
   async list({ page = 1 } = {}) {
     const res = await api.get("/admin/slides", { params: { page } });
     return res.data.data ?? res.data;

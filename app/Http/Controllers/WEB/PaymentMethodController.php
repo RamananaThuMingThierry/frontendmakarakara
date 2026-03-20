@@ -12,6 +12,25 @@ class PaymentMethodController extends Controller
 {
     public function __construct(private PaymentMethodService $paymentMethodService, private ActivityLogService $activityLogService){}
 
+    public function publicActive()
+    {
+        try {
+            $paymentMethods = $this->paymentMethodService->getAllPaymentMethods(
+                ['is_active'],
+                [true],
+                ['id', 'name', 'code', 'image', 'is_active']
+            );
+
+            return response()->json([
+                'data' => $paymentMethods,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors du chargement des methodes de paiement actives.',
+            ], 500);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -2,7 +2,6 @@ import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from '../../hooks/website/CartContext';
 import { useFavorites } from "../../hooks/website/FavoritesContext";
-import { PRODUCTS } from "../../data/products";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../../hooks/website/AuthContext";
 
@@ -14,10 +13,10 @@ export default function Header() {
   const safeRoles = Array.isArray(roles) ? roles : [];
   const accountLink = safeRoles.includes("admin") ? "/admin/account" : "/account/profile";
   const navItems = [
-    { to: "/", label: "Home" },
-    { to: "/shop", label: "Shop" },
-    { to: "/cart", label: "Cart" },
-    { to: "/about", label: "About" },
+    { to: "/", label: "Accueil" },
+    { to: "/shop", label: "Boutique" },
+    { to: "/cart", label: "Panier" },
+    { to: "/about", label: "A propos" },
     { to: "/contact", label: "Contact" },
   ];
 
@@ -51,7 +50,7 @@ export default function Header() {
             data-bs-toggle="offcanvas"
             data-bs-target="#mainNav"
             aria-controls="mainNav"
-            aria-label="Toggle navigation"
+            aria-label="Ouvrir la navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
@@ -78,7 +77,7 @@ export default function Header() {
             {/* right icons */}
             <div className="d-flex align-items-center gap-3">
 
-              <SearchBar products={PRODUCTS} />
+              <SearchBar />
 
               {isAuth ? (
                 <div className="dropdown">
@@ -92,12 +91,12 @@ export default function Header() {
                   </ul>
                 </div>
               ) : (
-                <Link className="btn btn-link p-0 text-dark" to="/login" aria-label="Account">
+                <Link className="btn btn-link p-0 text-dark" to="/login" aria-label="Compte">
                   <i className="bi bi-person fs-5"></i>
                 </Link>
               )}
 
-            <Link to="/favorites" className="btn btn-link text-dark position-relative me-2">
+            <Link to="/favorites" className="btn btn-link text-dark position-relative me-2" aria-label="Favoris">
               <i className="bi bi-heart" />
               {favCount > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -106,8 +105,7 @@ export default function Header() {
               )}
             </Link>
 
-
-              <Link className="btn btn-link p-0 text-dark position-relative" to="/cart" aria-label="Cart">
+              <Link className="btn btn-link p-0 text-dark position-relative" to="/cart" aria-label="Panier">
                 <i className="bi bi-bag fs-5"></i>
                 {cartCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">

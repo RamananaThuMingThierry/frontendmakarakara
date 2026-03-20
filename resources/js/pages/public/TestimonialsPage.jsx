@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { inventoryApi } from "../../api/inventories";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
 import "../../../css/website.css";
 
@@ -8,6 +9,8 @@ const PAGE_SIZE = 5;
 const initialForm = {
   name: "",
   city: "",
+  target_type: "platform",
+  product_id: "",
   product_used: "",
   rating: "",
   message: "",
@@ -18,13 +21,14 @@ function buildImageUrl(path) {
   if (!path) return "/images/img.png";
   if (/^https?:\/\//i.test(path)) return path;
 
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
   const base = apiUrl.replace(/\/api\/?$/, "");
   return `${base}/${String(path).replace(/^\/+/, "")}`;
 }
 
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState([]);
+  const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -44,8 +48,13 @@ export default function TestimonialsPage() {
 
     setError("");
     try {
-      const data = await publicTestimonialsApi.list();
-      setTestimonials(Array.isArray(data) ? data : []);
+      const [testimonialData, inventoryData] = await Promise.all([
+        publicTestimonialsApi.list(),
+        inventoryApi.shopList().catch(() => []),
+      ]);
+
+      setTestimonials(Array.isArray(testimonialData) ? testimonialData : []);
+      setInventories(Array.isArray(inventoryData) ? inventoryData : []);
     } catch (e) {
       setError(e?.response?.data?.message || "Impossible de charger les avis.");
     } finally {
@@ -57,6 +66,23 @@ export default function TestimonialsPage() {
   useEffect(() => {
     load({ mode: "initial" });
   }, []);
+
+  const productOptions = useMemo(() => {
+    const seen = new Map();
+
+    inventories.forEach((inventory) => {
+      const product = inventory?.product;
+      if (!product?.id || !product?.encrypted_id) return;
+
+      seen.set(product.id, {
+        id: String(product.id),
+        encrypted_id: product.encrypted_id,
+        name: product.name || `Produit ${product.id}`,
+      });
+    });
+
+    return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [inventories]);
 
   const totalPages = Math.max(1, Math.ceil(testimonials.length / PAGE_SIZE));
 
@@ -74,10 +100,28 @@ export default function TestimonialsPage() {
   const goTo = (p) => setPage(Math.min(Math.max(1, p), totalPages));
 
   const update = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      const next = { ...current, [field]: value };
+
+      if (field === "target_type" && value === "platform") {
+        next.product_id = "";
+        next.product_used = "";
+      }
+
+      if (field === "product_id") {
+        const selected = productOptions.find((item) => item.id === String(value));
+        next.product_used = selected?.name || "";
+      }
+
+      return next;
+    });
 
     if (errors[field]) {
       setErrors((current) => ({ ...current, [field]: undefined }));
+    }
+
+    if (field === "target_type" && errors.product_id) {
+      setErrors((current) => ({ ...current, product_id: undefined }));
     }
 
     if (serverError) setServerError("");
@@ -102,7 +146,9 @@ export default function TestimonialsPage() {
     const payload = new FormData();
     payload.append("name", form.name.trim());
     payload.append("city", form.city.trim());
-    payload.append("product_used", form.product_used.trim());
+    payload.append("target_type", form.target_type);
+    payload.append("product_id", form.target_type === "product" ? String(form.product_id || "") : "");
+    payload.append("product_used", form.target_type === "product" ? form.product_used.trim() : "");
     payload.append("rating", form.rating === "" ? "" : String(form.rating));
     payload.append("message", form.message.trim());
 
@@ -118,6 +164,7 @@ export default function TestimonialsPage() {
       } else {
         await load({ mode: "refresh" });
       }
+
       setForm(initialForm);
       setErrors({});
       setServerError("");
@@ -167,7 +214,7 @@ export default function TestimonialsPage() {
               <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
                 <div>
                   <h4 className="fw-bold mb-1">Avis clients</h4>
-                  <p className="text-secondary mb-0">Les derniers avis publies en direct.</p>
+                  <p className="text-secondary mb-0">Avis sur les produits et sur la plateforme.</p>
                 </div>
               </div>
 
@@ -201,8 +248,11 @@ export default function TestimonialsPage() {
 
                             <div>
                               <div className="fw-bold">{t.name}</div>
-                              <div className="text-secondary small">
-                                {t.city || "Client"} {t.product_used ? `- ${t.product_used}` : ""}
+                              <div className="text-secondary small d-flex flex-wrap gap-2">
+                                <span>{t.city || "Client"}</span>
+                                <span className={`badge ${t.target_type === "product" ? "text-bg-warning" : "text-bg-dark"}`}>
+                                  {t.target_type === "product" ? `Produit: ${t.product_used || "-"}` : "Plateforme"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -227,7 +277,7 @@ export default function TestimonialsPage() {
                       <ul className="pagination mb-0">
                         <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
                           <button className="page-link" onClick={() => goTo(page - 1)}>
-                            <i className="bi bi-chevron-double-left"></i>
+                            <i className="bi bi-chevron-double-left" />
                           </button>
                         </li>
 
@@ -241,7 +291,7 @@ export default function TestimonialsPage() {
 
                         <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
                           <button className="page-link" onClick={() => goTo(page + 1)}>
-                            <i className="bi bi-chevron-double-right"></i>
+                            <i className="bi bi-chevron-double-right" />
                           </button>
                         </li>
                       </ul>
@@ -256,13 +306,17 @@ export default function TestimonialsPage() {
             <div className="bg-white rounded-4 shadow-sm p-4">
               <h4 className="fw-bold mb-2">Laisser votre avis</h4>
               <p className="text-secondary">
-                Partagez votre experience. Votre avis apparaitra directement dans la liste.
+                Vous pouvez noter un produit precis ou partager un avis global sur la plateforme.
               </p>
 
-              {successMessage ? <div className="alert alert-success alert-dismissible fade show">
-                {successMessage}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div> : null}
+              {successMessage ? (
+                <div className="alert alert-success alert-dismissible fade show">
+                  {successMessage}
+                  <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" />
+                </div>
+              ) : null}
+
+              {serverError ? <div className="alert alert-danger">{serverError}</div> : null}
 
               <form onSubmit={submit} className="row g-3" noValidate>
                 <div className="col-12">
@@ -288,6 +342,40 @@ export default function TestimonialsPage() {
                 </div>
 
                 <div className="col-12 col-md-6">
+                  <label className="form-label">Type d'avis</label>
+                  <select
+                    className={`form-select ${errors.target_type ? "is-invalid" : ""}`}
+                    value={form.target_type}
+                    onChange={(e) => update("target_type", e.target.value)}
+                    disabled={sending}
+                  >
+                    <option value="platform">Plateforme</option>
+                    <option value="product">Produit</option>
+                  </select>
+                  {errors.target_type ? <div className="invalid-feedback">{errors.target_type[0]}</div> : null}
+                </div>
+
+                {form.target_type === "product" && (
+                  <div className="col-12">
+                    <label className="form-label">Produit *</label>
+                    <select
+                      className={`form-select ${errors.product_id ? "is-invalid" : ""}`}
+                      value={form.product_id}
+                      onChange={(e) => update("product_id", e.target.value)}
+                      disabled={sending}
+                    >
+                      <option value="">Choisir un produit</option>
+                      {productOptions.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.product_id ? <div className="invalid-feedback">{errors.product_id[0]}</div> : null}
+                  </div>
+                )}
+
+                <div className="col-12 col-md-6">
                   <label className="form-label">Note</label>
                   <select
                     className={`form-select ${errors.rating ? "is-invalid" : ""}`}
@@ -303,19 +391,6 @@ export default function TestimonialsPage() {
                     <option value="1">1 etoile</option>
                   </select>
                   {errors.rating ? <div className="invalid-feedback">{errors.rating[0]}</div> : null}
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label">Produit utilise</label>
-                  <input
-                    className={`form-control ${errors.product_used ? "is-invalid" : ""}`}
-                    value={form.product_used}
-                    onChange={(e) => update("product_used", e.target.value)}
-                    disabled={sending}
-                  />
-                  {errors.product_used ? (
-                    <div className="invalid-feedback">{errors.product_used[0]}</div>
-                  ) : null}
                 </div>
 
                 <div className="col-12">
@@ -343,9 +418,7 @@ export default function TestimonialsPage() {
                       setPhotoPreview(file ? URL.createObjectURL(file) : "");
                     }}
                   />
-                  {errors.photo_url ? (
-                    <div className="invalid-feedback">{errors.photo_url[0]}</div>
-                  ) : null}
+                  {errors.photo_url ? <div className="invalid-feedback">{errors.photo_url[0]}</div> : null}
                 </div>
 
                 {photoPreview ? (
@@ -369,7 +442,7 @@ export default function TestimonialsPage() {
                 </div>
 
                 <small className="text-secondary">
-                  Merci pour votre retour. Votre avis s'affiche juste apres l'envoi.
+                  Les avis produit sont relies au produit choisi. Les avis plateforme restent globaux.
                 </small>
               </form>
             </div>

@@ -53,6 +53,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgot'])->name('forgot-password');
 Route::post('/reset-password', [AuthController::class, 'reset'])->name('reset');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
+Route::get('/payment-methods/active', [PaymentMethodController::class, 'publicActive'])->name('payment_methods.public.active');
+Route::get('/slides', [SlideController::class, 'publicIndex'])->name('slides.public.index');
 Route::get('/galleries', [GalleryController::class, 'publicIndex'])->name('galleries.public.index');
 Route::get('/testimonials', [TestimonialController::class, 'publicIndex'])->name('testimonials.public.index');
 Route::post('/testimonials', [TestimonialController::class, 'publicStore'])->name('testimonials.public.store');

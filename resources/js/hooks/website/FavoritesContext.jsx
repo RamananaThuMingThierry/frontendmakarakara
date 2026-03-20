@@ -1,24 +1,44 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const FavoritesContext = createContext(null);
+const LEGACY_FAVORITES_KEY = "favorites";
 
 export function FavoritesProvider({ children }) {
-  const [favorites, setFavorites] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
-      return Array.isArray(saved) ? saved : [];
-    } catch {
-      return [];
-    }
-  });
+  const { isAuth, user } = useAuth();
+  const storageKey = useMemo(() => {
+    const userId = user?.id;
+    return userId ? `favorites:user:${userId}` : null;
+  }, [user?.id]);
+
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
+    localStorage.removeItem(LEGACY_FAVORITES_KEY);
+
+    if (!isAuth || !storageKey) {
+      setFavorites([]);
+      return;
+    }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      setFavorites(Array.isArray(saved) ? saved : []);
+    } catch {
+      setFavorites([]);
+    }
+  }, [isAuth, storageKey]);
+
+  useEffect(() => {
+    if (!isAuth || !storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify(favorites));
+  }, [favorites, isAuth, storageKey]);
 
   const isFav = (id) => favorites.some((p) => p.id === id);
 
   const toggleFav = (product) => {
+    if (!isAuth) return;
+
     setFavorites((prev) => {
       const exists = prev.some((p) => p.id === product.id);
       if (exists) return prev.filter((p) => p.id !== product.id);

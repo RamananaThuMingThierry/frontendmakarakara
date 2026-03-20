@@ -11,6 +11,7 @@ use App\Mail\OrderReceiptMail;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\OrderWorkflowService;
@@ -26,6 +27,8 @@ class OrderWorkflowServiceTest extends TestCase
     private OrderWorkflowService $service;
     private User $user;
     private Product $product;
+    private PaymentMethod $cashMethod;
+    private PaymentMethod $mobileMoneyMethod;
 
     protected function setUp(): void
     {
@@ -57,6 +60,18 @@ class OrderWorkflowServiceTest extends TestCase
             'compare_price' => 12000,
             'sku' => 'SKU-TEST-001',
             'barcode' => 'BAR-TEST-001',
+            'is_active' => true,
+        ]);
+
+        $this->cashMethod = PaymentMethod::create([
+            'name' => 'Paiement a la livraison',
+            'code' => 'cash',
+            'is_active' => true,
+        ]);
+
+        $this->mobileMoneyMethod = PaymentMethod::create([
+            'name' => 'MVola',
+            'code' => 'mvola',
             'is_active' => true,
         ]);
     }
@@ -164,9 +179,14 @@ class OrderWorkflowServiceTest extends TestCase
 
     private function payload(PaymentMethodCode $paymentMethod): array
     {
+        $selectedMethod = $paymentMethod === PaymentMethodCode::CASH
+            ? $this->cashMethod
+            : $this->mobileMoneyMethod;
+
         return [
             'coupon_code' => null,
             'payment_method' => $paymentMethod->value,
+            'payment_method_id' => $selectedMethod->id,
             'notes' => 'Commande test',
             'address' => [
                 'full_name' => 'Client Test',

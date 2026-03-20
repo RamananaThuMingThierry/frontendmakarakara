@@ -13,6 +13,26 @@ class SlideController extends Controller
 {
     public function __construct(private SlideService $slideService, private ActivityLogService $activityLogService) {}
 
+    public function publicIndex()
+    {
+        try {
+            $slides = $this->slideService->getAllSlides(
+                ['is_active'],
+                [true],
+                ['id', 'title', 'subtitle', 'image_url', 'position']
+            )->sortBy('position')->values();
+
+            return response()->json([
+                'data' => $slides,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Erreur lors du chargement des slides.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function index()
     {
         try{

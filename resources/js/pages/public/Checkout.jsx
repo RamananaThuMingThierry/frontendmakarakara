@@ -3,9 +3,20 @@ import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
 import { useAuth } from "../../hooks/website/AuthContext";
 import { createOrder } from "../../api/client_orders";
+import { listActivePaymentMethods } from "../../api/public_payment_methods";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
+}
+
+function inferPaymentKind(method) {
+  const signature = `${method?.code || ""} ${method?.name || ""}`.toLowerCase();
+
+  return ["cash", "espece", "livraison", "cod", "contre remboursement"].some((hint) =>
+    signature.includes(hint)
+  )
+    ? "cash"
+    : "mobile_money";
 }
 
 export default function Checkout() {
@@ -14,7 +25,6 @@ export default function Checkout() {
   const location = useLocation();
   const { isAuth, user } = useAuth();
 
-  // infos venant du Cart (coupon/remise/livraison)
   const couponCode = location.state?.coupon_code || null;
   const discountTotal = Number(location.state?.discount_total || 0);
   const deliveryFee = Number(location.state?.delivery_fee || 0);
@@ -35,11 +45,21 @@ export default function Checkout() {
     notes: "",
     latitude: "",
     longitude: "",
-    payment_method: "cash", // cash | mobile_money
+    payment_method: "",
   });
 
   const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState("");
+  const [geoMeta, setGeoMeta] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(true);
+  const [paymentMethodsError, setPaymentMethodsError] = useState("");
+
+  const activePaymentMethods = useMemo(
+    () => paymentMethods.filter((method) => method?.is_active),
+    [paymentMethods]
+  );
 
   useEffect(() => {
     setForm((current) => ({
@@ -49,39 +69,119 @@ export default function Checkout() {
     }));
   }, [user?.name, user?.phone]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const loadPaymentMethods = async () => {
+      setPaymentMethodsLoading(true);
+      setPaymentMethodsError("");
+
+      try {
+        const data = await listActivePaymentMethods();
+        if (!mounted) return;
+        setPaymentMethods(Array.isArray(data) ? data : []);
+      } catch (error) {
+        if (!mounted) return;
+        setPaymentMethods([]);
+        setPaymentMethodsError(
+          error?.response?.data?.message || "Impossible de charger les moyens de paiement."
+        );
+      } finally {
+        if (mounted) {
+          setPaymentMethodsLoading(false);
+        }
+      }
+    };
+
+    loadPaymentMethods();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (paymentMethodsLoading) return;
+
+    setForm((current) => {
+      const hasCurrent = activePaymentMethods.some(
+        (method) => String(method.id) === String(current.payment_method)
+      );
+      if (hasCurrent) return current;
+
+      return {
+        ...current,
+        payment_method: activePaymentMethods[0]?.id ? String(activePaymentMethods[0].id) : "",
+      };
+    });
+  }, [paymentMethodsLoading, activePaymentMethods]);
+
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-  const getLocation = () => {
+  const getLocation = (options = {}) => {
     if (!navigator.geolocation) {
-      alert("Géolocalisation non supportée sur cet appareil.");
+      setGeoError("La geolocalisation n'est pas supportee sur cet appareil.");
       return;
     }
 
     setGeoLoading(true);
+    setGeoError("");
 
     navigator.geolocation.getCurrentPosition(
-    (pos) => {
+      (pos) => {
         update("latitude", pos.coords.latitude.toFixed(7));
         update("longitude", pos.coords.longitude.toFixed(7));
+        setGeoMeta({
+          accuracy: Math.round(pos.coords.accuracy || 0),
+          capturedAt: new Date().toLocaleTimeString("fr-FR"),
+        });
         setGeoLoading(false);
-    },
-    (err) => {
-        console.log("Geo error object:", err);
-        alert(`Erreur GPS: ${err.code} - ${err.message}`);
+      },
+      (err) => {
+        if (!options.silent) {
+          setGeoError(`Impossible de recuperer votre position (${err.message}).`);
+        }
         setGeoLoading(false);
-    },
-    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
-
   };
+
+  useEffect(() => {
+    if (!isAuth || form.latitude || form.longitude) return;
+
+    const autoDetect = async () => {
+      try {
+        if (!navigator.geolocation) return;
+
+        if (!navigator.permissions?.query) {
+          getLocation({ silent: true });
+          return;
+        }
+
+        const status = await navigator.permissions.query({ name: "geolocation" });
+        if (status.state === "granted" || status.state === "prompt") {
+          getLocation({ silent: status.state === "granted" });
+        }
+      } catch {
+        // ignore permissions API failures and keep manual button available
+      }
+    };
+
+    autoDetect();
+  }, [form.latitude, form.longitude, isAuth]);
 
   const validate = () => {
     if (!cartCount) return "Votre panier est vide.";
     if (!form.full_name.trim()) return "Veuillez saisir votre nom.";
-    if (!form.phone.trim()) return "Veuillez saisir votre téléphone.";
+    if (!form.phone.trim()) return "Veuillez saisir votre telephone.";
     if (!form.city_name.trim()) return "Veuillez saisir la ville.";
-    if (!form.address_line1.trim()) return "Veuillez saisir l’adresse.";
-    // if (!form.latitude || !form.longitude) return "Veuillez ajouter votre position GPS.";
+    if (!form.address_line1.trim()) return "Veuillez saisir l'adresse.";
+    if (!activePaymentMethods.length) return "Aucun moyen de paiement actif n'est disponible pour le moment.";
+    if (!form.payment_method) return "Veuillez choisir un moyen de paiement.";
+    if (!form.latitude || !form.longitude) {
+      return "Veuillez autoriser la localisation ou renseigner votre latitude et longitude avant de valider.";
+    }
     return null;
   };
 
@@ -91,10 +191,13 @@ export default function Checkout() {
 
     setSubmitting(true);
 
-    // ✅ Payload prêt pour Laravel /api/orders
+    const selectedPaymentMethod = activePaymentMethods.find(
+      (method) => String(method.id) === String(form.payment_method)
+    );
+
     const payload = {
       coupon_code: couponCode,
-      payment_method: form.payment_method, // cash | mobile_money
+      payment_method_id: Number(form.payment_method),
       notes: form.notes || null,
       address: {
         full_name: form.full_name,
@@ -117,10 +220,8 @@ export default function Checkout() {
       const order = response?.data || null;
       const orderNumber = order?.order_number || "ORD-" + Date.now();
 
-      // vider panier
       clear();
 
-      // redirect vers page récap
       navigate(`/order-success/${orderNumber}`, {
         state: {
           order_number: orderNumber,
@@ -129,11 +230,12 @@ export default function Checkout() {
           delivery_fee: deliveryFee,
           total: grandTotal,
           coupon_code: couponCode,
-          payment_method: order?.payment_method || form.payment_method,
+          payment_method: order?.payment_method || inferPaymentKind(selectedPaymentMethod),
+          payment_method_name: order?.paymentMethod?.name || selectedPaymentMethod?.name || "",
           status: order?.status || "pending",
           payment_status:
             order?.payment_status ||
-            (form.payment_method === "mobile_money" ? "pending_verification" : "unpaid"),
+            (inferPaymentKind(selectedPaymentMethod) === "mobile_money" ? "pending_verification" : "unpaid"),
           address: {
             full_name: form.full_name,
             phone: form.phone,
@@ -148,7 +250,7 @@ export default function Checkout() {
         },
       });
     } catch (error) {
-      alert(error?.response?.data?.message || "Impossible de créer la commande.");
+      alert(error?.response?.data?.message || "Impossible de creer la commande.");
     } finally {
       setSubmitting(false);
     }
@@ -157,6 +259,14 @@ export default function Checkout() {
   if (!isAuth) {
     return <Navigate to="/login" replace state={{ from: location, message: "Connectez-vous avant de commander." }} />;
   }
+
+  const selectedPaymentMethod = activePaymentMethods.find(
+    (method) => String(method.id) === String(form.payment_method)
+  );
+
+  const paymentHelpText = inferPaymentKind(selectedPaymentMethod) === "mobile_money"
+    ? "Le choix Mobile Money ne valide pas le paiement. La commande sera creee avec un paiement en attente de verification."
+    : "Le choix espece cree une commande non payee. Le paiement sera confirme ulterieurement.";
 
   if (!cartCount) {
     return (
@@ -170,7 +280,7 @@ export default function Checkout() {
         <h5 className="fw-semibold">Votre panier est vide</h5>
         <p className="text-muted">Ajoutez des produits pour passer commande.</p>
         <Link to="/shop" className="btn btn-dark">
-          Aller à la boutique
+          Aller a la boutique
         </Link>
       </div>
     );
@@ -182,7 +292,9 @@ export default function Checkout() {
         <div className="d-flex align-items-start justify-content-between gap-3 mb-4">
           <div>
             <h1 className="fw-bold mb-1">Livraison</h1>
-            <p className="text-secondary mb-0">Remplissez vos informations pour recevoir la commande.</p>
+            <p className="text-secondary mb-0">
+              Remplissez vos informations et partagez votre position pour faciliter la livraison.
+            </p>
           </div>
 
           <Link to="/cart" className="btn btn-outline-dark">
@@ -191,7 +303,6 @@ export default function Checkout() {
         </div>
 
         <div className="row g-4">
-          {/* FORM */}
           <div className="col-12 col-lg-7">
             <div className="bg-white rounded-4 shadow-sm p-4">
               <h5 className="fw-bold mb-3">Informations client</h5>
@@ -208,7 +319,7 @@ export default function Checkout() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Téléphone *</label>
+                  <label className="form-label">Telephone *</label>
                   <input
                     className="form-control"
                     value={form.phone}
@@ -244,17 +355,17 @@ export default function Checkout() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Complément (optionnel)</label>
+                  <label className="form-label">Complement (optionnel)</label>
                   <input
                     className="form-control"
                     value={form.address_line2}
                     onChange={(e) => update("address_line2", e.target.value)}
-                    placeholder="Ex: étage, bâtiment..."
+                    placeholder="Ex: etage, batiment..."
                   />
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Région (optionnel)</label>
+                  <label className="form-label">Region (optionnel)</label>
                   <input
                     className="form-control"
                     value={form.region}
@@ -263,52 +374,61 @@ export default function Checkout() {
                   />
                 </div>
 
-                {/* GPS */}
                 <div className="col-12">
-                <label className="form-label">Position GPS (optionnel)</label>
+                  <label className="form-label">Position GPS *</label>
 
-
-                <div className="d-flex flex-column flex-md-row gap-2">
+                  <div className="d-flex flex-column flex-md-row gap-2">
                     <input
-                    className="form-control"
-                    placeholder="Latitude"
-                    value={form.latitude}
-                    onChange={(e) => update("latitude", e.target.value)}
+                      className="form-control"
+                      placeholder="Latitude"
+                      value={form.latitude}
+                      onChange={(e) => update("latitude", e.target.value)}
                     />
 
                     <input
-                    className="form-control"
-                    placeholder="Longitude"
-                    value={form.longitude}
-                    onChange={(e) => update("longitude", e.target.value)}
+                      className="form-control"
+                      placeholder="Longitude"
+                      value={form.longitude}
+                      onChange={(e) => update("longitude", e.target.value)}
                     />
 
-                    {/* Bouton GPS auto */}
                     <button
-                    className="btn btn-outline-dark"
-                    type="button"
-                    onClick={getLocation}
+                      className="btn btn-outline-dark"
+                      type="button"
+                      onClick={() => getLocation()}
+                      disabled={geoLoading}
                     >
-                    <i className="bi bi-geo-alt me-2" />
-                    Utiliser ma position
+                      <i className="bi bi-geo-alt me-2" />
+                      {geoLoading ? "Localisation..." : "Utiliser ma position"}
                     </button>
 
-                    {/* Fallback Google Maps */}
                     <a
-                    className="btn btn-outline-secondary"
-                    target="_blank"
-                    rel="noreferrer"
-                    href="https://www.google.com/maps"
+                      className="btn btn-outline-secondary"
+                      target="_blank"
+                      rel="noreferrer"
+                      href={form.latitude && form.longitude
+                        ? `https://www.google.com/maps?q=${form.latitude},${form.longitude}`
+                        : "https://www.google.com/maps"}
                     >
-                    <i className="bi bi-map me-2" />
-                    Google Maps
+                      <i className="bi bi-map me-2" />
+                      Carte
                     </a>
-                </div>
+                  </div>
 
-                <small className="text-secondary d-block mt-2">
-                    Si la localisation ne marche pas, ouvrez Google Maps, appuyez longtemps
-                    sur votre position et copiez la latitude / longitude.
-                </small>
+                  {geoError ? <div className="alert alert-warning mt-3 mb-0 py-2">{geoError}</div> : null}
+
+                  {form.latitude && form.longitude ? (
+                    <div className="alert alert-success mt-3 mb-0 py-2">
+                      Position enregistree : {form.latitude}, {form.longitude}
+                      {geoMeta?.accuracy ? ` - precision env. ${geoMeta.accuracy} m` : ""}
+                      {geoMeta?.capturedAt ? ` - relevee a ${geoMeta.capturedAt}` : ""}
+                    </div>
+                  ) : (
+                    <small className="text-secondary d-block mt-2">
+                      Autorisez la geolocalisation pour accelerer la livraison. Si besoin, vous pouvez aussi coller
+                      manuellement la latitude et la longitude.
+                    </small>
+                  )}
                 </div>
 
                 <div className="col-12">
@@ -318,7 +438,7 @@ export default function Checkout() {
                     rows={3}
                     value={form.notes}
                     onChange={(e) => update("notes", e.target.value)}
-                    placeholder="Ex: Appeler avant d’arriver, repère..."
+                    placeholder="Ex: Appeler avant d'arriver, repere, portail bleu..."
                   />
                 </div>
               </div>
@@ -327,59 +447,70 @@ export default function Checkout() {
 
               <h5 className="fw-bold mb-3">Paiement</h5>
 
-              <div className="d-flex flex-column gap-2">
-                <label className="d-flex align-items-center gap-2">
-                  <input
-                    type="radio"
-                    name="pay"
-                    checked={form.payment_method === "cash"}
-                    onChange={() => update("payment_method", "cash")}
-                  />
-                  <span>
-                    <span className="fw-semibold">Espèce</span>{" "}
-                    <span className="text-secondary">(payer à la livraison)</span>
-                  </span>
-                </label>
+              {paymentMethodsLoading ? (
+                <div className="text-secondary small">Chargement des moyens de paiement...</div>
+              ) : activePaymentMethods.length ? (
+                <>
+                  <div className="d-flex flex-column gap-2">
+                    {activePaymentMethods.map((method) => {
+                      const isMobileMoney = inferPaymentKind(method) === "mobile_money";
 
-                <label className="d-flex align-items-center gap-2">
-                  <input
-                    type="radio"
-                    name="pay"
-                    checked={form.payment_method === "mobile_money"}
-                    onChange={() => update("payment_method", "mobile_money")}
-                  />
-                  <span>
-                    <span className="fw-semibold">Mobile money</span>{" "}
-                    <span className="text-secondary">(MVola / Orange / Airtel)</span>
-                  </span>
-                </label>
-              </div>
+                      return (
+                        <label key={method.id ?? method.code} className="d-flex align-items-center gap-2">
+                          <input
+                            type="radio"
+                            name="pay"
+                            checked={String(form.payment_method) === String(method.id)}
+                            onChange={() => update("payment_method", String(method.id))}
+                          />
+                          <span className="d-flex align-items-center gap-2">
+                            {method.image ? (
+                              <img
+                                src={`/${String(method.image).replace(/^\/+/, "")}`}
+                                alt={method.name}
+                                width="32"
+                                height="32"
+                                className="rounded-circle border object-fit-cover"
+                              />
+                            ) : null}
+                            <span>
+                              <span className="fw-semibold">{method.name}</span>{" "}
+                              <span className="text-secondary">
+                                {isMobileMoney ? "(paiement en attente de verification)" : "(payer a la livraison)"}
+                              </span>
+                            </span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
 
-              <div className="alert alert-info mt-3 mb-0">
-                {form.payment_method === "mobile_money"
-                  ? "Le choix Mobile Money ne valide pas le paiement. La commande sera creee avec un paiement en attente de verification."
-                  : "Le choix espece cree une commande non payee. Le paiement sera confirme ulterieurement."}
-              </div>
+                  <div className="alert alert-info mt-3 mb-0">{paymentHelpText}</div>
+                </>
+              ) : (
+                <div className="alert alert-warning mb-0">
+                  {paymentMethodsError || "Aucun moyen de paiement actif n'est disponible pour le moment."}
+                </div>
+              )}
 
               <button
                 className="btn btn-warning w-100 fw-semibold mt-4"
                 type="button"
                 onClick={submitOrder}
-                disabled={submitting}
+                disabled={submitting || geoLoading || paymentMethodsLoading || !activePaymentMethods.length}
               >
                 {submitting ? "Validation..." : "Valider la commande"}
               </button>
             </div>
           </div>
 
-          {/* SUMMARY */}
           <div className="col-12 col-lg-5">
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Récapitulatif</h5>
+              <h5 className="fw-bold mb-3">Recapitulatif</h5>
 
               <div className="text-secondary small mb-3">
                 {cartCount} article(s)
-                {couponCode ? <> • Coupon: <span className="fw-semibold">{couponCode}</span></> : null}
+                {couponCode ? <> - Coupon: <span className="fw-semibold">{couponCode}</span></> : null}
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
@@ -390,7 +521,7 @@ export default function Checkout() {
               <div className="d-flex justify-content-between text-secondary mb-2">
                 <span>Remise</span>
                 <span className="fw-semibold">
-                  {discountTotal > 0 ? `− ${formatPriceMGA(discountTotal)}` : "—"}
+                  {discountTotal > 0 ? `- ${formatPriceMGA(discountTotal)}` : "-"}
                 </span>
               </div>
 
@@ -415,7 +546,7 @@ export default function Checkout() {
                 {cart.map((i) => (
                   <div key={i.id} className="d-flex justify-content-between mb-2">
                     <span className="text-truncate" style={{ maxWidth: 250 }}>
-                      {i.name} × {i.qty}
+                      {i.name} x {i.qty}
                     </span>
                     <span className="fw-semibold">{formatPriceMGA(i.price * i.qty)}</span>
                   </div>
@@ -423,7 +554,7 @@ export default function Checkout() {
               </div>
 
               <small className="text-secondary d-block mt-3">
-                En validant, vous acceptez les conditions de vente.
+                En validant, vous acceptez les conditions de vente et le partage de votre position pour la livraison.
               </small>
             </div>
           </div>

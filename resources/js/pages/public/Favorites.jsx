@@ -1,12 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useFavorites } from "../../hooks/website/FavoritesContext";
+import { useAuth } from "../../hooks/website/AuthContext";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
 }
 
 export default function Favorites() {
+  const { isAuth } = useAuth();
   const { favorites, favCount, removeFav, clearFav } = useFavorites();
+  const location = useLocation();
+
+  if (!isAuth) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location,
+          message: "Connectez-vous avant d'acceder a vos favoris.",
+        }}
+      />
+    );
+  }
 
   if (!favCount) {
     return (

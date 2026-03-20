@@ -53,6 +53,17 @@ function formatPrice(value) {
   })} MGA`;
 }
 
+function getGoogleMapsUrl(address) {
+  const latitude = address?.latitude;
+  const longitude = address?.longitude;
+
+  if (latitude === null || latitude === undefined || longitude === null || longitude === undefined) {
+    return "";
+  }
+
+  return `https://www.google.com/maps?q=${latitude},${longitude}`;
+}
+
 export default function OrdersPage() {
   const { lang } = useI18n();
   const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
@@ -438,6 +449,22 @@ export default function OrdersPage() {
                           <div>{selected.address?.full_name || "-"}</div>
                           <div>{selected.address?.phone || "-"}</div>
                           <div>{[selected.address?.address_line1, selected.address?.address_line2, selected.address?.city_name, selected.address?.region].filter(Boolean).join(", ") || "-"}</div>
+                          {selected.address?.latitude && selected.address?.longitude ? (
+                            <div className="mt-2">
+                              <div className="small text-muted">
+                                GPS: {selected.address.latitude}, {selected.address.longitude}
+                              </div>
+                              <a
+                                href={getGoogleMapsUrl(selected.address)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-sm btn-outline-dark mt-2"
+                              >
+                                <i className="bi bi-map me-2" />
+                                Ouvrir dans Google Maps
+                              </a>
+                            </div>
+                          ) : null}
 
                           <hr />
 

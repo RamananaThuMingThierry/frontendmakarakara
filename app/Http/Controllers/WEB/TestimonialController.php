@@ -19,7 +19,7 @@ class TestimonialController extends Controller
             $testimonials = $this->testimonialService->getAllTestimonials(
                 ['is_active'],
                 [true],
-                ['id', 'name', 'photo_url', 'city', 'product_used', 'rating', 'message', 'created_at']
+                ['id', 'name', 'photo_url', 'city', 'target_type', 'product_id', 'product_used', 'rating', 'message', 'created_at']
             )->sortBy([
                 ['created_at', 'desc'],
             ])->values();
@@ -80,7 +80,7 @@ class TestimonialController extends Controller
             $testimonials = $this->testimonialService->getAllTestimonials(
                 array_keys($constraints),
                 array_values($constraints),
-                ['id', 'name', 'photo_url', 'city', 'product_used', 'rating', 'message', 'is_active']
+                ['id', 'name', 'photo_url', 'city', 'target_type', 'product_id', 'product_used', 'rating', 'message', 'is_active']
             );
 
             return response()->json([
@@ -131,6 +131,8 @@ class TestimonialController extends Controller
                     'testimonial_id' => $testimonial->id,
                     'name' => $testimonial->name,
                     'city' => $testimonial->city,
+                    'target_type' => $testimonial->target_type,
+                    'product_id' => $testimonial->product_id,
                     'product_used' => $testimonial->product_used,
                     'rating' => $testimonial->rating,
                     'is_active' => $testimonial->is_active,

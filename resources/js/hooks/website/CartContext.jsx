@@ -9,20 +9,24 @@ import {
 } from "../../api/client_cart";
 
 const CartContext = createContext(null);
-const CART_STORAGE_KEY = "cart";
 const CART_OWNER_KEY = "cart_owner";
+const LEGACY_CART_STORAGE_KEY = "cart";
 
-function readLocalCart() {
+function getCartStorageKey(owner = "guest") {
+  return `cart:${owner || "guest"}`;
+}
+
+function readLocalCart(owner = "guest") {
   try {
-    const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
+    const saved = JSON.parse(localStorage.getItem(getCartStorageKey(owner)) || "[]");
     return Array.isArray(saved) ? saved : [];
   } catch {
     return [];
   }
 }
 
-function writeLocalCart(cart) {
-  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+function writeLocalCart(cart, owner = "guest") {
+  localStorage.setItem(getCartStorageKey(owner), JSON.stringify(cart));
 }
 
 function readCartOwner() {
@@ -51,21 +55,26 @@ function normalizeProduct(product) {
 
 export function CartProvider({ children }) {
   const { isAuth, hydrating, user } = useAuth();
-  const [cart, setCart] = useState(() => readLocalCart());
+  const [cart, setCart] = useState(() => readLocalCart(readCartOwner()));
   const [syncing, setSyncing] = useState(false);
   const hydratedUserIdRef = useRef(null);
 
+  useEffect(() => {
+    localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+  }, []);
+
   const applyLocalCart = (nextCart, owner = readCartOwner()) => {
     setCart(nextCart);
-    writeLocalCart(nextCart);
+    writeLocalCart(nextCart, owner);
     writeCartOwner(owner);
   };
 
   const applyRemotePayload = (payload) => {
     const items = Array.isArray(payload?.items) ? payload.items.map(normalizeProduct) : [];
     setCart(items);
-    writeLocalCart(items);
-    writeCartOwner(String(user?.id ?? "auth"));
+    const owner = String(user?.id ?? "auth");
+    writeLocalCart(items, owner);
+    writeCartOwner(owner);
   };
 
   useEffect(() => {
@@ -76,7 +85,7 @@ export function CartProvider({ children }) {
       if (readCartOwner() !== "guest") {
         applyLocalCart([], "guest");
       } else {
-        applyLocalCart(readLocalCart(), "guest");
+        applyLocalCart(readLocalCart("guest"), "guest");
       }
       return;
     }
@@ -90,7 +99,7 @@ export function CartProvider({ children }) {
       setSyncing(true);
 
       try {
-        const localItems = readLocalCart();
+        const localItems = readLocalCart(readCartOwner());
         const syncableItems = localItems
           .filter((item) => Number.isInteger(Number(item.product_id ?? item.id)))
           .map((item) => ({

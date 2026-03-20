@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');              // nom de la fille
             $table->string('photo_url')->nullable(); // photo
             $table->string('city')->nullable();  // ex: Tana
+            $table->string('target_type')->default('platform'); // 'platform' ou 'product'
+            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
             $table->string('product_used')->nullable(); // ex: Huile X (optionnel)
 
             $table->unsignedTinyInteger('rating')->nullable(); // 1-5 (optionnel)

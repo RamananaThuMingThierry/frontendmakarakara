@@ -14,6 +14,7 @@ use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\Reservation;
@@ -51,12 +52,7 @@ class OrderWorkflowService
         $order = DB::transaction(function () use ($user, $validated) {
             $this->releaseExpiredReservations($user->id);
 
-            $paymentMethod = PaymentMethodCode::tryFrom((string) $validated['payment_method']);
-            if (! $paymentMethod) {
-                throw ValidationException::withMessages([
-                    'payment_method' => ['Le moyen de paiement est invalide.'],
-                ]);
-            }
+            [$paymentMethod, $paymentMethodRecord] = $this->resolvePaymentMethod($validated);
 
             $cart = Cart::query()->where('user_id', $user->id)->first();
             $itemsPayload = collect($validated['items']);
@@ -106,7 +102,7 @@ class OrderWorkflowService
                 'discount_total' => $discountTotal,
                 'delivery_fee' => $deliveryFee,
                 'coupon_code' => $validated['coupon_code'] ?? null,
-                'payment_method_id' => null,
+                'payment_method_id' => $paymentMethodRecord?->id,
                 'payment_reference' => null,
                 'total' => $total,
                 'notes' => $validated['notes'] ?? null,
@@ -324,7 +320,53 @@ class OrderWorkflowService
 
     private function freshOrder(Order $order): Order
     {
-        return $order->fresh(['user', 'items', 'address', 'invoice', 'receipt']);
+        return $order->fresh(['user', 'items', 'address', 'invoice', 'receipt', 'paymentMethod']);
+    }
+
+    private function resolvePaymentMethod(array $validated): array
+    {
+        $paymentMethodId = isset($validated['payment_method_id']) ? (int) $validated['payment_method_id'] : null;
+
+        if ($paymentMethodId) {
+            $paymentMethodRecord = PaymentMethod::query()
+                ->where('id', $paymentMethodId)
+                ->where('is_active', true)
+                ->first();
+
+            if (! $paymentMethodRecord) {
+                throw ValidationException::withMessages([
+                    'payment_method_id' => ['Le moyen de paiement selectionne est introuvable ou inactif.'],
+                ]);
+            }
+
+            return [$this->guessPaymentMethodCode($paymentMethodRecord), $paymentMethodRecord];
+        }
+
+        $paymentMethod = PaymentMethodCode::tryFrom((string) ($validated['payment_method'] ?? ''));
+        if (! $paymentMethod) {
+            throw ValidationException::withMessages([
+                'payment_method' => ['Le moyen de paiement est invalide.'],
+            ]);
+        }
+
+        return [$paymentMethod, null];
+    }
+
+    private function guessPaymentMethodCode(PaymentMethod $paymentMethod): PaymentMethodCode
+    {
+        $signature = Str::ascii(Str::lower(trim(sprintf(
+            '%s %s',
+            (string) $paymentMethod->code,
+            (string) $paymentMethod->name
+        ))));
+
+        foreach (['cash', 'espece', 'livraison', 'cod', 'contre remboursement'] as $hint) {
+            if (str_contains($signature, $hint)) {
+                return PaymentMethodCode::CASH;
+            }
+        }
+
+        return PaymentMethodCode::MOBILE_MONEY;
     }
 
     private function sendInvoiceIfNeeded(Order $order): void
