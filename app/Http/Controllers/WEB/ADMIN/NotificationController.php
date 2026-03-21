@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\WEB\ADMIN;
 
 use App\Http\Controllers\Controller;
-use App\Services\AdminNotificationService;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class AdminNotificationController extends Controller
+class NotificationController extends Controller
 {
-    public function __construct(private readonly AdminNotificationService $adminNotificationService) {}
+    public function __construct(private readonly NotificationService $NotificationService) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -17,13 +17,13 @@ class AdminNotificationController extends Controller
         $perPage = max(1, min(50, (int) $request->integer('per_page', 15)));
         $unreadOnly = $request->boolean('unread_only');
 
-        $pager = $this->adminNotificationService->paginateForUser($user, $perPage, $unreadOnly)
+        $pager = $this->NotificationService->paginateForUser($user, $perPage, $unreadOnly)
             ->through(fn ($notification) => $this->formatNotification($notification));
 
         return response()->json([
             'data' => $pager,
             'meta' => [
-                'unread_count' => $this->adminNotificationService->unreadCountForUser($user),
+                'unread_count' => $this->NotificationService->unreadCountForUser($user),
             ],
         ]);
     }
@@ -35,18 +35,18 @@ class AdminNotificationController extends Controller
 
         return response()->json([
             'data' => [
-                'items' => $this->adminNotificationService
+                'items' => $this->NotificationService
                     ->recentForUser($user, $limit)
                     ->map(fn ($notification) => $this->formatNotification($notification))
                     ->values(),
-                'unread_count' => $this->adminNotificationService->unreadCountForUser($user),
+                'unread_count' => $this->NotificationService->unreadCountForUser($user),
             ],
         ]);
     }
 
     public function markAsRead(Request $request, int $notificationId): JsonResponse
     {
-        $notification = $this->adminNotificationService->markAsReadForUser($request->user(), $notificationId);
+        $notification = $this->NotificationService->markAsReadForUser($request->user(), $notificationId);
 
         if (! $notification) {
             return response()->json([
@@ -58,14 +58,14 @@ class AdminNotificationController extends Controller
             'message' => 'Notification marquee comme lue.',
             'data' => $this->formatNotification($notification),
             'meta' => [
-                'unread_count' => $this->adminNotificationService->unreadCountForUser($request->user()),
+                'unread_count' => $this->NotificationService->unreadCountForUser($request->user()),
             ],
         ]);
     }
 
     public function markAllAsRead(Request $request): JsonResponse
     {
-        $updated = $this->adminNotificationService->markAllAsReadForUser($request->user());
+        $updated = $this->NotificationService->markAllAsReadForUser($request->user());
 
         return response()->json([
             'message' => 'Notifications marquees comme lues.',

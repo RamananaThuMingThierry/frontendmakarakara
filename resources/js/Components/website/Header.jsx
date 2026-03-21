@@ -18,9 +18,15 @@ export default function Header() {
     { to: "/", label: "Accueil" },
     { to: "/shop", label: "Boutique" },
     { to: "/cart", label: "Panier" },
-    { to: "/about", label: "A propos" },
+    { to: "/about", label: "À propos" },
     { to: "/contact", label: "Contact" },
   ];
+
+  function getImageUrl(path) {
+    if (!path) return "/website/images/slide_1.jpg";
+    if (/^https?:\/\//i.test(path)) return path;
+    return `/${String(path).replace(/^\/+/, "")}`;
+    }
 
   const closeMobileMenu = (onClosed) => {
     const offcanvasEl = document.getElementById("mainNav");
@@ -68,9 +74,15 @@ export default function Header() {
       <nav className="navbar navbar-expand-lg bg-white border-bottom sticky-top">
         <div className="container">
           {/* Brand */}
-          <Link className="navbar-brand fw-bold text-warning" to="/">
-            MAHAKARAKARA
-          </Link>
+        <Link className="navbar-brand fw-bold text-warning d-flex align-items-center gap-2" to="/">
+            <img 
+                src={getImageUrl('images/logo/mahakarakara.jpg')} 
+                alt="logo" 
+                className="img-fluid rounded-pill"
+                style={{ maxHeight: "35px" }}
+            />
+            <span>MAHAKARAKARA</span>
+        </Link>
 
           {/* Mobile toggler (offcanvas) */}
           <button

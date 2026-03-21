@@ -10,7 +10,7 @@ function buildAvatarUrl(path) {
     return path;
   }
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://192.168.0.17:8000/api";
+  const apiUrl = import.meta.env.VITE_API_URL;
   const base = apiUrl.replace(/\/api\/?$/, "");
   return `${base}/${String(path).replace(/^\/+/, "")}`;
 }
@@ -171,11 +171,11 @@ export default function AdminAccountPage() {
     try {
       const data = await resendVerificationEmail();
       setVerificationStatus(data?.verified ? "success" : "info");
-      setVerificationMessage(data?.message || "Email de verification envoye.");
+      setVerificationMessage(data?.message || "Email de verification envoyé.");
     } catch (error) {
       setVerificationStatus("danger");
       setVerificationMessage(
-        error?.response?.data?.message || "Envoi de l'email de verification impossible."
+        error?.response?.data?.message || "Envoi de l'email de vérification impossible."
       );
     } finally {
       setVerificationLoading(false);
@@ -229,22 +229,22 @@ export default function AdminAccountPage() {
 
                 <div className="admin-account-meta">
                   <div className="admin-account-meta-item">
-                    <span className="text-muted">Telephone</span>
-                    <strong>{account?.phone || "Non renseigne"}</strong>
+                    <span className="text-muted">Téléphone</span>
+                    <strong>{account?.phone || "Non renseigné"}</strong>
                   </div>
                   <div className="admin-account-meta-item">
-                    <span className="text-muted">Verification email</span>
+                    <span className="text-muted">Vérification email</span>
                     <strong className={account?.email_verified_at ? "text-success" : "text-warning"}>
-                      {account?.email_verified_at ? "Verifie" : "En attente"}
+                      {account?.email_verified_at ? "Vérifié" : "En attente"}
                     </strong>
                   </div>
                 </div>
 
                 {!account?.email_verified_at ? (
                   <div className="alert alert-warning mt-4 mb-0">
-                    <div className="fw-semibold mb-1">Email non verifie</div>
+                    <div className="fw-semibold mb-1">Email non vérifié</div>
                     <div className="small mb-3">
-                      Envoyez un nouvel email de verification pour valider cette adresse.
+                      Envoyez un nouvel email de vérification pour valider cette adresse.
                     </div>
                     {verificationMessage ? (
                       <div className={`alert alert-${verificationStatus} py-2 mb-3`}>
@@ -263,7 +263,7 @@ export default function AdminAccountPage() {
                 ) : null}
 
                 <div className="alert alert-light border mb-0 mt-4">
-                  Si vous changez votre adresse email, une nouvelle verification sera demandee.
+                  Si vous changez votre adresse email, une nouvelle vérification sera demandée.
                 </div>
               </div>
             </div>
@@ -318,12 +318,12 @@ export default function AdminAccountPage() {
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label">Telephone</label>
+                    <label className="form-label">Téléphone</label>
                     <input
                       className={`form-control ${profileErrors.phone ? "is-invalid" : ""}`}
                       value={profileForm.phone}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
-                      placeholder="+243 ..."
+                      placeholder="+261 ..."
                     />
                     {profileErrors.phone ? <div className="invalid-feedback">{profileErrors.phone[0]}</div> : null}
                   </div>
@@ -349,7 +349,7 @@ export default function AdminAccountPage() {
                 <div className="mb-3">
                   <h2 className="h5 fw-bold mb-1">Changer le mot de passe</h2>
                   <p className="text-muted mb-0">
-                    Pour des raisons de securite, vous serez deconnecte apres la modification.
+                    Pour des raisons de sécurité, vous serez déconnecté après la modification.
                   </p>
                 </div>
 

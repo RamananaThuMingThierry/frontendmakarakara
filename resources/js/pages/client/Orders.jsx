@@ -14,8 +14,8 @@ const STATUS_LABELS = {
   pending: "En attente",
   confirmed: "Confirmee",
   processing: "En traitement",
-  delivered: "Livree",
-  cancelled: "Annulee",
+  delivered: "Livrée",
+  cancelled: "Annulée",
 };
 
 const STATUS_COLORS = {
@@ -27,10 +27,10 @@ const STATUS_COLORS = {
 };
 
 const PAYMENT_STATUS_LABELS = {
-  unpaid: "Non payee",
-  pending_verification: "En attente de verification",
-  paid: "Payee",
-  refunded: "Remboursee",
+  unpaid: "Non payée",
+  pending_verification: "En attente de vérification",
+  paid: "Payée",
+  refunded: "Remboursée",
 };
 
 const PAYMENT_STATUS_COLORS = {
@@ -126,7 +126,7 @@ export default function Orders() {
           </div>
           <div className="col-12 col-md-4">
             <div className="border rounded-4 p-3 h-100">
-              <div className="text-secondary small">Livrees</div>
+              <div className="text-secondary small">Livrées</div>
               <div className="h3 fw-bold mb-0">{summary.delivered}</div>
             </div>
           </div>

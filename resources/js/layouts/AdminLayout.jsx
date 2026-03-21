@@ -3,7 +3,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../../css/admin.css";
 import { useAuth } from "../hooks/website/AuthContext";
 import { useI18n } from "../hooks/website/I18nContext";
-import { adminNotificationsApi } from "../api/admin_notifications";
+import { NotificationsApi } from "../api/admin_notifications";
 
 function buildAvatarUrl(path) {
   if (!path) return null;
@@ -18,23 +18,23 @@ function buildAvatarUrl(path) {
 }
 
 const NAV = [
-    { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Dashboard" },
-    { to: "/admin/categories", icon: "bi-tags", label: "Categories" },
-    { to: "/admin/brands", icon: "bi-patch-check", label: "Brands" },
-    { to: "/admin/orders", icon: "bi-receipt", label: "Orders" },
-    { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
-    { to: "/admin/testimonials", icon: "bi-chat-square-quote", label: "Testimonials" },
-    { to: "/admin/gallery", icon: "bi-card-image", label: "Gallery" },
-    { to: "/admin/reservations", icon: "bi-bookmark-check", label: "Reservations" },
-    { to: "/admin/sliders", icon: "bi-images", label: "Sliders" },
-    { to: "/admin/users", icon: "bi-people", label: "Users" },
-    { to: "/admin/contacts", icon: "bi-envelope-paper", label: "Contact Us" },
-    { to: "/admin/settings", icon: "bi-gear", label: "Settings" },
-    { to: "/admin/activity-logs", icon: "bi-file-earmark-text", label: "Activity Logs" },
-    { to: "/admin/account", icon: "bi-person-circle", label: "Mon compte" },
+  { to: "/admin/dashboard", icon: "bi-speedometer2", label: "Tableau de bord" },
+  { to: "/admin/categories", icon: "bi-tags", label: "Catégories" },
+  { to: "/admin/brands", icon: "bi-patch-check", label: "Marques" },
+  { to: "/admin/orders", icon: "bi-receipt", label: "Commandes" },
+  { to: "/admin/coupons", icon: "bi-ticket-perforated", label: "Coupons" },
+  { to: "/admin/testimonials", icon: "bi-chat-square-quote", label: "Témoignages" },
+  { to: "/admin/gallery", icon: "bi-card-image", label: "Galerie" },
+  { to: "/admin/reservations", icon: "bi-bookmark-check", label: "Réservations" },
+  { to: "/admin/sliders", icon: "bi-images", label: "Bannières" }, // plus naturel que "Sliders"
+  { to: "/admin/users", icon: "bi-people", label: "Utilisateurs" },
+  { to: "/admin/contacts", icon: "bi-envelope-paper", label: "Contacts" }, // simplifié
+  { to: "/admin/settings", icon: "bi-gear", label: "Paramètres" },
+  { to: "/admin/activity-logs", icon: "bi-file-earmark-text", label: "Journal d’activité" },
+  { to: "/admin/account", icon: "bi-person-circle", label: "Mon compte" },
 
-  // ✅ Logout action (pas une route)
-  { action: "logout", icon: "bi-box-arrow-left", label: "Logout" },
+  // ✅ Action
+  { action: "logout", icon: "bi-box-arrow-left", label: "Déconnexion" },
 ];
 
 function SidebarItem({ item, collapsed, onAction }) {
@@ -246,7 +246,7 @@ export default function AdminLayout() {
 
     setNotificationsLoading(true);
     try {
-      const result = await adminNotificationsApi.summary(6);
+      const result = await NotificationsApi.summary(6);
       setNotificationItems(Array.isArray(result?.items) ? result.items : []);
       setUnreadCount(Number(result?.unread_count || 0));
     } catch {
@@ -290,7 +290,7 @@ export default function AdminLayout() {
   async function handleNotificationClick(item) {
     try {
       if (!item?.is_read) {
-        const result = await adminNotificationsApi.markAsRead(item.id);
+        const result = await NotificationsApi.markAsRead(item.id);
         setUnreadCount(result.unreadCount);
       }
     } catch {}
@@ -301,7 +301,7 @@ export default function AdminLayout() {
 
   async function handleMarkAllNotificationsAsRead() {
     try {
-      await adminNotificationsApi.markAllAsRead();
+      await NotificationsApi.markAllAsRead();
       setUnreadCount(0);
       setNotificationItems((items) => items.map((item) => ({ ...item, is_read: true, read_at: new Date().toISOString() })));
     } catch {}

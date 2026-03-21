@@ -4,7 +4,7 @@ use App\Http\Controllers\WEB\AccountAdminController;
 use App\Http\Controllers\WEB\ActivityLogController;
 use App\Http\Controllers\WEB\ADMIN\OrderWorkflowController;
 use App\Http\Controllers\WEB\ADMIN\OrderController;
-use App\Http\Controllers\WEB\ADMIN\AdminNotificationController;
+use App\Http\Controllers\WEB\ADMIN\NotificationController;
 use App\Http\Controllers\WEB\ADMIN\DashboardController;
 use App\Http\Controllers\WEB\AddressController;
 use App\Http\Controllers\WEB\ADMIN\ReservationController;
@@ -178,10 +178,10 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::apiResource('activity-logs', ActivityLogController::class)->only(['index','show','destroy']);
-        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
-        Route::get('notifications-summary', [AdminNotificationController::class, 'summary'])->name('admin.notifications.summary');
-        Route::post('notifications/{notificationId}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
-        Route::post('notifications/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.readAll');
+        Route::get('notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::get('notifications-summary', [NotificationController::class, 'summary'])->name('admin.notifications.summary');
+        Route::post('notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+        Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('admin.notifications.readAll');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
         Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
         Route::get('orders/{encryptedId}', [OrderController::class, 'show'])->name('admin.orders.show');

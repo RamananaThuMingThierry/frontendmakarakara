@@ -155,7 +155,7 @@ export default function Register() {
           </button>
 
           <div className="text-secondary small">
-            Déjà un compte ? <Link to="/login">Se connecter</Link>
+            Déjà un compte ? <Link to="/login" className="text-decoration-none">Se connecter</Link>
           </div>
         </form>
       </div>

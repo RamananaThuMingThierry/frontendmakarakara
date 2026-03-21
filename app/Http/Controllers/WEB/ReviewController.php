@@ -5,7 +5,7 @@ namespace App\Http\Controllers\WEB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewRequest;
 use App\Services\ActivityLogService;
-use App\Services\AdminNotificationService;
+use App\Services\NotificationService;
 use App\Services\ReviewService;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
@@ -15,7 +15,7 @@ class ReviewController extends Controller
     public function __construct(
         private ReviewService $reviewService,
         private ActivityLogService $activityLogService,
-        private AdminNotificationService $adminNotificationService
+        private NotificationService $NotificationService
     ){}
     
     /**
@@ -76,7 +76,7 @@ class ReviewController extends Controller
             $data['user_id'] = Auth::id();
             
             $review = $this->reviewService->createReview($data);
-            $this->adminNotificationService->notifyNewReview($review);
+            $this->NotificationService->notifyNewReview($review);
             
             $this->activityLogService->createActivityLog([
                 'user_id' => Auth::id(),

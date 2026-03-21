@@ -5,14 +5,14 @@ const FALLBACK_SLIDES = [
   {
     id: "fallback-1",
     title: "Sublimez vos cheveux",
-    subtitle: "Decouvrez notre gamme exclusive de soins capillaires et d'accessoires de qualite professionnelle.",
+    subtitle: "Découvrez notre gamme exclusive de soins capillaires et d'accessoires de qualité professionnelle.",
     image_url: "/website/images/slide_1.jpg",
     position: 1,
   },
   {
     id: "fallback-2",
-    title: "Nouveautes et meilleures ventes",
-    subtitle: "Retrouvez les produits preferes de nos clientes et les offres du moment dans la boutique.",
+    title: "Nouveautés et meilleures ventes",
+    subtitle: "Retrouvez les produits préférés de nos clientes et les offres du moment dans la boutique.",
     image_url: "/website/images/slide_2.jpg",
     position: 2,
   },
@@ -125,18 +125,31 @@ export default function HeroCarousel() {
                       </a>
 
                       <div className="d-flex flex-wrap gap-4 mt-4">
+
                         <div>
-                          <div className="fw-bold">{loading ? "..." : activeSlides.length}</div>
-                          <small className="text-white-50">Slides actifs</small>
+                        <div className="fw-bold d-flex align-items-center gap-2">
+                        <i className="bi bi-people-fill text-warning"></i>
+                        +5000 clients satisfaits
                         </div>
-                        <div>
-                          <div className="fw-bold">Livraison</div>
-                          <small className="text-white-50">Coordonnees GPS</small>
-                        </div>
-                        <div>
-                          <div className="fw-bold">Avis</div>
-                          <small className="text-white-50">Produits et plateforme</small>
-                        </div>
+                        <small className="text-white-50">Ils nous font confiance chaque jour</small>
+                    </div>
+
+  <div>
+    <div className="fw-bold d-flex align-items-center gap-2">
+      <i className="bi bi-truck text-warning"></i>
+      Livraison rapide
+    </div>
+    <small className="text-white-50">Suivi précis avec GPS</small>
+  </div>
+
+  <div>
+    <div className="fw-bold d-flex align-items-center gap-2">
+      <i className="bi bi-star-fill text-warning"></i>
+      Avis vérifiés
+    </div>
+    <small className="text-white-50">Produits fiables</small>
+  </div>
+
                       </div>
                     </div>
                   </div>

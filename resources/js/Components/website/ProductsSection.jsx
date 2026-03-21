@@ -311,19 +311,22 @@ export default function ProductsSection() {
         </div>
 
         <div className="d-flex flex-column gap-3 mb-4">
-          <ul className="nav nav-pills gap-2 flex-wrap justify-content-center">
-            {categories.map((c) => (
-              <li className="nav-item" key={c.key}>
-                <button
-                  className={"nav-link" + (active === c.key ? " active" : "")}
-                  onClick={() => setActive(c.key)}
-                  type="button"
-                >
-                  {c.label}
-                </button>
-              </li>
-            ))}
-          </ul>
+<ul className="nav nav-pills gap-2 flex-wrap justify-content-center">
+  {categories.map((c) => (
+    <li className="nav-item" key={c.key}>
+      <button
+        className={
+          "nav-link text-dark" +
+          (active === c.key ? " active bg-dark text-white" : "")
+        }
+        onClick={() => setActive(c.key)}
+        type="button"
+      >
+        {c.label}
+      </button>
+    </li>
+  ))}
+</ul>
 
           <div className="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
             <div className="w-100" style={{ maxWidth: 260 }}>
@@ -356,9 +359,16 @@ export default function ProductsSection() {
 
         {error ? <div className="alert alert-danger mb-4">{error}</div> : null}
 
-        <div className="alert alert-info border-0 shadow-sm mb-4">
-          Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, prenez uniquement
-          les produits de Antananarivo. Pour une autre ville, faites une commande separee.
+        <div className="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, prenez uniquement
+        les produits de Antananarivo. Pour une autre ville, faites une commande separee.
+
+        <button 
+            type="button" 
+            className="btn-close" 
+            data-bs-dismiss="alert" 
+            aria-label="Close"
+        ></button>
         </div>
 
         <div className="text-secondary small mb-3">

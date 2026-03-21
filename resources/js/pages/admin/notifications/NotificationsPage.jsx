@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { adminNotificationsApi } from "../../../api/admin_notifications";
+import { NotificationsApi } from "../../../api/admin_notifications";
 
 function formatDateTime(value) {
   if (!value) return "-";
@@ -37,7 +37,7 @@ function decodeLabel(label) {
   return (label || "").replace(/&laquo;|&raquo;/g, (m) => map[m] ?? m);
 }
 
-export default function AdminNotificationsPage() {
+export default function NotificationsPage() {
   const [pager, setPager] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [page, setPage] = useState(1);
@@ -53,7 +53,7 @@ export default function AdminNotificationsPage() {
     setError("");
 
     try {
-      const result = await adminNotificationsApi.list({
+      const result = await NotificationsApi.list({
         page: nextPage,
         perPage: 15,
         unreadOnly: unread,
@@ -80,7 +80,7 @@ export default function AdminNotificationsPage() {
     if (item?.is_read) return;
 
     try {
-      const result = await adminNotificationsApi.markAsRead(item.id);
+      const result = await NotificationsApi.markAsRead(item.id);
       setUnreadCount(result.unreadCount);
       setPager((prev) => {
         if (!prev) return prev;
@@ -97,7 +97,7 @@ export default function AdminNotificationsPage() {
 
   async function handleMarkAllAsRead() {
     try {
-      await adminNotificationsApi.markAllAsRead();
+      await NotificationsApi.markAllAsRead();
       setUnreadCount(0);
       await load({ nextPage: page, mode: "refresh", unread: unreadOnly });
     } catch (err) {

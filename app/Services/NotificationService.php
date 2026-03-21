@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\AdminNotification;
+use App\Models\Notification;
 use App\Models\ContactUs;
 use App\Models\Inventory;
 use App\Models\Order;
@@ -12,14 +12,14 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class AdminNotificationService
+class NotificationService
 {
     public function notifyAdmins(array $payload): void
     {
         $adminIds = User::role('admin')->pluck('id');
 
         foreach ($adminIds as $adminId) {
-            AdminNotification::create([
+            Notification::create([
                 'user_id' => (int) $adminId,
                 'type' => (string) ($payload['type'] ?? 'system'),
                 'category' => (string) ($payload['category'] ?? 'system'),
@@ -190,7 +190,7 @@ class AdminNotificationService
 
     public function paginateForUser(User $user, int $perPage = 15, bool $unreadOnly = false): LengthAwarePaginator
     {
-        $query = AdminNotification::query()
+        $query = Notification::query()
             ->where('user_id', $user->id)
             ->latest();
 
@@ -203,7 +203,7 @@ class AdminNotificationService
 
     public function recentForUser(User $user, int $limit = 6): Collection
     {
-        return AdminNotification::query()
+        return Notification::query()
             ->where('user_id', $user->id)
             ->latest()
             ->limit($limit)
@@ -212,15 +212,15 @@ class AdminNotificationService
 
     public function unreadCountForUser(User $user): int
     {
-        return AdminNotification::query()
+        return Notification::query()
             ->where('user_id', $user->id)
             ->unread()
             ->count();
     }
 
-    public function markAsReadForUser(User $user, int $notificationId): ?AdminNotification
+    public function markAsReadForUser(User $user, int $notificationId): ?Notification
     {
-        $notification = AdminNotification::query()
+        $notification = Notification::query()
             ->where('user_id', $user->id)
             ->where('id', $notificationId)
             ->first();
@@ -238,7 +238,7 @@ class AdminNotificationService
 
     public function markAllAsReadForUser(User $user): int
     {
-        return AdminNotification::query()
+        return Notification::query()
             ->where('user_id', $user->id)
             ->unread()
             ->update(['read_at' => now()]);

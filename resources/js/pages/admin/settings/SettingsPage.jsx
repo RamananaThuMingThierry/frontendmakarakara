@@ -380,7 +380,7 @@ async function confirmDeleteCity() {
       };
 
       if (!pmEditing) {
-        
+
         const res = await paymentMethodsApi.create(payload);
         setAlert({ type: "success", text: res?.message || "Moyen de paiement créé." });
       } else {
@@ -487,7 +487,7 @@ async function confirmDeletePaymentMethod() {
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h4 className="mb-1">Settings</h4>
+          <h4 className="mb-1">Paramètres</h4>
           <div className="text-muted small">
             Gérer l&apos;à propos et les moyens de paiement
           </div>

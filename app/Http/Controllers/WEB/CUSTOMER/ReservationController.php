@@ -8,7 +8,7 @@ use App\Models\Inventory;
 use App\Models\Reservation;
 use App\Models\ReservationItem;
 use App\Services\ActivityLogService;
-use App\Services\AdminNotificationService;
+use App\Services\NotificationService;
 use App\Services\ReservationItemService;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class ReservationController extends Controller
         private readonly ReservationService $reservationService,
         private readonly ReservationItemService $reservationItemService,
         private readonly ActivityLogService $activityLogService,
-        private readonly AdminNotificationService $adminNotificationService,
+        private readonly NotificationService $NotificationService,
     ) {}
 
     public function index()
@@ -158,7 +158,7 @@ class ReservationController extends Controller
                 ->find($payload['reservation_id']);
 
             if ($reservation) {
-                $this->adminNotificationService->notifyNewReservation($reservation);
+                $this->NotificationService->notifyNewReservation($reservation);
             }
 
             return response()->json([

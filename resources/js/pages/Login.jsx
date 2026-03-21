@@ -96,7 +96,7 @@ export default function Login() {
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
         <h2 className="fw-bold mb-1">Connexion</h2>
-        <p className="text-secondary mb-3">Accedez a votre compte.</p>
+        <p className="text-secondary mb-3">Accédéz à votre compte.</p>
 
         {flashMessage && <div className="alert alert-success py-2">{flashMessage}</div>}
         {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
@@ -155,7 +155,7 @@ export default function Login() {
               Se souvenir de moi
             </label>
 
-            <Link className="small" to="/forgot-password">
+            <Link className="small text-decoration-none" to="/forgot-password">
               Mot de passe oublie ?
             </Link>
           </div>
@@ -165,7 +165,7 @@ export default function Login() {
           </button>
 
           <div className="text-secondary small">
-            Pas de compte ? <Link to="/register">Creer un compte</Link>
+            Pas de compte ? <Link to="/register" className="text-decoration-none">Créer un compte</Link>
           </div>
         </form>
       </div>

@@ -32,9 +32,9 @@ export default function ForgotPassword() {
   return (
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
-        <h2 className="fw-bold mb-1">Mot de passe oublie</h2>
+        <h2 className="fw-bold mb-1">Mot de passe oublié</h2>
         <p className="text-secondary mb-4">
-          Entrez votre email et nous vous enverrons un code de verification valable 15 minutes.
+          Entrez votre email et nous vous enverrons un code de vérification valable 15 minutes.
         </p>
 
         {message ? <div className="alert alert-danger py-2">{message}</div> : null}
@@ -52,13 +52,24 @@ export default function ForgotPassword() {
             />
           </div>
 
-          <button className="btn btn-dark fw-semibold" disabled={loading} type="submit">
-            {loading ? "Envoi..." : "Envoyer le code"}
-          </button>
+          <div className="d-flex justify-content-between align-items-center gap-1">
+                      <Link
+                to="/login"
+                className="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-2"
+            >
+                <i className="bi bi-arrow-left"></i>
+                Annuler
+            </Link>
+            <button
+                className="btn btn-sm btn-warning fw-semibold w-100"
+                disabled={loading}
+                type="submit"
+            >
+                {loading ? "Envoi..." : "Envoyer le code"}
+            </button>
 
-          <div className="text-secondary small">
-            <Link to="/login">Retour</Link>
-          </div>
+
+            </div>
         </form>
       </div>
     </div>

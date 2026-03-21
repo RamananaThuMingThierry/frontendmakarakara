@@ -152,10 +152,9 @@ function openEdit(u) {
       responsive: true,
       language: { url: DT_LANG_URL },
       columns: [
-        { data: null, render: (d, t2, row, meta) => meta.row + 1 },
         { data: "name", defaultContent: "" },
         { data: "email", defaultContent: "" },
-        { data: "phone", defaultContent: "" },
+        { data: "phone", defaultContent: "-" },
         {
           data: "roles",
           render: (roles) => {
@@ -348,7 +347,6 @@ if (!editing || form.password) {
             <table ref={tableRef} className="table align-middle mb-0">
               <thead>
                 <tr className="text-muted small">
-                  <th style={{ width: 70 }}>{t("users.table.index", "#")}</th>
                   <th>{t("users.table.name", "Name")}</th>
                   <th>{t("users.table.email", "Email")}</th>
                   <th>{t("users.table.phone", "Phone")}</th>

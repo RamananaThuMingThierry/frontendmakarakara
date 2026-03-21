@@ -40,7 +40,7 @@ export default function OrderSuccess() {
     return labels[paymentStatus] || paymentStatus;
   }, [paymentStatus]);
 
-  const mobileMoneyNumber = "034 00 000 00";
+  const mobileMoneyNumber = "+261329790536";
   const mobileMoneyName = "MAHAKARAKARA";
 
   if (!data) {
@@ -52,12 +52,12 @@ export default function OrderSuccess() {
           className="img-fluid mb-4"
           style={{ maxWidth: 260, opacity: 0.9 }}
         />
-        <h5 className="fw-semibold">Commande creee</h5>
+        <h5 className="fw-semibold">Commande créée</h5>
         <p className="text-muted">
-          Reference : <span className="fw-semibold">{orderNumber}</span>
+          Référence : <span className="fw-semibold">{orderNumber}</span>
         </p>
         <p className="text-muted">
-          Pour voir le detail, reconnecte-toi ou retourne a la boutique.
+          Pour voir le détail, reconnecte-toi ou retourne à la boutique.
         </p>
 
         <div className="d-flex justify-content-center gap-2">
@@ -83,9 +83,9 @@ export default function OrderSuccess() {
             style={{ maxWidth: 140 }}
           />
 
-          <h1 className="fw-bold mb-1">Votre commande est creee</h1>
+          <h1 className="fw-bold mb-1">Votre commande est créée</h1>
           <p className="text-secondary mb-0">
-            Merci. Votre commande a bien ete enregistree.
+            Merci. Votre commande a bien été enregistrée.
           </p>
 
           <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
@@ -97,7 +97,7 @@ export default function OrderSuccess() {
 
           <div className="mt-3">
             <span className="badge bg-dark fs-6">
-              Reference : {data.order_number || orderNumber}
+              Référence : {data.order_number || orderNumber}
             </span>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function OrderSuccess() {
         <div className="row g-4">
           <div className="col-12 col-lg-7">
             <div className="bg-white rounded-4 shadow-sm p-4 mb-4">
-              <h5 className="fw-bold mb-3">Recapitulatif des articles</h5>
+              <h5 className="fw-bold mb-3">Récapitulatif des articles</h5>
 
               {items.map((i) => (
                 <div key={i.id} className="d-flex gap-3 py-3 border-bottom">
@@ -117,7 +117,7 @@ export default function OrderSuccess() {
                   />
                   <div className="flex-grow-1">
                     <div className="fw-semibold">{i.name}</div>
-                    <div className="text-secondary small">Quantite : {i.qty}</div>
+                    <div className="text-secondary small">Quantité : {i.qty}</div>
                   </div>
                   <div className="fw-semibold text-danger">
                     {formatPriceMGA((i.price || 0) * (i.qty || 0))}
@@ -145,7 +145,7 @@ export default function OrderSuccess() {
                     <span className="fw-semibold">{address.full_name}</span>
                   </div>
                   <div className="mb-2">
-                    <span className="text-secondary">Telephone :</span>{" "}
+                    <span className="text-secondary">Téléphone :</span>{" "}
                     <span className="fw-semibold">{address.phone}</span>
                   </div>
                   <div className="mb-2">
@@ -161,7 +161,7 @@ export default function OrderSuccess() {
                   </div>
                   {address.region ? (
                     <div className="mb-2">
-                      <span className="text-secondary">Region :</span>{" "}
+                      <span className="text-secondary">Région :</span>{" "}
                       <span className="fw-semibold">{address.region}</span>
                     </div>
                   ) : null}
@@ -217,7 +217,7 @@ export default function OrderSuccess() {
               {paymentMethod === "cash" ? (
                 <div className="text-secondary">
                   <p className="mb-2">
-                    Le total final a payer sera confirme apres definition du frais de livraison par l'administration.
+                    Le total final à payer sera confirmé après définition du frais de livraison par l'administration.
                   </p>
                   <div className="alert alert-warning mb-0">
                     La commande reste en attente de confirmation. L'administration fixera le frais de livraison avant confirmation finale.
@@ -226,34 +226,34 @@ export default function OrderSuccess() {
               ) : (
                 <div className="text-secondary">
                   <p className="mb-2">
-                    Effectuez le paiement via mobile money, puis gardez la preuve. Le paiement ne sera valide qu apres verification manuelle.
+                    Effectuez le paiement via mobile money, puis gardez la preuve. Le paiement ne sera valide qu'après vérification manuelle.
                   </p>
 
                   <div className="border rounded-3 p-3 bg-light">
                     <div className="fw-semibold text-dark">{mobileMoneyName}</div>
                     <div className="mt-1">
-                      Numero : <span className="fw-semibold">{mobileMoneyNumber}</span>
+                      Numéro : <span className="fw-semibold">{mobileMoneyNumber}</span>
                     </div>
                     <div className="mt-1">
                       Montant : <span className="fw-semibold">{formatPriceMGA(total)}</span>
                     </div>
                     <div className="mt-1">
-                      Reference : <span className="fw-semibold">{data.order_number || orderNumber}</span>
+                      Référence : <span className="fw-semibold">{data.order_number || orderNumber}</span>
                     </div>
                   </div>
 
                   <small className="d-block mt-2">
-                    Apres paiement, notre equipe confirmera la commande puis generera le recu.
+                    Après paiement, notre équipe confirmera la commande puis générera le reçu.
                   </small>
                 </div>
               )}
 
               <div className="d-grid gap-2 mt-4">
                 <Link to="/shop" className="btn btn-dark">
-                  Retour a la boutique
+                  Retour à la boutique
                 </Link>
                 <Link to="/contact" className="btn btn-outline-dark">
-                  Besoin d aide ?
+                  Besoin d'aide ?
                 </Link>
               </div>
             </div>

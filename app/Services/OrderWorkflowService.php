@@ -33,7 +33,7 @@ class OrderWorkflowService
 {
     public function __construct(
         private readonly SettingsService $settingsService,
-        private readonly AdminNotificationService $adminNotificationService
+        private readonly NotificationService $NotificationService
     ) {}
 
     public const ALLOWED_TRANSITIONS = [
@@ -144,7 +144,7 @@ class OrderWorkflowService
         });
 
         $this->notifyAdminAboutNewOrder($order);
-        $this->adminNotificationService->notifyNewOrder($order);
+        $this->NotificationService->notifyNewOrder($order);
 
         return $this->freshOrder($order);
     }
@@ -567,7 +567,7 @@ class OrderWorkflowService
             'status' => $newStatus,
         ]);
 
-        $this->adminNotificationService->notifyInventoryAlert(
+        $this->NotificationService->notifyInventoryAlert(
             $inventory->fresh(['product:id,name', 'city:id,name']),
             (string) $inventory->getOriginal('status')
         );
