@@ -8,13 +8,17 @@ import { I18nProvider } from "./hooks/website/I18nContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+import "../css/errors.css";
+import AppErrorBoundary from "./Components/common/AppErrorBoundary";
 
 createRoot(document.getElementById("app")).render(
   <React.StrictMode>
-    <AuthProvider>
-      <I18nProvider>
-        <RouterProvider router={router} />
-      </I18nProvider>
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <I18nProvider>
+          <RouterProvider router={router} />
+        </I18nProvider>
+      </AuthProvider>
+    </AppErrorBoundary>
   </React.StrictMode>
 );

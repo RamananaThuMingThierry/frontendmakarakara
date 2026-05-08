@@ -49,10 +49,13 @@ import ClientLayout from "../layouts/ClientLayout";
 import Profile from "../pages/client/Profile";
 import Orders from "../pages/client/Orders";
 import Reservations from "../pages/client/Reservations";
+import NotFoundPage from "../pages/errors/NotFoundPage";
+import RouteErrorPage from "../pages/errors/RouteErrorPage";
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout/>,
+    errorElement: <RouteErrorPage />,
     children: [
        { path: "email/verify", element: <EmailVerifyPage /> },
       {
@@ -76,6 +79,7 @@ export const router = createBrowserRouter([
             { path: "reset-password", element: <ResetPassword /> },
             { path: "order-success/:orderNumber", element: <OrderSuccess /> },
             { path: "product/:encrypted_id", element: <ProductDetails /> },
+            { path: "*", element: <NotFoundPage /> },
         ],
       },
       {
@@ -90,6 +94,7 @@ export const router = createBrowserRouter([
           { path: "profile", element: <Profile /> },
           { path: "reservations", element: <Reservations /> },
           { path: "orders", element: <Orders /> },
+          { path: "*", element: <NotFoundPage /> },
         ],
       },
       {
@@ -122,8 +127,10 @@ export const router = createBrowserRouter([
           { path: "activity-logs", element: <ActivityLogPage /> },
           { path: "settings", element: <SettingsPage /> },
           { path: "account", element: <AdminAccountPage /> },
+          { path: "*", element: <NotFoundPage /> },
         ],
       },
+      { path: "*", element: <NotFoundPage /> },
     ]
   }
 ]);
