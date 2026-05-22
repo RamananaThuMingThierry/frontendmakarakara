@@ -34,7 +34,7 @@ class ProductRequest extends FormRequest
 
             // ✅ Upload fichiers
             'images' => ['sometimes', 'array'],
-            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'images.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 
@@ -57,7 +57,7 @@ class ProductRequest extends FormRequest
             'images.*.file' => 'Fichier invalide.',
             'images.*.image' => 'Chaque fichier doit être une image.',
             'images.*.mimes' => 'Formats acceptés: jpg, jpeg, png, webp.',
-            'images.*.max' => 'Chaque image ne doit pas dépasser 2MB.',
+            'images.*.max' => 'Chaque image ne doit pas dépasser 4MB.',
         ];
     }
 

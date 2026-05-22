@@ -27,7 +27,7 @@ class TestimonialRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:2048',
+                'max:4096',
             ],
 
             'city' => [
@@ -83,7 +83,7 @@ class TestimonialRequest extends FormRequest
 
             'photo_url.image' => 'Le fichier doit etre une image.',
             'photo_url.mimes' => 'La photo doit etre au format jpg, jpeg, png ou webp.',
-            'photo_url.max' => 'La photo ne doit pas depasser 2MB.',
+            'photo_url.max' => 'La photo ne doit pas depasser 4MB.',
 
             'city.string' => 'La ville doit etre une chaine de caracteres.',
             'city.max' => 'La ville ne doit pas depasser 255 caracteres.',

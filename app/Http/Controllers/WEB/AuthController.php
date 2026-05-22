@@ -95,8 +95,7 @@ class AuthController extends Controller
         try{
             $user = $this->auth->register($data);
 
-            // $user->assignRole('customer');
-            $user->assignRole('admin');
+            $user->assignRole('customer');
 
             // token direct après register (pratique pour React)
             $token = $user->createToken('MAHAKARAKARA')->plainTextToken;

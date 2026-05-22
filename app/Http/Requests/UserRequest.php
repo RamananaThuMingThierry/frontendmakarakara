@@ -25,7 +25,7 @@ class UserRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png',
-                'max:2048', // 2MB
+                'max:4096', // 4MB
             ],
 
             'name' => [
@@ -54,7 +54,9 @@ class UserRequest extends FormRequest
             // role unique
             'role' => [
                 'required',
-                Rule::in(['admin', 'delivery']),
+                Rule::exists('roles', 'name')->where(function ($query) {
+                    $query->whereIn('name', ['admin', 'delivery']);
+                }),
             ],
 
             // password

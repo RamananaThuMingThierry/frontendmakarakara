@@ -30,7 +30,7 @@ class ProductImageRequest extends FormRequest
         return [
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'images'     => ['required', 'array', 'min:1', 'max:6'],
-            'images.*'   => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'images.*'   => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 
@@ -50,7 +50,7 @@ class ProductImageRequest extends FormRequest
             'images.*.file'      => 'Chaque élément doit être un fichier.',
             'images.*.image'     => 'Chaque fichier doit être une image.',
             'images.*.mimes'     => 'Formats autorisés : jpg, jpeg, png, webp.',
-            'images.*.max'       => 'Chaque image ne doit pas dépasser 2 Mo.',
+            'images.*.max'       => 'Chaque image ne doit pas dépasser 4 Mo.',
         ];
     }
 }

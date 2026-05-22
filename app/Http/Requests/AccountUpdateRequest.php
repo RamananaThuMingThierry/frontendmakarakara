@@ -15,7 +15,7 @@ class AccountUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',

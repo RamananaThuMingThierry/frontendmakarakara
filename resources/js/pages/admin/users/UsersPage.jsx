@@ -11,6 +11,7 @@ export default function UsersPage() {
   const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
 
   const [items, setItems] = useState([]);
+  const [availableRoles, setAvailableRoles] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -42,7 +43,7 @@ export default function UsersPage() {
     email: "",
     phone: "",
     status: "active", // ou boolean selon ton API
-    role: "admin",      // ✅ admin | delivery
+    role: "",
     avatar: null,       // ✅ File
     password: "",
     password_confirmation: "",
@@ -65,7 +66,9 @@ export default function UsersPage() {
     try {
       const res = await usersApi.list();
       const list = Array.isArray(res) ? res : res?.data ?? [];
+      const roles = Array.isArray(res?.roles) ? res.roles : [];
       setItems(list);
+      setAvailableRoles(roles);
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -77,16 +80,20 @@ export default function UsersPage() {
   }, []);
 
   function openCreate() {
+    const defaultRole = availableRoles[0]?.name ?? "";
     setEditing(null);
     setForm({
       name: "",
       email: "",
       phone: "",
       status: "active",
+      role: defaultRole,
+      avatar: null,
       password: "",
       password_confirmation: "",
       role_ids: [],
     });
+    setAvatarPreview("");
     setErrors({});
     setGlobalError("");
     setOpen(true);
@@ -99,7 +106,7 @@ function openEdit(u) {
     email: u.email ?? "",
     phone: u.phone ?? "",
     status: u.status ?? "active",
-    role: (u.roles?.[0]?.name) || "admin", // ✅ 1 seul role
+    role: (u.roles?.[0]?.name) || availableRoles[0]?.name || "",
     avatar: null, // on ne met pas le fichier ici
     password: "",
     password_confirmation: "",
@@ -480,8 +487,14 @@ if (!editing || form.password) {
     value={form.role}
     onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
   >
-    <option value="admin">admin</option>
-    <option value="delivery">delivery</option>
+    <option value="" disabled>
+      {t("users.modal.rolePlaceholder", "Select a role")}
+    </option>
+    {availableRoles.map((role) => (
+      <option key={role.id ?? role.name} value={role.name}>
+        {role.name}
+      </option>
+    ))}
   </select>
   {errors.role && <span className="text-danger small">{errors.role[0]}</span>}
 </div>

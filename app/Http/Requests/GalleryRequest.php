@@ -22,7 +22,7 @@ class GalleryRequest extends FormRequest
                 'file',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:2048',
+                'max:4096',
             ],
             'name' => [
                 'nullable',
@@ -44,7 +44,7 @@ class GalleryRequest extends FormRequest
             'image_url.file' => 'Fichier invalide.',
             'image_url.image' => 'Le fichier doit etre une image.',
             'image_url.mimes' => 'Formats acceptes: jpg, jpeg, png, webp.',
-            'image_url.max' => 'L image ne doit pas depasser 2MB.',
+            'image_url.max' => 'L image ne doit pas depasser 4MB.',
             'name.string' => 'Le nom doit etre une chaine de caracteres.',
             'name.max' => 'Le nom ne doit pas depasser 255 caracteres.',
             'likes.integer' => 'Le nombre de likes doit etre un nombre entier.',

@@ -8,6 +8,7 @@ use App\Services\ActivityLogService;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 use Throwable;
 
 class UserController extends Controller
@@ -27,8 +28,15 @@ class UserController extends Controller
                 ['*'],
                 ['roles.permissions']
             );
+            $roles = Role::query()
+                ->select(['id', 'name'])
+                ->whereIn('name', ['admin', 'delivery'])
+                ->orderBy('name')
+                ->get();
+
             return response()->json([
-                'data' => $users
+                'data' => $users,
+                'roles' => $roles,
             ]);
         }catch(Throwable $e){
             // Log échec (entity_id peut être null)

@@ -38,7 +38,7 @@ class PaymentMethodRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp,svg',
-                'max:2048',
+                'max:4096',
             ],
 
             'is_active' => [
@@ -62,7 +62,7 @@ class PaymentMethodRequest extends FormRequest
 
             'image.image' => 'Le fichier doit être une image valide.',
             'image.mimes' => 'L’image doit être au format jpg, jpeg, png, webp ou svg.',
-            'image.max' => 'L’image ne doit pas dépasser 2MB.',
+            'image.max' => 'L’image ne doit pas dépasser 4MB.',
 
             'is_active.boolean' => 'Le statut doit être vrai ou faux.',
         ];

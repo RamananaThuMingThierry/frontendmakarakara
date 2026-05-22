@@ -26,7 +26,7 @@ class SlideRequest extends FormRequest
                 'file',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:255'
+                'max:4096'
             ],
 
             'position' => ['nullable', 'integer', 'min:0'],
@@ -47,7 +47,7 @@ class SlideRequest extends FormRequest
             'image_url.file' => 'Fichier invalide.',
             'image_url.image' => 'Chaque fichier doit être une image.',
             'image_url.mimes' => 'Formats acceptés: jpg, jpeg, png, webp.',
-            'image_url.max' => 'Chaque image ne doit pas dépasser 2MB.',
+            'image_url.max' => 'Chaque image ne doit pas dépasser 4MB.',
 
             'position.integer' => 'La position doit être un nombre entier.',
             'position.min' => 'La position doit être supérieure ou égale à 0.',

@@ -28,7 +28,7 @@ class BrandRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png',
-                'max:2048',
+                'max:4096',
             ],
 
             'description' => [
@@ -51,7 +51,7 @@ class BrandRequest extends FormRequest
             'name.unique' => 'Cette marque existe déjà.',
             'logo.image' => 'Le logo doit être une image valide.',
             'logo.mimes' => 'Le logo doit être au format jpg, jpeg ou png.',
-            'logo.max' => 'Le logo ne doit pas dépasser 2MB.',
+            'logo.max' => 'Le logo ne doit pas dépasser 4MB.',
         ];
     }
 }

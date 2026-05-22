@@ -86,8 +86,8 @@ export default function CreateProductPage() {
     // reset input pour pouvoir re-sélectionner le même fichier
     e.target.value = "";
 
-    // Optionnel : limite localement (Laravel: 2MB / image)
-    const maxBytes = 2 * 1024 * 1024;
+    // Optionnel : limite localement (Laravel: 4MB / image)
+    const maxBytes = 4 * 1024 * 1024;
 
     const valid = [];
     for (const f of files) {
@@ -297,7 +297,7 @@ export default function CreateProductPage() {
                   </div>
                 ))}
 
-              <div className="form-text">Formats: jpg, jpeg, png, webp. Max 2MB / image.</div>
+              <div className="form-text">Formats: jpg, jpeg, png, webp. Max 4MB / image.</div>
 
               {imagePreviews.length ? (
                 <div className="mt-2 d-flex flex-wrap gap-2">

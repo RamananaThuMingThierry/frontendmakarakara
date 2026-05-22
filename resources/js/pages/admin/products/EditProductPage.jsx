@@ -87,7 +87,7 @@ export default function EditProductPage() {
 
     e.target.value = "";
 
-    const maxBytes = 2 * 1024 * 1024;
+    const maxBytes = 4 * 1024 * 1024;
     const valid = files.filter((file) => file.type.startsWith("image/") && file.size <= maxBytes);
     setImages((prev) => [...prev, ...valid]);
   }
