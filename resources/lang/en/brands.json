@@ -1,58 +1,55 @@
 {
-  "brands": {
-    "title": "Brands",
-    "subtitle": "Manage brands",
-
-    "loading": "Loading...",
-    "refresh": "Refresh",
-    "refreshing": "Refreshing...",
-    "new": "New brand",
-
-    "table": {
-      "index": "#",
-      "logo": "Logo",
-      "name": "Name",
-      "slug": "Slug",
-      "status": "Status",
-      "description": "Description",
-      "actions": "Actions"
-    },
-
-    "modal": {
-      "createTitle": "Create",
-      "editTitle": "Edit",
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving...",
-      "active": "Active",
-
-      "name": "Name",
-      "slug": "Slug",
-      "logo": "Logo (URL)",
-      "description": "Description",
-
-      "placeholderName": "Ex: Nike",
-      "placeholderSlug": "Ex: nike",
-      "placeholderLogo": "https://.../logo.png",
-      "placeholderDescription": "Short description",
-      "logoPreview": "Preview"
-    },
-
-    "delete": {
-      "title": "Confirm",
-      "message": "Delete brand",
-      "message2": "Delete this brand?",
-      "btn": "Delete",
-      "deleting": "Deleting..."
-    },
-
-    "toast": {
-      "nameRequired": "Name is required",
-      "created": "Created.",
-      "updated": "Updated.",
-      "deleted": "Deleted.",
-      "saveFailed": "Save failed",
-      "deleteFailed": "Delete failed."
-    }
+  "title": "Brands",
+  "subtitle": "Manage brands",
+  "loading": "Loading...",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "new": "New brand",
+  "active": "Active",
+  "inactive": "Inactive",
+  "empty": "No brands found.",
+  "table": {
+    "index": "#",
+    "logo": "Logo",
+    "name": "Name",
+    "slug": "Slug",
+    "status": "Status",
+    "description": "Description",
+    "actions": "Actions"
+  },
+  "modal": {
+    "createTitle": "Create brand",
+    "editTitle": "Edit brand",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving...",
+    "active": "Active",
+    "name": "Name",
+    "logo": "Logo",
+    "description": "Description",
+    "placeholderName": "Ex: Nike",
+    "placeholderDescription": "Short description",
+    "removeLogo": "Remove",
+    "logoHelp": "Choose an image file (PNG, JPG, SVG)."
+  },
+  "show": {
+    "title": "Brand details"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Delete brand",
+    "message2": "Delete this brand?",
+    "btn": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "loadFailed": "Load failed.",
+    "nameRequired": "Name is required.",
+    "created": "Brand created.",
+    "updated": "Brand updated.",
+    "deleted": "Brand deleted.",
+    "saveFailed": "Save failed.",
+    "deleteFailed": "Delete failed."
   }
 }

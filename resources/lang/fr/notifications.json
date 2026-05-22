@@ -1,0 +1,40 @@
+{
+  "title": "Notifications",
+  "subtitle": "Centre de notifications admin avec historique complet.",
+  "loading": "Chargement...",
+  "empty": "Aucune notification.",
+  "summary": {
+    "unread": "Non lues",
+    "total": "Total"
+  },
+  "badges": {
+    "unread": "Non lue"
+  },
+  "meta": {
+    "reference": "Référence",
+    "noReference": "Sans référence directe",
+    "readAt": "Lue le"
+  },
+  "actions": {
+    "showAll": "Afficher toutes",
+    "showUnread": "Afficher non lues",
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation...",
+    "markAllRead": "Tout marquer comme lu",
+    "markRead": "Marquer comme lue",
+    "open": "Ouvrir"
+  },
+  "error": {
+    "load": "Impossible de charger les notifications.",
+    "markAllRead": "Impossible de marquer les notifications comme lues."
+  },
+  "categories": {
+    "order": "Commande",
+    "reservation": "Réservation",
+    "contact": "Contact",
+    "review": "Avis",
+    "inventory": "Stock",
+    "system": "Système",
+    "default": "Notification"
+  }
+}

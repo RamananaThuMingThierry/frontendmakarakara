@@ -1,0 +1,53 @@
+﻿{
+  "title": "Galerie",
+  "subtitle": "Verwalte die in der Website-Galerie angezeigten Bilder.",
+  "search": "Suchen...",
+  "refresh": "Aktualisieren",
+  "refreshing": "Aktualisierung...",
+  "new": "Bild hinzufügen",
+  "loading": "Wird geladen...",
+  "empty": "Keine Bilder gefunden.",
+  "table": {
+    "image": "Bild",
+    "name": "Name",
+    "likes": "Likes",
+    "createdAt": "Hinzugefügt am",
+    "actions": "Aktionen"
+  },
+  "modal": {
+    "createTitle": "Bild hinzufügen",
+    "image": "Bild",
+    "name": "Name",
+    "likes": "Likes",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "noImage": "Kein Bild"
+  },
+  "show": {
+    "title": "Bilddetails",
+    "name": "Name",
+    "likes": "Likes",
+    "createdAt": "Hinzugefügt am"
+  },
+  "actions": {
+    "view": "Ansehen",
+    "delete": "Löschen",
+    "close": "Schließen"
+  },
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Bild löschen",
+    "deleting": "Löschen..."
+  },
+  "toast": {
+    "created": "Bild erfolgreich hinzugefügt.",
+    "deleted": "Bild gelöscht.",
+    "saveFailed": "Speichern fehlgeschlagen.",
+    "deleteFailed": "Löschen fehlgeschlagen."
+  },
+  "error": {
+    "load": "Die Galerie konnte nicht geladen werden.",
+    "show": "Das Bild konnte nicht geladen werden."
+  }
+}

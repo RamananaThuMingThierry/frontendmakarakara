@@ -1,0 +1,55 @@
+﻿{
+  "title": "Benutzer",
+  "subtitle": "Benutzer verwalten",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "new": "Neuer Benutzer",
+  "loading": "Wird geladen...",
+  "empty": "Keine Benutzer gefunden.",
+  "table": {
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "roles": "Rollen",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "modal": {
+    "createTitle": "Benutzer erstellen",
+    "editTitle": "Benutzer bearbeiten",
+    "avatar": "Avatar",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "status": "Status",
+    "password": "Passwort",
+    "passwordOptional": "optional",
+    "passwordConfirm": "Passwort bestätigen",
+    "role": "Rolle",
+    "rolePlaceholder": "Rolle auswählen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert..."
+  },
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Benutzer löschen",
+    "message2": "Diesen Benutzer löschen?",
+    "deleting": "Wird gelöscht...",
+    "btn": "Löschen"
+  },
+  "toast": {
+    "loadFailed": "Laden fehlgeschlagen.",
+    "nameRequired": "Name ist erforderlich",
+    "emailRequired": "E-Mail ist erforderlich",
+    "created": "Benutzer erstellt.",
+    "updated": "Benutzer aktualisiert.",
+    "deleted": "Benutzer gelöscht.",
+    "saveFailed": "Speichern fehlgeschlagen.",
+    "deleteFailed": "Löschen fehlgeschlagen."
+  }
+}

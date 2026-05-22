@@ -8,37 +8,25 @@
   "refreshing": "Refreshing...",
   "loading": "Loading...",
   "empty": "No logs found.",
-
   "errors": {
     "load": "Unable to load logs."
   },
-
   "toast": {
     "deleted": "Deleted.",
     "deleteFailed": "Delete failed."
   },
-
   "actions": {
     "show": "Show",
     "delete": "Delete"
   },
-
   "card": {
     "id": "Log",
-    "entity": "Entity",
-    "user": "User",
     "date": "Date"
   },
-
   "show": {
     "title": "Log details",
-    "action": "Action",
-    "entity": "Entity",
-    "user": "User",
-    "date": "Date",
     "metadata": "Metadata"
   },
-
   "delete": {
     "title": "Confirm",
     "message": "Delete this log",
@@ -46,9 +34,24 @@
     "deleting": "Deleting...",
     "btn": "Delete"
   },
-
   "modal": {
     "close": "Close",
     "cancel": "Cancel"
+  },
+  "fields": {
+    "id": "ID",
+    "action": "Action",
+    "color": "Color",
+    "method": "Method",
+    "httpStatus": "HTTP status",
+    "user": "User",
+    "userId": "User ID",
+    "entity": "Entity",
+    "entityId": "Entity ID",
+    "route": "Route",
+    "url": "URL",
+    "message": "Message",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
   }
 }

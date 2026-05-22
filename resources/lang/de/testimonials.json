@@ -1,0 +1,66 @@
+﻿{
+  "title": "Kundenstimmen",
+  "subtitle": "Verwalte die auf der Website angezeigten Kundenbewertungen.",
+  "search": "Suchen...",
+  "refresh": "Aktualisieren",
+  "refreshing": "Aktualisierung...",
+  "new": "Neue Kundenstimme",
+  "loading": "Wird geladen...",
+  "empty": "Keine Kundenstimmen gefunden.",
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "table": {
+    "photo": "Foto",
+    "name": "Name",
+    "city": "Stadt",
+    "product": "Produkt",
+    "rating": "Bewertung",
+    "position": "Position",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "modal": {
+    "createTitle": "Neue Kundenstimme",
+    "editTitle": "Kundenstimme bearbeiten",
+    "photo": "Foto",
+    "name": "Name",
+    "city": "Stadt",
+    "product": "Verwendetes Produkt",
+    "rating": "Bewertung",
+    "position": "Position",
+    "message": "Nachricht",
+    "visible": "Auf der Website sichtbar",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "noImage": "Kein Bild",
+    "none": "Keine"
+  },
+  "show": {
+    "title": "Details der Kundenstimme"
+  },
+  "actions": {
+    "view": "Ansehen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "close": "Schließen"
+  },
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Die Kundenstimme löschen von",
+    "deleting": "Löschen..."
+  },
+  "toast": {
+    "created": "Kundenstimme erstellt.",
+    "updated": "Kundenstimme aktualisiert.",
+    "deleted": "Kundenstimme gelöscht.",
+    "saveFailed": "Speichern fehlgeschlagen.",
+    "deleteFailed": "Löschen fehlgeschlagen."
+  },
+  "error": {
+    "load": "Kundenstimmen konnten nicht geladen werden.",
+    "show": "Die Kundenstimme konnte nicht geladen werden."
+  }
+}

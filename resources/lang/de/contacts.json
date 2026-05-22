@@ -1,0 +1,44 @@
+﻿{
+  "title": "Kontaktnachrichten",
+  "subtitle": "Anfragen auflisten, ansehen und löschen.",
+  "total": "Gesamt",
+  "search": "Suchen...",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "loading": "Wird geladen...",
+  "empty": "Keine Nachrichten gefunden.",
+  "table": {
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "subject": "Betreff",
+    "date": "Datum",
+    "actions": "Aktionen"
+  },
+  "actions": {
+    "view": "Ansehen",
+    "delete": "Löschen"
+  },
+  "show": {
+    "title": "Nachrichtendetails",
+    "loading": "Details werden geladen...",
+    "message": "Nachricht",
+    "empty": "Keine Details verfügbar.",
+    "close": "Schließen"
+  },
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Die Nachricht löschen von",
+    "message2": "Diese Nachricht löschen?",
+    "cancel": "Abbrechen",
+    "deleting": "Wird gelöscht..."
+  },
+  "toast": {
+    "deleted": "Nachricht erfolgreich gelöscht.",
+    "deleteFailed": "Löschen fehlgeschlagen."
+  },
+  "error": {
+    "load": "Kontaktnachrichten konnten nicht geladen werden.",
+    "show": "Die Nachricht konnte nicht geladen werden."
+  }
+}

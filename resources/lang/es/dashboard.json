@@ -1,0 +1,22 @@
+﻿{
+  "title": "Panel",
+  "loading": "Cargando panel...",
+  "errors": { "load": "No se puede cargar el panel." },
+  "filters": { "aria": "Período del panel", "daily": "Diario", "monthly": "Mensual", "reset": "Restablecer" },
+  "common": { "revenueShort": "Ingresos", "ordersShort": "Pedidos", "top10": "Top 10", "top10Cities": "Top 10 ciudades", "orders": "pedidos", "products": "productos", "productsSold": "productos vendidos" },
+  "orderStatus": { "pending": "Pendiente", "confirmed": "Confirmado", "processing": "En proceso", "delivered": "Entregado", "cancelled": "Cancelado" },
+  "paymentStatus": { "unpaid": "No pagado", "pending_verification": "Verificación", "paid": "Pagado", "refunded": "Reembolsado" },
+  "stats": { "revenue": "Ingresos cobrados", "orders": "Pedidos del período", "averageBasket": "Ticket medio", "newCustomers": "Nuevos clientes", "pendingPayments": "Pagos por verificar", "pendingOrders": "Pedidos pendientes", "activeReservations": "Reservas activas", "activeProducts": "Productos activos", "bestCity": "Ciudad con mayores ingresos" },
+  "hints": { "paidOrders": "pedidos pagados", "cancelled": "cancelados", "activeOrders": "pedidos activos", "totalCustomers": "clientes en total", "mobileMoney": "Mobile money pendiente", "confirmProcess": "Para confirmar o procesar", "blockedProducts": "Productos aún bloqueados", "catalogProducts": "productos en catálogo" },
+  "charts": { "visual": { "title": "Evolución visual", "hourly": "Ingresos cobrados y volumen de pedidos por hora.", "daily": "Ingresos cobrados y volumen de pedidos por día.", "hourDetail": "Detalle horario", "periodDetail": "Detalle del período", "markers": "Referencias", "hourView": "Vista horaria", "dayView": "Vista diaria", "maxRevenue": "Ingresos máximos", "maxOrders": "Pedidos máximos" } },
+  "attention": { "title": "Puntos de atención admin", "pendingPayments": "Pagos por validar", "openOrders": "Abrir pedidos", "pendingOrders": "Pedidos pendientes", "confirmProcess": "Confirmar o procesar", "activeReservations": "Reservas activas", "viewReservations": "Ver reservas", "activeCatalog": "Catálogo activo", "manageProducts": "Gestionar productos" },
+  "breakdown": { "orders": "Distribución de pedidos", "payments": "Distribución de pagos" },
+  "topProducts": { "title": "Productos más vendidos", "byRevenue": "Por ingresos", "sales": "ventas" },
+  "citySales": { "title": "Ingresos por ciudad", "subtitle": "Ingresos de productos vendidos por ciudad" },
+  "cityQuantity": { "title": "Cantidad vendida por ciudad", "subtitle": "Volumen de productos vendidos por ciudad" },
+  "recentOrders": { "title": "Últimos pedidos", "empty": "No hay pedidos recientes.", "footer": "Mostrando los últimos 10 pedidos.", "table": { "order": "Pedido", "customer": "Cliente", "amount": "Importe", "status": "Estado" } },
+  "cityTable": { "title": "Pedidos por ciudad", "empty": "No hay datos por ciudad.", "city": "Ciudad", "orders": "Pedidos", "products": "Productos", "revenue": "Ingresos" },
+  "activity": { "title": "Actividad reciente admin", "empty": "No hay actividad reciente.", "footer": "Mostrando las últimas 10 actividades.", "table": { "date": "Fecha", "action": "Acción", "user": "Usuario", "message": "Mensaje" } },
+  "actions": { "viewMore": "Ver más" },
+  "empty": { "period": "No hay datos para este período.", "available": "No hay datos disponibles.", "sales": "No hay ventas en este período.", "citySales": "No hay ventas por ciudad en este período.", "noCitySales": "No hay ventas por ciudad" }
+}

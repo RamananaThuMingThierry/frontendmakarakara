@@ -1,0 +1,55 @@
+﻿{
+  "title": "Users",
+  "subtitle": "Manage users",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "new": "New user",
+  "loading": "Loading...",
+  "empty": "No users found.",
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "roles": "Roles",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "modal": {
+    "createTitle": "Create user",
+    "editTitle": "Edit user",
+    "avatar": "Avatar",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "status": "Status",
+    "password": "Password",
+    "passwordOptional": "optional",
+    "passwordConfirm": "Confirm password",
+    "role": "Role",
+    "rolePlaceholder": "Select a role",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "delete": {
+    "title": "Confirm",
+    "message": "Delete user",
+    "message2": "Delete this user?",
+    "deleting": "Deleting...",
+    "btn": "Delete"
+  },
+  "toast": {
+    "loadFailed": "Load failed.",
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "created": "User created.",
+    "updated": "User updated.",
+    "deleted": "User deleted.",
+    "saveFailed": "Save failed.",
+    "deleteFailed": "Delete failed."
+  }
+}

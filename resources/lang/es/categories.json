@@ -1,54 +1,20 @@
-{
+﻿{
   "title": "Categorías",
   "subtitle": "Gestionar las categorías de la tienda",
-
   "refresh": "Actualizar",
   "refreshing": "Actualizando...",
   "new": "Nueva categoría",
-
   "loading": "Cargando...",
-
-  "table": {
-    "index": "#",
-    "name": "Nombre",
-    "slug": "Slug",
-    "status": "Estado",
-    "parent": "Padre",
-    "children": "Subcategorías",
-    "actions": "Acciones"
-  },
-
-  "modal": {
-    "createTitle": "Nueva categoría",
-    "editTitle": "Editar categoría",
-    "name": "Nombre",
-    "slug": "Slug",
-    "parent": "Padre",
-    "active": "Activa",
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "saving": "Guardando...",
-    "slugHelp": "Si está vacío, el backend puede generarlo automáticamente.",
-    "parentHelp": "Opcional. Permite crear una subcategoría.",
-    "placeholderName": "Ej: Shoes",
-    "placeholderSlug": "Ej: shoes (opcional)",
-    "noParent": "Sin padre"
-  },
-
-  "delete": {
-    "title": "Confirmación",
-    "message": "Eliminar categoría",
-    "message2": "¿Eliminar esta categoría?",
-    "btn": "Eliminar",
-    "deleting": "Eliminando..."
-  },
-
-  "toast": {
-    "created": "Categoría creada.",
-    "updated": "Categoría actualizada.",
-    "deleted": "Categoría eliminada con éxito.",
-    "saveFailed": "Error al guardar",
-    "deleteFailed": "Error al eliminar.",
-    "nameRequired": "El nombre es obligatorio."
-  }
+  "empty": "No se encontraron categorías.",
+  "active": "Activa",
+  "inactive": "Inactiva",
+  "subcats": "Subcategorías",
+  "products": "Productos",
+  "btn": { "view": "Gestionar", "edit": "Editar", "delete": "Eliminar" },
+  "table": { "index": "#", "name": "Nombre", "slug": "Slug", "status": "Estado", "parent": "Padre", "children": "Subcategorías", "actions": "Acciones" },
+  "modal": { "createTitle": "Nueva categoría", "editTitle": "Editar categoría", "name": "Nombre", "slug": "Slug", "parent": "Padre", "active": "Activa", "cancel": "Cancelar", "save": "Guardar", "saving": "Guardando...", "slugHelp": "Si está vacío, el backend puede generarlo automáticamente.", "parentHelp": "Opcional. Permite crear una subcategoría.", "placeholderName": "Ej.: Zapatos", "placeholderSlug": "Ej.: zapatos (opcional)", "noParent": "Sin padre" },
+  "delete": { "title": "Confirmación", "message": "Eliminar la categoría", "message2": "¿Eliminar esta categoría?", "btn": "Eliminar", "deleting": "Eliminando..." },
+  "toast": { "loadFailed": "Error al cargar.", "created": "Categoría creada.", "updated": "Categoría actualizada.", "deleted": "Categoría eliminada correctamente.", "saveFailed": "Error al guardar.", "deleteFailed": "Error al eliminar.", "nameRequired": "El nombre es obligatorio." },
+  "edit": { "title": "Actualizar categoría", "loadFailed": "Error al cargar", "saveFailed": "Error al guardar", "parentFixed": "El padre está fijado desde esta página" },
+  "manage": { "title": "Detalle de categoría", "subtitle": "Árbol + productos", "loadFailed": "Error al cargar", "productDetails": "Detalles", "noProducts": "No hay productos.", "noSubcategories": "No hay subcategorías.", "addSubcategory": "Agregar subcategoría", "addProduct": "Agregar producto", "directSubcategories": "Subcategorías directas", "directProducts": "Productos directos", "treeTitle": "Árbol de categorías", "createSubcategory": "Agregar subcategoría", "parentAuto": "El padre se define automáticamente.", "subcategoryPlaceholder": "Ej.: Aceite", "createFailed": "Error al crear.", "deleteWarning": "Atención: la eliminación puede fallar si la categoría contiene subcategorías o productos." }
 }

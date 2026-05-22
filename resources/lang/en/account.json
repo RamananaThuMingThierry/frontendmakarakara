@@ -1,0 +1,57 @@
+﻿{
+  "title": "My account",
+  "subtitle": "View and update your personal information.",
+  "loading": "Loading account...",
+  "errors": {
+    "load": "Unable to load the account."
+  },
+  "summary": {
+    "adminFallback": "Administrator",
+    "emailUnavailable": "Email unavailable",
+    "phone": "Phone",
+    "notProvided": "Not provided",
+    "emailVerification": "Email verification"
+  },
+  "status": {
+    "verified": "Verified",
+    "pending": "Pending"
+  },
+  "verification": {
+    "title": "Email not verified",
+    "text": "Send a new verification email to validate this address.",
+    "button": "Verify email",
+    "sending": "Sending...",
+    "notice": "If you change your email address, a new verification will be required."
+  },
+  "profile": {
+    "title": "User information",
+    "subtitle": "Edit your admin profile without leaving the dashboard.",
+    "avatarAlt": "Avatar",
+    "avatar": "Profile picture",
+    "name": "Full name",
+    "email": "Email address",
+    "phone": "Phone"
+  },
+  "password": {
+    "title": "Change password",
+    "subtitle": "For security reasons, you will be signed out after the change.",
+    "current": "Current password",
+    "new": "New password",
+    "confirmation": "Confirmation"
+  },
+  "actions": {
+    "saving": "Saving...",
+    "saveChanges": "Save changes",
+    "updating": "Updating...",
+    "changePassword": "Change password"
+  },
+  "toast": {
+    "profileUpdated": "Information updated.",
+    "profileUpdateFailed": "Update failed.",
+    "passwordUpdated": "Password updated.",
+    "passwordReconnect": "Password updated. Please sign in again.",
+    "passwordUpdateFailed": "Password update failed.",
+    "verificationSent": "Verification email sent.",
+    "verificationFailed": "Unable to send the verification email."
+  }
+}

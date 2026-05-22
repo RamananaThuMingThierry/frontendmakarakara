@@ -1,0 +1,44 @@
+﻿{
+  "title": "Messages de contact",
+  "subtitle": "Liste, consultation et suppression des demandes.",
+  "total": "Total",
+  "search": "Rechercher...",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "loading": "Chargement...",
+  "empty": "Aucun message trouvé.",
+  "table": {
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "subject": "Sujet",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "actions": {
+    "view": "Voir",
+    "delete": "Supprimer"
+  },
+  "show": {
+    "title": "Détail du message",
+    "loading": "Chargement du détail...",
+    "message": "Message",
+    "empty": "Aucun détail disponible.",
+    "close": "Fermer"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer le message de",
+    "message2": "Supprimer ce message ?",
+    "cancel": "Annuler",
+    "deleting": "Suppression..."
+  },
+  "toast": {
+    "deleted": "Message supprimé avec succès.",
+    "deleteFailed": "Échec de la suppression."
+  },
+  "error": {
+    "load": "Impossible de charger les messages de contact.",
+    "show": "Impossible de charger le message."
+  }
+}

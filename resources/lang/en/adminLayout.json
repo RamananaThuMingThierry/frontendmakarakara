@@ -1,0 +1,49 @@
+﻿{
+  "nav": {
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "brands": "Brands",
+    "orders": "Orders",
+    "coupons": "Coupons",
+    "testimonials": "Testimonials",
+    "gallery": "Gallery",
+    "reservations": "Reservations",
+    "sliders": "Banners",
+    "users": "Users",
+    "contacts": "Contacts",
+    "settings": "Settings",
+    "activityLogs": "Activity logs",
+    "account": "My account",
+    "logout": "Logout"
+  },
+  "header": {
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "notifications": "Notifications",
+    "unread": "unread",
+    "markAllRead": "Mark all as read",
+    "loading": "Loading...",
+    "empty": "No notifications.",
+    "viewMore": "View more",
+    "language": "Language",
+    "account": "My account",
+    "new": "New"
+  },
+  "sidebar": {
+    "backToSite": "Back to site",
+    "expand": "Expand menu",
+    "collapse": "Collapse menu"
+  },
+  "footer": {
+    "adminDashboard": "Admin Dashboard",
+    "secure": "Secure",
+    "performance": "Performance"
+  },
+  "logout": {
+    "title": "Logout",
+    "message": "Do you really want to log out?",
+    "confirm": "Yes, log out",
+    "cancel": "Cancel",
+    "loading": "Logging out..."
+  }
+}

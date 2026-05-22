@@ -1,58 +1,55 @@
 {
-  "brands": {
-    "title": "Varumärken",
-    "subtitle": "Hantera varumärken",
-
-    "loading": "Laddar...",
-    "refresh": "Uppdatera",
-    "refreshing": "Uppdaterar...",
-    "new": "Nytt varumärke",
-
-    "table": {
-      "index": "#",
-      "logo": "Logotyp",
-      "name": "Namn",
-      "slug": "Slug",
-      "status": "Status",
-      "description": "Beskrivning",
-      "actions": "Åtgärder"
-    },
-
-    "modal": {
-      "createTitle": "Skapa",
-      "editTitle": "Redigera",
-      "cancel": "Avbryt",
-      "save": "Spara",
-      "saving": "Sparar...",
-      "active": "Aktiv",
-
-      "name": "Namn",
-      "slug": "Slug",
-      "logo": "Logotyp (URL)",
-      "description": "Beskrivning",
-
-      "placeholderName": "Ex: Nike",
-      "placeholderSlug": "Ex: nike",
-      "placeholderLogo": "https://.../logo.png",
-      "placeholderDescription": "Kort beskrivning",
-      "logoPreview": "Förhandsvisning"
-    },
-
-    "delete": {
-      "title": "Bekräfta",
-      "message": "Ta bort varumärke",
-      "message2": "Ta bort detta varumärke?",
-      "btn": "Ta bort",
-      "deleting": "Tar bort..."
-    },
-
-    "toast": {
-      "nameRequired": "Namn krävs",
-      "created": "Skapad.",
-      "updated": "Uppdaterad.",
-      "deleted": "Borttagen.",
-      "saveFailed": "Kunde inte spara",
-      "deleteFailed": "Kunde inte ta bort."
-    }
+  "title": "Marcas",
+  "subtitle": "Gestionar marcas",
+  "loading": "Cargando...",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "new": "Nueva marca",
+  "active": "Activa",
+  "inactive": "Inactiva",
+  "empty": "No se encontraron marcas.",
+  "table": {
+    "index": "#",
+    "logo": "Logo",
+    "name": "Nombre",
+    "slug": "Slug",
+    "status": "Estado",
+    "description": "Descripcion",
+    "actions": "Acciones"
+  },
+  "modal": {
+    "createTitle": "Crear marca",
+    "editTitle": "Editar marca",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "active": "Activa",
+    "name": "Nombre",
+    "logo": "Logo",
+    "description": "Descripcion",
+    "placeholderName": "Ej: Nike",
+    "placeholderDescription": "Descripcion corta",
+    "removeLogo": "Quitar",
+    "logoHelp": "Elige una imagen (PNG, JPG, SVG)."
+  },
+  "show": {
+    "title": "Detalles de la marca"
+  },
+  "delete": {
+    "title": "Confirmacion",
+    "message": "Eliminar la marca",
+    "message2": "Eliminar esta marca?",
+    "btn": "Eliminar",
+    "deleting": "Eliminando..."
+  },
+  "toast": {
+    "loadFailed": "Error al cargar.",
+    "nameRequired": "El nombre es obligatorio.",
+    "created": "Marca creada.",
+    "updated": "Marca actualizada.",
+    "deleted": "Marca eliminada.",
+    "saveFailed": "Error al guardar.",
+    "deleteFailed": "Error al eliminar."
   }
 }

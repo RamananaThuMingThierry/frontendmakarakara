@@ -1,0 +1,44 @@
+﻿{
+  "title": "Contact messages",
+  "subtitle": "List, review and delete requests.",
+  "total": "Total",
+  "search": "Search...",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "loading": "Loading...",
+  "empty": "No messages found.",
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "subject": "Subject",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "actions": {
+    "view": "View",
+    "delete": "Delete"
+  },
+  "show": {
+    "title": "Message details",
+    "loading": "Loading details...",
+    "message": "Message",
+    "empty": "No details available.",
+    "close": "Close"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Delete the message from",
+    "message2": "Delete this message?",
+    "cancel": "Cancel",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "deleted": "Message deleted successfully.",
+    "deleteFailed": "Delete failed."
+  },
+  "error": {
+    "load": "Unable to load contact messages.",
+    "show": "Unable to load the message."
+  }
+}

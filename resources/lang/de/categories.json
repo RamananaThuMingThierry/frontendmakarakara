@@ -1,54 +1,20 @@
-{
+﻿{
   "title": "Kategorien",
   "subtitle": "Shop-Kategorien verwalten",
-
   "refresh": "Aktualisieren",
   "refreshing": "Aktualisierung...",
   "new": "Neue Kategorie",
-
   "loading": "Laden...",
-
-  "table": {
-    "index": "#",
-    "name": "Name",
-    "slug": "Slug",
-    "status": "Status",
-    "parent": "Übergeordnet",
-    "children": "Unterkategorien",
-    "actions": "Aktionen"
-  },
-
-  "modal": {
-    "createTitle": "Neue Kategorie",
-    "editTitle": "Kategorie bearbeiten",
-    "name": "Name",
-    "slug": "Slug",
-    "parent": "Übergeordnet",
-    "active": "Aktiv",
-    "cancel": "Abbrechen",
-    "save": "Speichern",
-    "saving": "Speichern...",
-    "slugHelp": "Wenn leer, kann das Backend ihn automatisch generieren.",
-    "parentHelp": "Optional. Ermöglicht das Erstellen einer Unterkategorie.",
-    "placeholderName": "Bsp: Shoes",
-    "placeholderSlug": "Bsp: shoes (optional)",
-    "noParent": "Kein übergeordnetes Element"
-  },
-
-  "delete": {
-    "title": "Bestätigung",
-    "message": "Kategorie löschen",
-    "message2": "Diese Kategorie löschen?",
-    "btn": "Löschen",
-    "deleting": "Löschen..."
-  },
-
-  "toast": {
-    "created": "Kategorie erstellt.",
-    "updated": "Kategorie aktualisiert.",
-    "deleted": "Kategorie erfolgreich gelöscht.",
-    "saveFailed": "Speichern fehlgeschlagen",
-    "deleteFailed": "Löschen fehlgeschlagen.",
-    "nameRequired": "Name ist erforderlich."
-  }
+  "empty": "Keine Kategorien gefunden.",
+  "active": "Aktiv",
+  "inactive": "Inaktiv",
+  "subcats": "Unterkategorien",
+  "products": "Produkte",
+  "btn": { "view": "Verwalten", "edit": "Bearbeiten", "delete": "Löschen" },
+  "table": { "index": "#", "name": "Name", "slug": "Slug", "status": "Status", "parent": "Übergeordnet", "children": "Unterkategorien", "actions": "Aktionen" },
+  "modal": { "createTitle": "Neue Kategorie", "editTitle": "Kategorie bearbeiten", "name": "Name", "slug": "Slug", "parent": "Übergeordnet", "active": "Aktiv", "cancel": "Abbrechen", "save": "Speichern", "saving": "Speichern...", "slugHelp": "Wenn leer, kann das Backend ihn automatisch generieren.", "parentHelp": "Optional. Ermöglicht das Erstellen einer Unterkategorie.", "placeholderName": "Bsp.: Schuhe", "placeholderSlug": "Bsp.: schuhe (optional)", "noParent": "Kein übergeordnetes Element" },
+  "delete": { "title": "Bestätigung", "message": "Kategorie löschen", "message2": "Diese Kategorie löschen?", "btn": "Löschen", "deleting": "Löschen..." },
+  "toast": { "loadFailed": "Laden fehlgeschlagen.", "created": "Kategorie erstellt.", "updated": "Kategorie aktualisiert.", "deleted": "Kategorie erfolgreich gelöscht.", "saveFailed": "Speichern fehlgeschlagen.", "deleteFailed": "Löschen fehlgeschlagen.", "nameRequired": "Name ist erforderlich." },
+  "edit": { "title": "Kategorie aktualisieren", "loadFailed": "Laden fehlgeschlagen", "saveFailed": "Speichern fehlgeschlagen", "parentFixed": "Übergeordnetes Element ist auf dieser Seite festgelegt" },
+  "manage": { "title": "Kategoriedetails", "subtitle": "Baum + Produkte", "loadFailed": "Laden fehlgeschlagen", "productDetails": "Details", "noProducts": "Keine Produkte.", "noSubcategories": "Keine Unterkategorien.", "addSubcategory": "Unterkategorie hinzufügen", "addProduct": "Produkt hinzufügen", "directSubcategories": "Direkte Unterkategorien", "directProducts": "Direkte Produkte", "treeTitle": "Kategoriebaum", "createSubcategory": "Unterkategorie hinzufügen", "parentAuto": "Das übergeordnete Element wird automatisch festgelegt.", "subcategoryPlaceholder": "Bsp.: Öl", "createFailed": "Erstellung fehlgeschlagen.", "deleteWarning": "Achtung: Das Löschen kann fehlschlagen, wenn die Kategorie Unterkategorien oder Produkte enthält." }
 }

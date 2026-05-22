@@ -1,0 +1,113 @@
+{
+  "title": "Configuración",
+  "subtitle": "Gestiona la sección sobre nosotros, los métodos de pago y las ciudades.",
+  "loading": "Cargando...",
+  "tabs": {
+    "about": "Acerca de",
+    "payments": "Métodos de pago",
+    "cities": "Ciudades"
+  },
+  "actions": {
+    "close": "Cerrar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "add": "Agregar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "toggle": "Activar/Desactivar"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "about": {
+    "title": "Acerca de la plataforma",
+    "previewTitle": "Vista rápida",
+    "logoAlt": "Logo de la plataforma",
+    "fields": {
+      "title": "Título",
+      "description": "Descripción",
+      "logo": "Logo",
+      "phone": "Teléfono",
+      "email": "Email",
+      "address": "Dirección"
+    },
+    "placeholders": {
+      "title": "Ej.: MAHAKARAKARA",
+      "description": "Presenta tu plataforma...",
+      "address": "Dirección / Ciudad",
+      "facebook": "Enlace de la página de Facebook",
+      "instagram": "Enlace de Instagram",
+      "whatsapp": "Ej.: +261..."
+    },
+    "hints": {
+      "logo": "Se utiliza en los correos y facturas PDF enviadas a los clientes."
+    }
+  },
+  "payments": {
+    "title": "Métodos de pago",
+    "empty": "No hay métodos de pago.",
+    "noImage": "Sin imagen",
+    "code": "Código",
+    "defaultDeleteName": "este método de pago",
+    "fields": {
+      "name": "Nombre",
+      "code": "Código",
+      "image": "Imagen / Logo"
+    },
+    "placeholders": {
+      "name": "Ej.: Pago contra entrega",
+      "code": "Ej.: cod"
+    },
+    "hints": {
+      "code": "Ej.: cod, mvola, orange_money..."
+    },
+    "modal": {
+      "createTitle": "Agregar método de pago",
+      "editTitle": "Editar método de pago"
+    }
+  },
+  "cities": {
+    "title": "Ciudades",
+    "empty": "No hay ciudades.",
+    "region": "Región",
+    "defaultDeleteName": "esta ciudad",
+    "fields": {
+      "name": "Nombre",
+      "region": "Región"
+    },
+    "placeholders": {
+      "name": "Ej.: Antananarivo",
+      "region": "Ej.: Analamanga"
+    },
+    "modal": {
+      "createTitle": "Agregar ciudad",
+      "editTitle": "Editar ciudad"
+    }
+  },
+  "delete": {
+    "title": "Confirmar eliminación",
+    "paymentMessage": "¿Seguro que deseas eliminar",
+    "cityMessage": "¿Seguro que deseas eliminar",
+    "warning": "Esta acción es irreversible.",
+    "deleting": "Eliminando..."
+  },
+  "alert": {
+    "aboutSaved": "Sección acerca de actualizada correctamente.",
+    "saveError": "Error al guardar.",
+    "citiesLoadError": "Error al cargar las ciudades.",
+    "cityCreated": "Ciudad creada.",
+    "cityUpdated": "Ciudad actualizada.",
+    "citySaveError": "Error al guardar la ciudad.",
+    "toggleError": "Error al cambiar el estado.",
+    "cityDeleted": "Ciudad eliminada.",
+    "deleteError": "Error al eliminar.",
+    "paymentsLoadError": "Error al cargar los métodos de pago.",
+    "paymentCreated": "Método de pago creado.",
+    "paymentUpdated": "Método de pago actualizado.",
+    "paymentSaveError": "Error al guardar el método de pago.",
+    "paymentDeleted": "Método de pago eliminado.",
+    "loadError": "Error de carga."
+  }
+}

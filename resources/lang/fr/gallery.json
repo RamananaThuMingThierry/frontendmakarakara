@@ -1,0 +1,53 @@
+﻿{
+  "title": "Galerie",
+  "subtitle": "Gestion des images affichées dans la galerie du site.",
+  "search": "Rechercher...",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "new": "Ajouter une image",
+  "loading": "Chargement...",
+  "empty": "Aucune image trouvée.",
+  "table": {
+    "image": "Image",
+    "name": "Nom",
+    "likes": "Likes",
+    "createdAt": "Ajoutée le",
+    "actions": "Actions"
+  },
+  "modal": {
+    "createTitle": "Ajouter une image",
+    "image": "Image",
+    "name": "Nom",
+    "likes": "Likes",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "noImage": "Aucune image"
+  },
+  "show": {
+    "title": "Détail de l'image",
+    "name": "Nom",
+    "likes": "Likes",
+    "createdAt": "Date d'ajout"
+  },
+  "actions": {
+    "view": "Voir",
+    "delete": "Supprimer",
+    "close": "Fermer"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer l'image",
+    "deleting": "Suppression..."
+  },
+  "toast": {
+    "created": "Image ajoutée avec succès.",
+    "deleted": "Image supprimée.",
+    "saveFailed": "Échec de l'enregistrement.",
+    "deleteFailed": "Échec de la suppression."
+  },
+  "error": {
+    "load": "Impossible de charger la galerie.",
+    "show": "Impossible de charger l'image."
+  }
+}

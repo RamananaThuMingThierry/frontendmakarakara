@@ -1,0 +1,66 @@
+﻿{
+  "title": "Testimonios",
+  "subtitle": "Gestiona las opiniones de clientes mostradas en el sitio.",
+  "search": "Buscar...",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "new": "Nuevo testimonio",
+  "loading": "Cargando...",
+  "empty": "No se encontraron testimonios.",
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "table": {
+    "photo": "Foto",
+    "name": "Nombre",
+    "city": "Ciudad",
+    "product": "Producto",
+    "rating": "Calificación",
+    "position": "Posición",
+    "status": "Estado",
+    "actions": "Acciones"
+  },
+  "modal": {
+    "createTitle": "Nuevo testimonio",
+    "editTitle": "Editar testimonio",
+    "photo": "Foto",
+    "name": "Nombre",
+    "city": "Ciudad",
+    "product": "Producto utilizado",
+    "rating": "Calificación",
+    "position": "Posición",
+    "message": "Mensaje",
+    "visible": "Visible en el sitio",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "noImage": "Sin imagen",
+    "none": "Ninguno"
+  },
+  "show": {
+    "title": "Detalle del testimonio"
+  },
+  "actions": {
+    "view": "Ver",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "close": "Cerrar"
+  },
+  "delete": {
+    "title": "Confirmación",
+    "message": "Eliminar el testimonio de",
+    "deleting": "Eliminando..."
+  },
+  "toast": {
+    "created": "Testimonio creado.",
+    "updated": "Testimonio actualizado.",
+    "deleted": "Testimonio eliminado.",
+    "saveFailed": "Error al guardar.",
+    "deleteFailed": "Error al eliminar."
+  },
+  "error": {
+    "load": "No se pueden cargar los testimonios.",
+    "show": "No se puede cargar el testimonio."
+  }
+}

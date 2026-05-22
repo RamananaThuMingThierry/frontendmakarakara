@@ -1,0 +1,57 @@
+﻿{
+  "title": "Mon compte",
+  "subtitle": "Consultez et mettez à jour vos informations personnelles.",
+  "loading": "Chargement du compte...",
+  "errors": {
+    "load": "Impossible de charger le compte."
+  },
+  "summary": {
+    "adminFallback": "Administrateur",
+    "emailUnavailable": "Email non disponible",
+    "phone": "Téléphone",
+    "notProvided": "Non renseigné",
+    "emailVerification": "Vérification email"
+  },
+  "status": {
+    "verified": "Vérifié",
+    "pending": "En attente"
+  },
+  "verification": {
+    "title": "Email non vérifié",
+    "text": "Envoyez un nouvel email de vérification pour valider cette adresse.",
+    "button": "Vérifier l'email",
+    "sending": "Envoi...",
+    "notice": "Si vous changez votre adresse email, une nouvelle vérification sera demandée."
+  },
+  "profile": {
+    "title": "Informations utilisateur",
+    "subtitle": "Modifiez votre profil admin sans quitter le tableau de bord.",
+    "avatarAlt": "Avatar",
+    "avatar": "Photo de profil",
+    "name": "Nom complet",
+    "email": "Adresse email",
+    "phone": "Téléphone"
+  },
+  "password": {
+    "title": "Changer le mot de passe",
+    "subtitle": "Pour des raisons de sécurité, vous serez déconnecté après la modification.",
+    "current": "Mot de passe actuel",
+    "new": "Nouveau mot de passe",
+    "confirmation": "Confirmation"
+  },
+  "actions": {
+    "saving": "Enregistrement...",
+    "saveChanges": "Enregistrer les modifications",
+    "updating": "Modification...",
+    "changePassword": "Changer le mot de passe"
+  },
+  "toast": {
+    "profileUpdated": "Informations mises à jour.",
+    "profileUpdateFailed": "Mise à jour impossible.",
+    "passwordUpdated": "Mot de passe modifié.",
+    "passwordReconnect": "Mot de passe modifié. Veuillez vous reconnecter.",
+    "passwordUpdateFailed": "Modification impossible.",
+    "verificationSent": "Email de vérification envoyé.",
+    "verificationFailed": "Envoi de l'email de vérification impossible."
+  }
+}

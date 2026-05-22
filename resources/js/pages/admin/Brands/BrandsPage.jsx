@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { brandsApi } from "../../../api/brands";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
 import $ from "jquery";
@@ -77,6 +78,8 @@ export default function BrandsPage() {
     try {
       const list = await brandsApi.list();
       setItems(Array.isArray(list) ? list : []);
+    } catch (e) {
+      showToast("danger", e?.response?.data?.message || t("brands.toast.loadFailed", "Load failed."));
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -147,7 +150,7 @@ export default function BrandsPage() {
   }, [logoPreview]);
 
 
-  // ✅ (Re)Init DataTable quand langue change (après initialLoading)
+  // âœ… (Re)Init DataTable quand langue change (aprÃ¨s initialLoading)
   useEffect(() => {
     if (initialLoading) return;
     if (!tableRef.current) return;
@@ -181,7 +184,7 @@ export default function BrandsPage() {
           width: 90,
           render: (v) => {
             const src = logoUrl(v);
-            if (!src) return `<span class="text-muted small">—</span>`;
+            if (!src) return `<span class="text-muted small">â€”</span>`;
             return `
               <div class="d-flex align-items-center gap-2">
                 <img src="${src}" alt="logo"
@@ -197,8 +200,8 @@ export default function BrandsPage() {
           width: 120,
           render: (v) =>
             v
-              ? `<span class="badge text-bg-success">Active</span>`
-              : `<span class="badge text-bg-secondary">Inactive</span>`,
+              ? `<span class="badge text-bg-success">${t("brands.active", "Active")}</span>`
+              : `<span class="badge text-bg-secondary">${t("brands.inactive", "Inactive")}</span>`,
         },
         {
           data: "description",
@@ -206,7 +209,7 @@ export default function BrandsPage() {
           render: (v) => {
             const s = (v ?? "").toString();
             const safe = s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return safe ? `<span class="text-muted">${safe}</span>` : `<span class="text-muted small">—</span>`;
+            return safe ? `<span class="text-muted">${safe}</span>` : `<span class="text-muted small">â€”</span>`;
           },
         },
         {
@@ -263,7 +266,7 @@ export default function BrandsPage() {
     };
   }, [initialLoading, DT_LANG_URL]);
 
-  // ✅ Update rows quand items change
+  // âœ… Update rows quand items change
   useEffect(() => {
     if (!dtRef.current) return;
     const dt = dtRef.current;
@@ -330,7 +333,7 @@ export default function BrandsPage() {
 
     setDeleting(true);
     try {
-      await brandsApi.remove(getRowId(deleteTarget)); // ✅ brandsApi
+      await brandsApi.remove(getRowId(deleteTarget)); // âœ… brandsApi
       await load({ mode: "refresh" });
 
       setDeleteOpen(false);
@@ -404,6 +407,11 @@ export default function BrandsPage() {
               <tbody />
             </table>
           </div>
+          {!initialLoading && items.length === 0 ? (
+            <div className="alert alert-light border mt-3 mb-0">
+              {t("brands.empty", "No brands found.")}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -468,10 +476,10 @@ export default function BrandsPage() {
 
                             <div className="flex-grow-1">
                               <div className="d-flex flex-wrap gap-2">
-                                <input
-                                  type="file"
+                                <TranslatedFileInput
                                   accept="image/*"
-                                  className={`form-control ${errors.logo ? "is-invalid" : ""}`}
+                                  error={errors.logo?.[0] || ""}
+                                  selectedText={logoFile?.name || ""}
                                   onChange={(e) => {
                                     const f = e.target.files?.[0] || null;
                                     setLogoFile(f);
@@ -499,7 +507,7 @@ export default function BrandsPage() {
                                 {t("brands.modal.logoHelp", "Choose an image file (PNG, JPG, SVG).")}
                               </div>
 
-                              {errors.logo && <span className="text-danger small">{errors.logo[0]}</span>}
+
                             </div>
                           </div>
                         </div>
@@ -594,28 +602,28 @@ export default function BrandsPage() {
                       <div className="flex-grow-1">
                         <div className="mb-2">
                           <div className="text-muted small">{t("brands.table.name", "Name")}</div>
-                          <div className="fw-semibold">{showing.name || "—"}</div>
+                          <div className="fw-semibold">{showing.name || "-"}</div>
                         </div>
 
                         <div className="mb-2">
                           <div className="text-muted small">{t("brands.table.slug", "Slug")}</div>
-                          <div>{showing.slug || "—"}</div>
+                          <div>{showing.slug || "-"}</div>
                         </div>
 
                         <div className="mb-2">
                           <div className="text-muted small">{t("brands.table.status", "Status")}</div>
                           <div>
                             {showing.is_active ? (
-                              <span className="badge text-bg-success">Active</span>
+                              <span className="badge text-bg-success">{t("brands.active", "Active")}</span>
                             ) : (
-                              <span className="badge text-bg-secondary">Inactive</span>
+                              <span className="badge text-bg-secondary">{t("brands.inactive", "Inactive")}</span>
                             )}
                           </div>
                         </div>
 
                         <div className="mb-0">
                           <div className="text-muted small">{t("brands.table.description", "Description")}</div>
-                          <div className="text-muted">{showing.description || "—"}</div>
+                          <div className="text-muted">{showing.description || "-"}</div>
                         </div>
                       </div>
                     </div>
@@ -624,7 +632,7 @@ export default function BrandsPage() {
 
                 <div className="modal-footer">
                   <button type="button" className="btn btn-sm btn-outline-secondary" onClick={closeShow}>
-                    {t("brands.modal.cancel", "Close")}
+                    {t("brands.modal.close", "Close")}
                   </button>
                 </div>
               </div>

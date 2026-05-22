@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { adminReservationsApi } from "../../../api/admin_reservations";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
@@ -12,39 +12,38 @@ const STATUS_BADGES = {
   consumed: "success",
 };
 
-const STATUS_LABELS = {
-  active: "Active",
-  released: "Liberee",
-  consumed: "Consommee",
-};
-
-function formatDate(value) {
-  if (!value) return "-";
-
-  try {
-    return new Date(value).toLocaleString("fr-FR");
-  } catch {
-    return value;
-  }
-}
-
-function formatSource(item) {
-  if (item.order_id || item.reference_type?.includes("Order")) return "Commande";
-  if (item.cart_id || item.reference_type?.includes("Cart")) return "Panier";
-  return "Reservation";
-}
-
-function formatPrice(value) {
-  if (value === null || value === undefined || value === "") return "-";
-  return `${Number(value).toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} Ar`;
-}
-
 export default function ReservationsPage() {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+
+  const statusLabels = useMemo(() => ({
+    active: t("reservations.status.active", "Active"),
+    released: t("reservations.status.released", "Released"),
+    consumed: t("reservations.status.consumed", "Consumed"),
+  }), [t]);
+
+  function formatDate(value) {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleString(lang === "en" ? "en-US" : lang);
+    } catch {
+      return value;
+    }
+  }
+
+  function formatSource(item) {
+    if (item.order_id || item.reference_type?.includes("Order")) return t("reservations.source.order", "Order");
+    if (item.cart_id || item.reference_type?.includes("Cart")) return t("reservations.source.cart", "Cart");
+    return t("reservations.source.reservation", "Reservation");
+  }
+
+  function formatPrice(value) {
+    if (value === null || value === undefined || value === "") return "-";
+    return `${Number(value).toLocaleString(lang === "en" ? "en-US" : lang, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} Ar`;
+  }
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +68,7 @@ export default function ReservationsPage() {
       const data = await adminReservationsApi.list();
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger les reservations.");
+      setError(e?.response?.data?.message || t("reservations.error.load", "Unable to load reservations."));
     } finally {
       if (mode === "initial") setLoading(false);
       else setRefreshing(false);
@@ -93,7 +92,7 @@ export default function ReservationsPage() {
       const data = await adminReservationsApi.show(item.encrypted_id || item.id);
       setSelected(data);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger le detail de la reservation.");
+      setError(e?.response?.data?.message || t("reservations.error.details", "Unable to load reservation details."));
       setShowOpen(false);
     } finally {
       setShowLoading(false);
@@ -109,13 +108,9 @@ export default function ReservationsPage() {
   useEffect(() => {
     const tableNode = tableRef.current;
     if (loading || !tableNode) return;
-
     const $table = $(tableNode);
 
-    try {
-      $table.off("click", ".js-show");
-    } catch {}
-
+    try { $table.off("click", ".js-show"); } catch {}
     try {
       if ($.fn.dataTable.isDataTable(tableNode)) {
         const existing = $table.DataTable();
@@ -123,10 +118,7 @@ export default function ReservationsPage() {
         existing.destroy();
       }
     } catch {}
-
-    if (tableNode.tBodies?.[0]) {
-      tableNode.tBodies[0].innerHTML = "";
-    }
+    if (tableNode.tBodies?.[0]) tableNode.tBodies[0].innerHTML = "";
 
     dtRef.current = $table.DataTable({
       data: items,
@@ -137,51 +129,19 @@ export default function ReservationsPage() {
       responsive: true,
       language: { url: DT_LANG_URL },
       columns: [
+        { data: null, title: "#", render: (d, tt, row, meta) => meta.row + 1 },
         {
           data: null,
-          title: "#",
-          render: (d, t, row, meta) => meta.row + 1,
+          title: t("reservations.table.customer", "Customer"),
+          render: (value, type, row) => `<div class="fw-semibold">${row.user_name || "-"}</div><div class="small text-muted">${row.user_email || "-"}</div>`,
         },
-        {
-          data: null,
-          title: "Client",
-          render: (value, type, row) => `
-            <div class="fw-semibold">${row.user_name || "-"}</div>
-            <div class="small text-muted">${row.user_email || "-"}</div>
-          `,
-        },
-        { data: "product_name", title: "Produit", defaultContent: "-" },
-        { data: "city_name", title: "Ville", defaultContent: "-" },
-        { data: "quantity", title: "Quantite", defaultContent: 0 },
-        {
-          data: null,
-          title: "Source",
-          render: (value, type, row) => formatSource(row),
-        },
-        {
-          data: "status",
-          title: "Statut",
-          render: (value) =>
-            `<span class="badge text-bg-${STATUS_BADGES[value] || "secondary"}">${STATUS_LABELS[value] || value || "-"}</span>`,
-        },
-        {
-          data: "reserved_at",
-          title: "Date",
-          render: (value) => formatDate(value),
-        },
-        {
-          data: null,
-          title: "Actions",
-          orderable: false,
-          searchable: false,
-          className: "text-end",
-          render: (value, type, row) => `
-            <button class="btn btn-sm btn-outline-primary js-show" data-id="${row.id}">
-              <i class="bi bi-eye me-1"></i>
-              Voir
-            </button>
-          `,
-        },
+        { data: "product_name", title: t("reservations.table.product", "Product"), defaultContent: "-" },
+        { data: "city_name", title: t("reservations.table.city", "City"), defaultContent: "-" },
+        { data: "quantity", title: t("reservations.table.quantity", "Quantity"), defaultContent: 0 },
+        { data: null, title: t("reservations.table.source", "Source"), render: (value, type, row) => formatSource(row) },
+        { data: "status", title: t("reservations.table.status", "Status"), render: (value) => `<span class="badge text-bg-${STATUS_BADGES[value] || "secondary"}">${statusLabels[value] || value || "-"}</span>` },
+        { data: "reserved_at", title: t("reservations.table.date", "Date"), render: (value) => formatDate(value) },
+        { data: null, title: t("reservations.table.actions", "Actions"), orderable: false, searchable: false, className: "text-end", render: (value, type, row) => `<button class="btn btn-sm btn-outline-primary js-show" data-id="${row.id}"><i class="bi bi-eye me-1"></i>${t("reservations.actions.view", "View")}</button>` },
       ],
     });
 
@@ -192,39 +152,17 @@ export default function ReservationsPage() {
     });
 
     return () => {
-      try {
-        $table.off("click", ".js-show");
-      } catch {}
-
+      try { $table.off("click", ".js-show"); } catch {}
       try {
         if (dtRef.current) {
           dtRef.current.clear();
           dtRef.current.destroy();
         }
       } catch {}
-
       dtRef.current = null;
-      if (tableNode.tBodies?.[0]) {
-        tableNode.tBodies[0].innerHTML = "";
-      }
+      if (tableNode.tBodies?.[0]) tableNode.tBodies[0].innerHTML = "";
     };
-  }, [DT_LANG_URL, loading]);
-
-  useEffect(() => {
-    if (!dtRef.current) return;
-
-    const dt = dtRef.current;
-    const page = dt.page();
-    const search = dt.search();
-    const order = dt.order();
-
-    dt.clear();
-    dt.rows.add(items);
-    dt.draw(false);
-    dt.order(order).draw(false);
-    dt.search(search).draw(false);
-    dt.page(page).draw(false);
-  }, [items]);
+  }, [DT_LANG_URL, loading, items, statusLabels, t]);
 
   useEffect(() => {
     const tableNode = itemsTableRef.current;
@@ -238,15 +176,11 @@ export default function ReservationsPage() {
         } catch {}
         itemsDtRef.current = null;
       }
-
-      if (tableNode?.tBodies?.[0]) {
-        tableNode.tBodies[0].innerHTML = "";
-      }
+      if (tableNode?.tBodies?.[0]) tableNode.tBodies[0].innerHTML = "";
       return;
     }
 
     const $table = $(tableNode);
-
     try {
       if ($.fn.dataTable.isDataTable(tableNode)) {
         const existing = $table.DataTable();
@@ -254,10 +188,7 @@ export default function ReservationsPage() {
         existing.destroy();
       }
     } catch {}
-
-    if (tableNode.tBodies?.[0]) {
-      tableNode.tBodies[0].innerHTML = "";
-    }
+    if (tableNode.tBodies?.[0]) tableNode.tBodies[0].innerHTML = "";
 
     itemsDtRef.current = $table.DataTable({
       data: reservationItems,
@@ -268,16 +199,10 @@ export default function ReservationsPage() {
       responsive: true,
       language: { url: DT_LANG_URL },
       columns: [
-        { data: "product_name", title: "Produit", defaultContent: "-" },
-        { data: "city_name", title: "Ville", defaultContent: "-" },
-        {
-          data: "product_price",
-          title: "Prix",
-          render: (value) => {
-            return `<span class="text-primary fw-bold">${formatPrice(value)}</span>`;
-          },
-        },
-        { data: "quantity", title: "Quantite", defaultContent: 0 },
+        { data: "product_name", title: t("reservations.items.product", "Product"), defaultContent: "-" },
+        { data: "city_name", title: t("reservations.items.city", "City"), defaultContent: "-" },
+        { data: "product_price", title: t("reservations.items.price", "Price"), render: (value) => `<span class="text-primary fw-bold">${formatPrice(value)}</span>` },
+        { data: "quantity", title: t("reservations.items.quantity", "Quantity"), defaultContent: 0 },
       ],
     });
 
@@ -288,40 +213,22 @@ export default function ReservationsPage() {
           itemsDtRef.current.destroy();
         }
       } catch {}
-
       itemsDtRef.current = null;
-      if (tableNode.tBodies?.[0]) {
-        tableNode.tBodies[0].innerHTML = "";
-      }
+      if (tableNode.tBodies?.[0]) tableNode.tBodies[0].innerHTML = "";
     };
-  }, [DT_LANG_URL, selected, showLoading, showOpen]);
+  }, [DT_LANG_URL, selected, showLoading, showOpen, t]);
 
   return (
     <div className="container-fluid">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
-          <h4 className="mb-1">Suivi des reservations</h4>
-          <div className="text-muted small">Historique des produits reserves, liberes et consommes.</div>
-          <div className="text-muted small">Total: {items.length}</div>
+          <h4 className="mb-1">{t("reservations.title", "Reservation tracking")}</h4>
+          <div className="text-muted small">{t("reservations.subtitle", "History of reserved, released and consumed products.")}</div>
+          <div className="text-muted small">{t("reservations.total", "Total")}: {items.length}</div>
         </div>
-
         <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => load({ mode: "refresh" })}
-            disabled={loading || refreshing}
-          >
-            {loading || refreshing ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                Actualisation...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-arrow-clockwise me-2" />
-                Actualiser
-              </>
-            )}
+          <button className="btn btn-outline-secondary" onClick={() => load({ mode: "refresh" })} disabled={loading || refreshing}>
+            {loading || refreshing ? <><span className="spinner-border spinner-border-sm me-2" />{t("reservations.refreshing", "Refreshing...")}</> : <><i className="bi bi-arrow-clockwise me-2" />{t("reservations.refresh", "Refresh")}</>}
           </button>
         </div>
       </div>
@@ -329,26 +236,16 @@ export default function ReservationsPage() {
       <div className="card border-0 shadow-sm">
         <div className="card-body">
           {error ? <div className="alert alert-danger">{error}</div> : null}
-
           {loading ? (
-            <div className="d-flex align-items-center gap-2 text-muted">
-              <span className="spinner-border spinner-border-sm" />
-              Chargement...
-            </div>
+            <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("reservations.loading", "Loading...")}</div>
+          ) : items.length === 0 ? (
+            <div className="text-center text-muted py-4">{t("reservations.empty", "No reservations found.")}</div>
           ) : (
             <div className="table-responsive">
               <table ref={tableRef} className="table align-middle mb-0">
                 <thead>
                   <tr className="text-muted small">
-                    <th style={{ width: 70 }}>#</th>
-                    <th>Client</th>
-                    <th>Produit</th>
-                    <th>Ville</th>
-                    <th>Quantite</th>
-                    <th>Source</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                    <th className="text-end" style={{ width: 140 }}>Actions</th>
+                    <th style={{ width: 70 }}>#</th><th>{t("reservations.table.customer", "Customer")}</th><th>{t("reservations.table.product", "Product")}</th><th>{t("reservations.table.city", "City")}</th><th>{t("reservations.table.quantity", "Quantity")}</th><th>{t("reservations.table.source", "Source")}</th><th>{t("reservations.table.status", "Status")}</th><th>{t("reservations.table.date", "Date")}</th><th className="text-end" style={{ width: 140 }}>{t("reservations.table.actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody />
@@ -364,102 +261,73 @@ export default function ReservationsPage() {
             <div className="modal-dialog modal-xl modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title text-warning">Detail de la reservation</h5>
+                  <h5 className="modal-title text-warning">{t("reservations.show.title", "Reservation details")}</h5>
                   <button type="button" className="btn-close" onClick={closeShow} disabled={showLoading} />
                 </div>
 
                 <div className="modal-body">
                   {showLoading ? (
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <span className="spinner-border spinner-border-sm" />
-                      Chargement du detail...
-                    </div>
+                    <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("reservations.show.loading", "Loading details...")}</div>
                   ) : selected ? (
                     <div className="row g-3">
                       <div className="col-12 col-lg-6">
                         <div className="border rounded-3 p-3 h-100">
-                          <div className="text-muted small mb-1">Client</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.customer", "Customer")}</div>
                           <div className="fw-semibold">{selected.user_name || "-"}</div>
                           <div className="small text-primary">{selected.user_email || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Produit</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.product", "Product")}</div>
                           <div>{selected.product_name || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Ville</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.city", "City")}</div>
                           <div>{selected.city_name || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Quantite</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.quantity", "Quantity")}</div>
                           <div>{selected.quantity}</div>
                         </div>
                       </div>
 
                       <div className="col-12 col-lg-6">
                         <div className="border rounded-3 p-3 h-100">
-                          <div className="text-muted small mb-1">Statut</div>
-                          <div className="mb-3">
-                            <span className={`badge text-bg-${STATUS_BADGES[selected.status] || "secondary"}`}>
-                              {STATUS_LABELS[selected.status] || selected.status}
-                            </span>
-                          </div>
-
-                          <div className="text-muted small mb-1">Source</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.status", "Status")}</div>
+                          <div className="mb-3"><span className={`badge text-bg-${STATUS_BADGES[selected.status] || "secondary"}`}>{statusLabels[selected.status] || selected.status}</span></div>
+                          <div className="text-muted small mb-1">{t("reservations.show.source", "Source")}</div>
                           <div className="mb-3">{formatSource(selected)}</div>
-
-                          <div className="text-muted small mb-1">Expire le</div>
-                          <div className="mb-3">{formatDate(selected.expires_at)}</div>
-
-                          <div className="text-muted small mb-1">Reserve le</div>
-                          <div className="mb-3">{formatDate(selected.reserved_at)}</div>
-
-                          <div className="text-muted small mb-1">Libere le</div>
-                          <div className="mb-3">{formatDate(selected.released_at)}</div>
-
-                          <div className="text-muted small mb-1">Consomme le</div>
-                          <div className="mb-3">{formatDate(selected.consumed_at)}</div>
-
-                          <div className="text-muted small mb-1">Motif</div>
-                          <div>{selected.release_reason || "-"}</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.expiresAt", "Expires at")}</div><div className="mb-3">{formatDate(selected.expires_at)}</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.reservedAt", "Reserved at")}</div><div className="mb-3">{formatDate(selected.reserved_at)}</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.releasedAt", "Released at")}</div><div className="mb-3">{formatDate(selected.released_at)}</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.consumedAt", "Consumed at")}</div><div className="mb-3">{formatDate(selected.consumed_at)}</div>
+                          <div className="text-muted small mb-1">{t("reservations.show.reason", "Reason")}</div><div>{selected.release_reason || "-"}</div>
                         </div>
                       </div>
 
                       <div className="col-12">
                         <div className="border rounded-3 p-3">
-                          <div className="text-muted small mb-2">Items de la reservation</div>
+                          <div className="text-muted small mb-2">{t("reservations.items.title", "Reservation items")}</div>
                           {Array.isArray(selected.items) && selected.items.length > 0 ? (
                             <div className="table-responsive">
                               <table ref={itemsTableRef} className="table align-middle mb-0">
                                 <thead>
                                   <tr className="text-muted small">
-                                    <th>Produit</th>
-                                    <th>Ville</th>
-                                    <th>Prix</th>
-                                    <th>Quantite</th>
+                                    <th>{t("reservations.items.product", "Product")}</th><th>{t("reservations.items.city", "City")}</th><th>{t("reservations.items.price", "Price")}</th><th>{t("reservations.items.quantity", "Quantity")}</th>
                                   </tr>
                                 </thead>
                                 <tbody />
                               </table>
                             </div>
                           ) : (
-                            <div className="text-muted">Aucun item disponible.</div>
+                            <div className="text-muted">{t("reservations.items.empty", "No items available.")}</div>
                           )}
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-muted">Aucun detail disponible.</div>
+                    <div className="text-muted">{t("reservations.show.empty", "No details available.")}</div>
                   )}
                 </div>
 
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>
-                    Fermer
-                  </button>
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>{t("reservations.actions.close", "Close")}</button>
                 </div>
               </div>
             </div>

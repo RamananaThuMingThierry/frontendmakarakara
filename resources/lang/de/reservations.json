@@ -1,0 +1,61 @@
+﻿{
+  "title": "Reservierungsverfolgung",
+  "subtitle": "Verlauf reservierter, freigegebener und verbrauchter Produkte.",
+  "total": "Gesamt",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "loading": "Wird geladen...",
+  "empty": "Keine Reservierungen gefunden.",
+  "error": {
+    "load": "Reservierungen konnten nicht geladen werden.",
+    "details": "Reservierungsdetails konnten nicht geladen werden."
+  },
+  "status": {
+    "active": "Aktiv",
+    "released": "Freigegeben",
+    "consumed": "Verbraucht"
+  },
+  "source": {
+    "order": "Bestellung",
+    "cart": "Warenkorb",
+    "reservation": "Reservierung"
+  },
+  "table": {
+    "customer": "Kunde",
+    "product": "Produkt",
+    "city": "Stadt",
+    "quantity": "Menge",
+    "source": "Quelle",
+    "status": "Status",
+    "date": "Datum",
+    "actions": "Aktionen"
+  },
+  "show": {
+    "title": "Reservierungsdetails",
+    "loading": "Details werden geladen...",
+    "empty": "Keine Details verfügbar.",
+    "customer": "Kunde",
+    "product": "Produkt",
+    "city": "Stadt",
+    "quantity": "Menge",
+    "status": "Status",
+    "source": "Quelle",
+    "expiresAt": "Läuft ab am",
+    "reservedAt": "Reserviert am",
+    "releasedAt": "Freigegeben am",
+    "consumedAt": "Verbraucht am",
+    "reason": "Grund"
+  },
+  "items": {
+    "title": "Reservierungspositionen",
+    "empty": "Keine Positionen verfügbar.",
+    "product": "Produkt",
+    "city": "Stadt",
+    "price": "Preis",
+    "quantity": "Menge"
+  },
+  "actions": {
+    "view": "Ansehen",
+    "close": "Schließen"
+  }
+}

@@ -57,6 +57,8 @@ export default function SlidesPage() {
       const rows = Array.isArray(res) ? res : (res?.data ?? []);
       const sorted = [...rows].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
       setItems(sorted);
+    } catch (e) {
+      showToast("danger", e?.response?.data?.message || t("slides.errors.load", "Failed to load slides."));
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -356,6 +358,11 @@ export default function SlidesPage() {
               <tbody />
             </table>
           </div>
+          {!initialLoading && items.length === 0 ? (
+            <div className="alert alert-light border mt-3 mb-0">
+              {t("slides.empty", "No slides found.")}
+            </div>
+          ) : null}
         </div>
       </div>
 

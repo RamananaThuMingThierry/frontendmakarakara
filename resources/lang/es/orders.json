@@ -1,0 +1,83 @@
+﻿{
+  "title": "Gestión de pedidos",
+  "subtitle": "Seguimiento de pedidos de clientes y consulta de los artículos del pedido.",
+  "total": "Total",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "loading": "Cargando...",
+  "empty": "No se encontraron pedidos.",
+  "error": {
+    "load": "No se pudieron cargar los pedidos.",
+    "details": "No se pudo cargar el detalle del pedido.",
+    "action": "Acción no disponible para este pedido."
+  },
+  "table": {
+    "order": "Pedido",
+    "customer": "Cliente",
+    "items": "Artículos",
+    "quantity": "Cantidad",
+    "status": "Estado",
+    "orderStatus": "Pedido",
+    "paymentStatus": "Pago",
+    "total": "Total",
+    "date": "Fecha",
+    "actions": "Acciones"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "confirmed": "Confirmado",
+    "processing": "En proceso",
+    "delivered": "Entregado",
+    "cancelled": "Cancelado"
+  },
+  "paymentStatus": {
+    "unpaid": "No pagado",
+    "pending_verification": "Verificación",
+    "paid": "Pagado",
+    "refunded": "Reembolsado"
+  },
+  "show": {
+    "title": "Detalle del pedido",
+    "loading": "Cargando el detalle...",
+    "empty": "No hay detalles disponibles.",
+    "order": "Pedido",
+    "customer": "Cliente",
+    "address": "Dirección",
+    "openMaps": "Abrir en Google Maps",
+    "notes": "Notas",
+    "notesPlaceholder": "Añadir una nota interna a este pedido...",
+    "orderStatus": "Estado del pedido",
+    "paymentStatus": "Estado del pago",
+    "paymentMethod": "Método de pago",
+    "deliveryFee": "Gastos de envío",
+    "deliveryFeeHelp": "Este importe lo fija el administrador según la distancia de entrega. `0` significa entrega gratuita. La tarifa debe fijarse antes de la confirmación.",
+    "invoice": "Factura",
+    "receipt": "Recibo",
+    "receiptSentAt": "Recibo enviado el",
+    "subtotal": "Subtotal",
+    "discount": "Descuento",
+    "total": "Total",
+    "totalHelp": "El total incluye el gasto de envío definido para este pedido."
+  },
+  "items": {
+    "title": "Artículos del pedido",
+    "empty": "No hay artículos disponibles.",
+    "product": "Producto",
+    "sku": "SKU",
+    "quantity": "Cantidad",
+    "unitPrice": "Precio unitario",
+    "lineTotal": "Total de línea"
+  },
+  "actions": {
+    "view": "Ver",
+    "save": "Guardar",
+    "saveNote": "Guardar nota",
+    "confirm": "Confirmar",
+    "processing": "Poner en proceso",
+    "markPaid": "Marcar como pagado",
+    "sendReceipt": "Enviar recibo",
+    "deliver": "Entregar",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
+  }
+}

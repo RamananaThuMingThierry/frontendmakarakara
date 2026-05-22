@@ -1,54 +1,20 @@
-{
+﻿{
   "title": "Catégories",
-  "subtitle": "Gérer les catégories du shop",
-
+  "subtitle": "Gérer les catégories de la boutique",
   "refresh": "Actualiser",
   "refreshing": "Actualisation...",
   "new": "Nouvelle catégorie",
-
   "loading": "Chargement...",
-
-  "table": {
-    "index": "#",
-    "name": "Nom",
-    "slug": "Slug",
-    "status": "Statut",
-    "parent": "Parent",
-    "children": "Sous-catégories",
-    "actions": "Actions"
-  },
-
-  "modal": {
-    "createTitle": "Nouvelle catégorie",
-    "editTitle": "Modifier catégorie",
-    "name": "Nom",
-    "slug": "Slug",
-    "parent": "Parent",
-    "active": "Active",
-    "cancel": "Annuler",
-    "save": "Enregistrer",
-    "saving": "Enregistrement...",
-    "slugHelp": "Si vide, le backend peut le générer automatiquement.",
-    "parentHelp": "Optionnel. Permet de créer une sous-catégorie.",
-    "placeholderName": "Ex: Shoes",
-    "placeholderSlug": "Ex: shoes (optionnel)",
-    "noParent": "Aucun parent"
-  },
-
-  "delete": {
-    "title": "Confirmation",
-    "message": "Supprimer la catégorie",
-    "message2": "Supprimer cette catégorie ?",
-    "btn": "Supprimer",
-    "deleting": "Suppression..."
-  },
-
-  "toast": {
-    "created": "Catégorie créée.",
-    "updated": "Catégorie mise à jour.",
-    "deleted": "Catégorie supprimée avec succès.",
-    "saveFailed": "Enregistrement échoué",
-    "deleteFailed": "Suppression échouée.",
-    "nameRequired": "Le nom est obligatoire."
-  }
+  "empty": "Aucune catégorie trouvée.",
+  "active": "Active",
+  "inactive": "Inactive",
+  "subcats": "Sous-catégories",
+  "products": "Produits",
+  "btn": { "view": "Gérer", "edit": "Modifier", "delete": "Supprimer" },
+  "table": { "index": "#", "name": "Nom", "slug": "Slug", "status": "Statut", "parent": "Parent", "children": "Sous-catégories", "actions": "Actions" },
+  "modal": { "createTitle": "Nouvelle catégorie", "editTitle": "Modifier la catégorie", "name": "Nom", "slug": "Slug", "parent": "Parent", "active": "Active", "cancel": "Annuler", "save": "Enregistrer", "saving": "Enregistrement...", "slugHelp": "Si vide, le backend peut le générer automatiquement.", "parentHelp": "Optionnel. Permet de créer une sous-catégorie.", "placeholderName": "Ex. : Chaussures", "placeholderSlug": "Ex. : chaussures (optionnel)", "noParent": "Aucun parent" },
+  "delete": { "title": "Confirmation", "message": "Supprimer la catégorie", "message2": "Supprimer cette catégorie ?", "btn": "Supprimer", "deleting": "Suppression..." },
+  "toast": { "loadFailed": "Échec du chargement.", "created": "Catégorie créée.", "updated": "Catégorie mise à jour.", "deleted": "Catégorie supprimée avec succès.", "saveFailed": "Échec de l'enregistrement.", "deleteFailed": "Échec de la suppression.", "nameRequired": "Le nom est obligatoire." },
+  "edit": { "title": "Modifier la catégorie", "loadFailed": "Échec du chargement.", "saveFailed": "Échec de l'enregistrement.", "parentFixed": "Le parent est fixé depuis cette page" },
+  "manage": { "title": "Détail catégorie", "subtitle": "Arbre + produits", "loadFailed": "Échec du chargement.", "productDetails": "Détails", "noProducts": "Aucun produit.", "noSubcategories": "Aucune sous-catégorie.", "addSubcategory": "Ajouter une sous-catégorie", "addProduct": "Ajouter un produit", "directSubcategories": "Sous-catégories directes", "directProducts": "Produits directs", "treeTitle": "Arbre catégories", "createSubcategory": "Ajouter une sous-catégorie", "parentAuto": "Le parent est défini automatiquement.", "subcategoryPlaceholder": "Ex. : Huile", "createFailed": "Création échouée.", "deleteWarning": "Attention: la suppression peut échouer si la catégorie contient des sous-catégories ou des produits." }
 }

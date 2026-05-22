@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { changePassword, getAccount, resendVerificationEmail, updateAccount } from "../../../api/account";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
 import { useAuth } from "../../../hooks/website/AuthContext";
+import { useI18n } from "../../../hooks/website/I18nContext";
 
 function buildAvatarUrl(path) {
   if (!path) return null;
@@ -17,6 +19,7 @@ function buildAvatarUrl(path) {
 
 export default function AdminAccountPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { user, replaceAuthUser, logoutAdmin } = useAuth();
 
   const [account, setAccount] = useState(user || null);
@@ -67,7 +70,7 @@ export default function AdminAccountPage() {
         replaceAuthUser(nextUser);
       } catch (error) {
         if (cancelled) return;
-        setLoadError(error?.response?.data?.message || "Impossible de charger le compte.");
+        setLoadError(error?.response?.data?.message || t("account.errors.load", "Unable to load the account."));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -122,11 +125,11 @@ export default function AdminAccountPage() {
       setAccount(nextUser);
       replaceAuthUser(nextUser);
       setProfileForm((prev) => ({ ...prev, avatar: null }));
-      setProfileMessage(data?.message || "Informations mises a jour.");
+      setProfileMessage(data?.message || t("account.toast.profileUpdated", "Information updated."));
     } catch (error) {
       setProfileStatus("danger");
       setProfileErrors(error?.response?.data?.errors || {});
-      setProfileMessage(error?.response?.data?.message || "Mise a jour impossible.");
+      setProfileMessage(error?.response?.data?.message || t("account.toast.profileUpdateFailed", "Update failed."));
     } finally {
       setProfileLoading(false);
     }
@@ -146,18 +149,18 @@ export default function AdminAccountPage() {
         password: "",
         password_confirmation: "",
       });
-      setPasswordMessage(data?.message || "Mot de passe modifie.");
+      setPasswordMessage(data?.message || t("account.toast.passwordUpdated", "Password updated."));
       await logoutAdmin();
       navigate("/login", {
         replace: true,
         state: {
-          message: data?.message || "Mot de passe modifie. Veuillez vous reconnecter.",
+          message: data?.message || t("account.toast.passwordReconnect", "Password updated. Please sign in again."),
         },
       });
     } catch (error) {
       setPasswordStatus("danger");
       setPasswordErrors(error?.response?.data?.errors || {});
-      setPasswordMessage(error?.response?.data?.message || "Modification impossible.");
+      setPasswordMessage(error?.response?.data?.message || t("account.toast.passwordUpdateFailed", "Password update failed."));
     } finally {
       setPasswordLoading(false);
     }
@@ -171,11 +174,11 @@ export default function AdminAccountPage() {
     try {
       const data = await resendVerificationEmail();
       setVerificationStatus(data?.verified ? "success" : "info");
-      setVerificationMessage(data?.message || "Email de verification envoyé.");
+      setVerificationMessage(data?.message || t("account.toast.verificationSent", "Verification email sent."));
     } catch (error) {
       setVerificationStatus("danger");
       setVerificationMessage(
-        error?.response?.data?.message || "Envoi de l'email de vérification impossible."
+        error?.response?.data?.message || t("account.toast.verificationFailed", "Unable to send the verification email.")
       );
     } finally {
       setVerificationLoading(false);
@@ -186,8 +189,8 @@ export default function AdminAccountPage() {
     <section className="admin-account-page">
       <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
         <div>
-          <h1 className="h3 fw-bold mb-1">Mon compte</h1>
-          <p className="text-muted mb-0">Consultez et mettez a jour vos informations personnelles.</p>
+          <h1 className="h3 fw-bold mb-1">{t("account.title", "My account")}</h1>
+          <p className="text-muted mb-0">{t("account.subtitle", "View and update your personal information.")}</p>
         </div>
       </div>
 
@@ -197,7 +200,7 @@ export default function AdminAccountPage() {
         <div className="card border-0 shadow-sm">
           <div className="card-body py-5 text-center">
             <div className="spinner-border spinner-border-sm me-2" />
-            Chargement du compte...
+            {t("account.loading", "Loading account...")}
           </div>
         </div>
       ) : (
@@ -208,15 +211,15 @@ export default function AdminAccountPage() {
                 <div className="admin-account-hero mb-4">
                   <div className="admin-account-avatar">
                     {avatarPreview ? (
-                      <img src={avatarPreview} alt={account?.name || "Avatar"} />
+                      <img src={avatarPreview} alt={account?.name || t("account.profile.avatarAlt", "Avatar")} />
                     ) : (
                       <span>{(account?.name || "A").charAt(0).toUpperCase()}</span>
                     )}
                   </div>
 
                   <div>
-                    <h2 className="h5 fw-bold mb-1">{account?.name || "Administrateur"}</h2>
-                    <p className="text-muted mb-2">{account?.email || "Email non disponible"}</p>
+                    <h2 className="h5 fw-bold mb-1">{account?.name || t("account.summary.adminFallback", "Administrator")}</h2>
+                    <p className="text-muted mb-2">{account?.email || t("account.summary.emailUnavailable", "Email unavailable")}</p>
                     <div className="d-flex flex-wrap gap-2">
                       {(roles.length ? roles : ["admin"]).map((role) => (
                         <span key={role} className="badge rounded-pill text-bg-warning">
@@ -229,23 +232,21 @@ export default function AdminAccountPage() {
 
                 <div className="admin-account-meta">
                   <div className="admin-account-meta-item">
-                    <span className="text-muted">Téléphone</span>
-                    <strong>{account?.phone || "Non renseigné"}</strong>
+                    <span className="text-muted">{t("account.summary.phone", "Phone")}</span>
+                    <strong>{account?.phone || t("account.summary.notProvided", "Not provided")}</strong>
                   </div>
                   <div className="admin-account-meta-item">
-                    <span className="text-muted">Vérification email</span>
+                    <span className="text-muted">{t("account.summary.emailVerification", "Email verification")}</span>
                     <strong className={account?.email_verified_at ? "text-success" : "text-warning"}>
-                      {account?.email_verified_at ? "Vérifié" : "En attente"}
+                      {account?.email_verified_at ? t("account.status.verified", "Verified") : t("account.status.pending", "Pending")}
                     </strong>
                   </div>
                 </div>
 
                 {!account?.email_verified_at ? (
                   <div className="alert alert-warning mt-4 mb-0">
-                    <div className="fw-semibold mb-1">Email non vérifié</div>
-                    <div className="small mb-3">
-                      Envoyez un nouvel email de vérification pour valider cette adresse.
-                    </div>
+                    <div className="fw-semibold mb-1">{t("account.verification.title", "Email not verified")}</div>
+                    <div className="small mb-3">{t("account.verification.text", "Send a new verification email to validate this address.")}</div>
                     {verificationMessage ? (
                       <div className={`alert alert-${verificationStatus} py-2 mb-3`}>
                         {verificationMessage}
@@ -257,13 +258,13 @@ export default function AdminAccountPage() {
                       onClick={handleResendVerification}
                       disabled={verificationLoading}
                     >
-                      {verificationLoading ? "Envoi..." : "Verifier l'email"}
+                      {verificationLoading ? t("account.verification.sending", "Sending...") : t("account.verification.button", "Verify email")}
                     </button>
                   </div>
                 ) : null}
 
                 <div className="alert alert-light border mb-0 mt-4">
-                  Si vous changez votre adresse email, une nouvelle vérification sera demandée.
+                  {t("account.verification.notice", "If you change your email address, a new verification will be required.")}
                 </div>
               </div>
             </div>
@@ -273,19 +274,19 @@ export default function AdminAccountPage() {
             <div className="card border-0 shadow-sm mb-4">
               <div className="card-body p-4">
                 <div className="mb-3">
-                  <h2 className="h5 fw-bold mb-1">Informations utilisateur</h2>
-                  <p className="text-muted mb-0">Modifiez votre profil admin sans quitter le tableau de bord.</p>
+                  <h2 className="h5 fw-bold mb-1">{t("account.profile.title", "User information")}</h2>
+                  <p className="text-muted mb-0">{t("account.profile.subtitle", "Edit your admin profile without leaving the dashboard.")}</p>
                 </div>
 
                 {profileMessage ? <div className={`alert alert-${profileStatus} py-2`}>{profileMessage}</div> : null}
 
                 <form onSubmit={handleProfileSubmit} className="row g-3">
                   <div className="col-12">
-                    <label className="form-label">Photo de profil</label>
-                    <input
-                      type="file"
-                      className={`form-control ${profileErrors.avatar ? "is-invalid" : ""}`}
+                    <label className="form-label">{t("account.profile.avatar", "Profile picture")}</label>
+                    <TranslatedFileInput
                       accept=".jpg,.jpeg,.png"
+                      error={profileErrors.avatar?.[0] || ""}
+                      selectedText={profileForm.avatar?.name || ""}
                       onChange={(e) =>
                         setProfileForm((prev) => ({
                           ...prev,
@@ -293,11 +294,10 @@ export default function AdminAccountPage() {
                         }))
                       }
                     />
-                    {profileErrors.avatar ? <div className="invalid-feedback">{profileErrors.avatar[0]}</div> : null}
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Nom complet</label>
+                    <label className="form-label">{t("account.profile.name", "Full name")}</label>
                     <input
                       className={`form-control ${profileErrors.name ? "is-invalid" : ""}`}
                       value={profileForm.name}
@@ -307,7 +307,7 @@ export default function AdminAccountPage() {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Adresse email</label>
+                    <label className="form-label">{t("account.profile.email", "Email address")}</label>
                     <input
                       type="email"
                       className={`form-control ${profileErrors.email ? "is-invalid" : ""}`}
@@ -318,7 +318,7 @@ export default function AdminAccountPage() {
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label">Téléphone</label>
+                    <label className="form-label">{t("account.profile.phone", "Phone")}</label>
                     <input
                       className={`form-control ${profileErrors.phone ? "is-invalid" : ""}`}
                       value={profileForm.phone}
@@ -333,10 +333,10 @@ export default function AdminAccountPage() {
                       {profileLoading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Enregistrement...
+                          {t("account.actions.saving", "Saving...")}
                         </>
                       ) : (
-                        "Enregistrer les modifications"
+                        t("account.actions.saveChanges", "Save changes")
                       )}
                     </button>
                   </div>
@@ -347,17 +347,15 @@ export default function AdminAccountPage() {
             <div className="card border-0 shadow-sm">
               <div className="card-body p-4">
                 <div className="mb-3">
-                  <h2 className="h5 fw-bold mb-1">Changer le mot de passe</h2>
-                  <p className="text-muted mb-0">
-                    Pour des raisons de sécurité, vous serez déconnecté après la modification.
-                  </p>
+                  <h2 className="h5 fw-bold mb-1">{t("account.password.title", "Change password")}</h2>
+                  <p className="text-muted mb-0">{t("account.password.subtitle", "For security reasons, you will be signed out after the change.")}</p>
                 </div>
 
                 {passwordMessage ? <div className={`alert alert-${passwordStatus} py-2`}>{passwordMessage}</div> : null}
 
                 <form onSubmit={handlePasswordSubmit} className="row g-3">
                   <div className="col-12">
-                    <label className="form-label">Mot de passe actuel</label>
+                    <label className="form-label">{t("account.password.current", "Current password")}</label>
                     <input
                       type="password"
                       className={`form-control ${passwordErrors.current_password ? "is-invalid" : ""}`}
@@ -370,7 +368,7 @@ export default function AdminAccountPage() {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Nouveau mot de passe</label>
+                    <label className="form-label">{t("account.password.new", "New password")}</label>
                     <input
                       type="password"
                       className={`form-control ${passwordErrors.password ? "is-invalid" : ""}`}
@@ -381,7 +379,7 @@ export default function AdminAccountPage() {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Confirmation</label>
+                    <label className="form-label">{t("account.password.confirmation", "Confirmation")}</label>
                     <input
                       type="password"
                       className="form-control"
@@ -400,10 +398,10 @@ export default function AdminAccountPage() {
                       {passwordLoading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Modification...
+                          {t("account.actions.updating", "Updating...")}
                         </>
                       ) : (
-                        "Changer le mot de passe"
+                        t("account.actions.changePassword", "Change password")
                       )}
                     </button>
                   </div>

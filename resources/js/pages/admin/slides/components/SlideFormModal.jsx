@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-
+import TranslatedFileInput from "../../../../Components/common/TranslatedFileInput";
+import { useI18n } from "../../../../hooks/website/I18nContext";
 
 export default function SlideFormModal({ open, initial, loading, onClose, onSubmit }) {
+  const { t } = useI18n();
   const isEdit = !!initial?.id;
 
   const [title, setTitle] = useState("");
@@ -10,8 +12,7 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
   const [isActive, setIsActive] = useState(true);
 
   const [file, setFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState(""); // pour edit
-
+  const [imageUrl, setImageUrl] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -25,20 +26,19 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
     setImageUrl(initial?.image_url ?? "");
   }, [open, initial]);
 
-    const logoUrl = (logo) => {
+  const logoUrl = (logo) => {
     if (!logo) return "";
-        const s = String(logo).trim();
-        if (s.startsWith("http")) return s;
-        if (s.startsWith("/")) return s;
-        return `/${s}`;
-    };
+    const s = String(logo).trim();
+    if (s.startsWith("http")) return s;
+    if (s.startsWith("/")) return s;
+    return `/${s}`;
+  };
 
   const preview = useMemo(() => {
     if (file) return URL.createObjectURL(file);
     return logoUrl(imageUrl) || "";
   }, [file, imageUrl]);
 
-  // évite fuite mémoire objectURL
   useEffect(() => {
     if (!file) return;
     const url = URL.createObjectURL(file);
@@ -48,36 +48,31 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
   if (!open) return null;
 
   function buildPayload() {
-    // ✅ Upload image via FormData (recommandé)
     const fd = new FormData();
     fd.append("title", title);
     fd.append("subtitle", subtitle);
     fd.append("position", String(position));
     fd.append("is_active", isActive ? "1" : "0");
 
-    // si create => image obligatoire
-    // si edit => image optionnelle (si ton backend le permet)
     if (file) fd.append("image_url", file);
 
-    // Beaucoup de backends Laravel utilisent POST + _method=PUT/PATCH.
-    // Mais toi tu fais POST /admin/slides/:id, donc pas besoin.
     return fd;
   }
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        setErrors({});
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setErrors({});
 
-        try {
-            await onSubmit(buildPayload());
-        } catch (err) {
-            if (err?.response?.status === 422) {
-            setErrors(err.response.data.errors || {});
-            } else {
-            console.error(err);
-            }
-        }
+    try {
+      await onSubmit(buildPayload());
+    } catch (err) {
+      if (err?.response?.status === 422) {
+        setErrors(err.response.data.errors || {});
+      } else {
+        console.error(err);
+      }
     }
+  }
 
   return (
     <>
@@ -85,7 +80,9 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content border-0 shadow">
             <div className="modal-header">
-              <h5 className="modal-title">{isEdit ? "Modifier le slide" : "Nouveau slide"}</h5>
+              <h5 className="modal-title">
+                {isEdit ? t("slides.form.editTitle", "Edit slide") : t("slides.form.createTitle", "New slide")}
+              </h5>
               <button type="button" className="btn-close" onClick={onClose} disabled={loading} />
             </div>
 
@@ -93,49 +90,35 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
               <div className="modal-body">
                 <div className="row g-3">
                   <div className="col-md-7">
-                    <label className="form-label">Titre</label>
-                        <input
-                        className={`form-control ${errors.title ? "is-invalid" : ""}`}
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        />
+                    <label className="form-label">{t("slides.form.fieldTitle", "Title")}</label>
+                    <input
+                      className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    {errors.title && <div className="invalid-feedback">{errors.title[0]}</div>}
 
-                        {errors.title && (
-                        <div className="invalid-feedback">
-                            {errors.title[0]}
-                        </div>
-                        )}
-
-                    <label className="form-label mt-3">Sous-titre</label>
+                    <label className="form-label mt-3">{t("slides.form.fieldSubtitle", "Subtitle")}</label>
                     <input
                       className={`form-control ${errors.subtitle ? "is-invalid" : ""}`}
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
-                      placeholder="Sous-titre (optionnel)"
+                      placeholder={t("slides.form.subtitlePlaceholder", "Subtitle (optional)")}
                     />
-
-                    {errors.subtitle && (
-                      <div className="invalid-feedback">
-                        {errors.subtitle[0]}
-                      </div>
-                    )}
+                    {errors.subtitle && <div className="invalid-feedback">{errors.subtitle[0]}</div>}
 
                     <div className="row g-2 mt-3">
                       <div className="col-6">
-                        <label className="form-label">Position</label>
-<input
-  type="number"
-  className={`form-control ${errors.position ? "is-invalid" : ""}`}
-  value={position}
-  onChange={(e) => setPosition(Number(e.target.value))}
-/>
-
-{errors.position && (
-  <div className="invalid-feedback">
-    {errors.position[0]}
-  </div>
-)}
+                        <label className="form-label">{t("slides.form.fieldPosition", "Position")}</label>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.position ? "is-invalid" : ""}`}
+                          value={position}
+                          onChange={(e) => setPosition(Number(e.target.value))}
+                        />
+                        {errors.position && <div className="invalid-feedback">{errors.position[0]}</div>}
                       </div>
+
                       <div className="col-6 d-flex align-items-end">
                         <div className="form-check">
                           <input
@@ -146,36 +129,33 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
                             id="isActive"
                           />
                           <label className="form-check-label" htmlFor="isActive">
-                            Actif
+                            {t("slides.form.fieldActive", "Active")}
                           </label>
                         </div>
                       </div>
                     </div>
 
                     <label className="form-label mt-3">
-                      Image {isEdit ? "(optionnel si tu veux remplacer)" : "(obligatoire)"}
+                      {t("slides.form.fieldImage", "Image")}{" "}
+                      {isEdit
+                        ? t("slides.form.imageOptional", "(optional if you want to replace it)")
+                        : t("slides.form.imageRequiredLabel", "(required)")}
                     </label>
-<input
-  className={`form-control ${errors.image_url ? "is-invalid" : ""}`}
-  type="file"
-  accept="image/*"
-  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-/>
-
-{errors.image_url && (
-  <div className="invalid-feedback">
-    {errors.image_url[0]}
-  </div>
-)}
+                    <TranslatedFileInput
+                      accept="image/*"
+                      error={errors.image_url?.[0] || ""}
+                      selectedText={file?.name || ""}
+                      onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                    />
 
                     <div className="form-text">
-                      Astuce : utilise une image large (ex: 1600×600) pour un rendu propre.
+                      {t("slides.form.imageHint", "Tip: use a wide image (e.g. 1600x600).")}
                     </div>
                   </div>
 
                   <div className="col-md-5">
                     <div className="border rounded-3 p-2">
-                      <div className="small text-muted mb-2">Aperçu</div>
+                      <div className="small text-muted mb-2">{t("slides.form.preview", "Preview")}</div>
                       {preview ? (
                         <img
                           src={preview}
@@ -187,7 +167,7 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
                           className="d-flex align-items-center justify-content-center text-muted"
                           style={{ height: 220 }}
                         >
-                          Pas d'image
+                          {t("slides.form.noImage", "No image")}
                         </div>
                       )}
                     </div>
@@ -197,18 +177,20 @@ export default function SlideFormModal({ open, initial, loading, onClose, onSubm
 
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline-secondary" onClick={onClose} disabled={loading}>
-                  Annuler
+                  {t("slides.buttons.cancel", "Cancel")}
                 </button>
                 <button type="submit" className="btn btn-warning" disabled={loading}>
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" />
-                      Enregistrement...
+                      {isEdit
+                        ? t("slides.form.updating", "Updating...")
+                        : t("slides.form.creating", "Creating...")}
                     </>
                   ) : isEdit ? (
-                    "Mettre à jour"
+                    t("slides.form.update", "Update")
                   ) : (
-                    "Créer"
+                    t("slides.form.create", "Create")
                   )}
                 </button>
               </div>

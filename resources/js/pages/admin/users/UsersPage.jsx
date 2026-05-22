@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usersApi } from "../../../api/user";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
 import $ from "jquery";
@@ -14,50 +15,41 @@ export default function UsersPage() {
   const [availableRoles, setAvailableRoles] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    status: "active",
+    role: "",
+    avatar: null,
+    password: "",
+    password_confirmation: "",
+    role_ids: [],
+  });
+
+  const tableRef = useRef(null);
+  const dtRef = useRef(null);
+  const itemsRef = useRef(items);
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   function showToast(type, message) {
     setToast({ open: true, type, message });
     window.clearTimeout(showToast._t);
     showToast._t = window.setTimeout(() => setToast((x) => ({ ...x, open: false })), 3500);
   }
-
-  // modal create/edit
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [globalError, setGlobalError] = useState("");
-
-  // delete modal
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const [avatarPreview, setAvatarPreview] = useState("");
-
-  // form (adapte aux champs de ton backend)
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    status: "active", // ou boolean selon ton API
-    role: "",
-    avatar: null,       // ✅ File
-    password: "",
-    password_confirmation: "",
-    role_ids: [], // si tu gères l’assignation de rôles côté API
-  });
-
-  const tableRef = useRef(null);
-  const dtRef = useRef(null);
-
-  // items ref pour handlers jquery
-  const itemsRef = useRef(items);
-  useEffect(() => {
-    itemsRef.current = items;
-  }, [items]);
 
   async function load({ mode = "refresh" } = {}) {
     if (mode === "initial") setInitialLoading(true);
@@ -69,6 +61,8 @@ export default function UsersPage() {
       const roles = Array.isArray(res?.roles) ? res.roles : [];
       setItems(list);
       setAvailableRoles(roles);
+    } catch (e) {
+      showToast("danger", e?.response?.data?.message || t("users.toast.loadFailed", "Load failed."));
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -79,43 +73,41 @@ export default function UsersPage() {
     load({ mode: "initial" });
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (avatarPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
+
   function openCreate() {
     const defaultRole = availableRoles[0]?.name ?? "";
     setEditing(null);
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      status: "active",
-      role: defaultRole,
-      avatar: null,
-      password: "",
-      password_confirmation: "",
-      role_ids: [],
-    });
+    setForm({ name: "", email: "", phone: "", status: "active", role: defaultRole, avatar: null, password: "", password_confirmation: "", role_ids: [] });
     setAvatarPreview("");
     setErrors({});
     setGlobalError("");
     setOpen(true);
   }
 
-function openEdit(u) {
-  setEditing(u);
-  setForm({
-    name: u.name ?? "",
-    email: u.email ?? "",
-    phone: u.phone ?? "",
-    status: u.status ?? "active",
-    role: (u.roles?.[0]?.name) || availableRoles[0]?.name || "",
-    avatar: null, // on ne met pas le fichier ici
-    password: "",
-    password_confirmation: "",
-  });
-
-  setAvatarPreview(u.avatar_url ?? ""); // si dispo
-  setOpen(true);
-}
-
+  function openEdit(u) {
+    setEditing(u);
+    setForm({
+      name: u.name ?? "",
+      email: u.email ?? "",
+      phone: u.phone ?? "",
+      status: u.status ?? "active",
+      role: u.roles?.[0]?.name || availableRoles[0]?.name || "",
+      avatar: null,
+      password: "",
+      password_confirmation: "",
+    });
+    setAvatarPreview(u.avatar_url ?? "");
+    setErrors({});
+    setGlobalError("");
+    setOpen(true);
+  }
 
   function closeModal() {
     if (saving) return;
@@ -133,11 +125,8 @@ function openEdit(u) {
     setDeleteTarget(null);
   }
 
-  // ✅ Init / Reinit DataTable quand langue change
   useEffect(() => {
-    if (initialLoading) return;
-    if (!tableRef.current) return;
-
+    if (initialLoading || !tableRef.current) return;
     const $table = $(tableRef.current);
 
     if (dtRef.current) {
@@ -167,15 +156,12 @@ function openEdit(u) {
           render: (roles) => {
             const arr = Array.isArray(roles) ? roles : [];
             if (!arr.length) return "-";
-            return arr
-              .map((r) => `<span class="badge text-bg-dark me-1">${(r?.name ?? "").toString()}</span>`)
-              .join("");
+            return arr.map((r) => `<span class="badge text-bg-dark me-1">${(r?.name ?? "").toString()}</span>`).join("");
           },
         },
         {
           data: "status",
           render: (v) => {
-            // adapte selon ton backend: "active"/"inactive" ou 1/0 etc.
             const active = v === "active" || v === 1 || v === true || v === "1";
             return active
               ? `<span class="badge text-bg-success">${t("users.status.active", "Active")}</span>`
@@ -218,21 +204,17 @@ function openEdit(u) {
       dtRef.current?.destroy(true);
       dtRef.current = null;
     };
-  }, [initialLoading, DT_LANG_URL]);
+  }, [initialLoading, DT_LANG_URL, t]);
 
-  // ✅ Update rows quand items change
   useEffect(() => {
     if (!dtRef.current) return;
     const dt = dtRef.current;
-
     const page = dt.page();
     const search = dt.search();
     const order = dt.order();
-
     dt.clear();
     dt.rows.add(items);
     dt.draw(false);
-
     dt.order(order).draw(false);
     dt.search(search).draw(false);
     dt.page(page).draw(false);
@@ -252,34 +234,20 @@ function openEdit(u) {
       return;
     }
 
-    // payload (adapte selon ton API)
-    const payload = {
-      name: form.name,
-      email: form.email,
-      phone: form.phone || null,
-      status: form.status,
-        role: form.role,
-    };
-
-if (form.avatar) payload.avatar = form.avatar; // ✅ File
-
-if (!editing || form.password) {
-  payload.password = form.password;
-  payload.password_confirmation = form.password_confirmation;
-}
+    const payload = { name: form.name, email: form.email, phone: form.phone || null, status: form.status, role: form.role };
+    if (form.avatar) payload.avatar = form.avatar;
+    if (!editing || form.password) {
+      payload.password = form.password;
+      payload.password_confirmation = form.password_confirmation;
+    }
 
     setSaving(true);
     try {
       if (editing) await usersApi.update(editing.id, payload);
       else await usersApi.create(payload);
-
       await load({ mode: "refresh" });
       setOpen(false);
-
-      showToast(
-        "success",
-        editing ? t("users.toast.updated", "Updated.") : t("users.toast.created", "Created.")
-      );
+      showToast("success", editing ? t("users.toast.updated", "Updated.") : t("users.toast.created", "Created."));
     } catch (e2) {
       const data = e2?.response?.data;
       if (data?.errors) setErrors(data.errors);
@@ -291,7 +259,6 @@ if (!editing || form.password) {
 
   async function confirmDelete() {
     if (!deleteTarget || deleting) return;
-
     setDeleting(true);
     try {
       await usersApi.remove(deleteTarget.id);
@@ -314,277 +281,21 @@ if (!editing || form.password) {
           <h4 className="mb-1">{t("users.title", "Users")}</h4>
           <div className="text-muted small">{t("users.subtitle", "Manage users")}</div>
         </div>
-
         <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => load({ mode: "refresh" })}
-            disabled={initialLoading || refreshing}
-          >
-            {initialLoading || refreshing ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                {t("users.refreshing", "Refreshing...")}
-              </>
-            ) : (
-              <>
-                <i className="bi bi-arrow-clockwise me-2" />
-                {t("users.refresh", "Refresh")}
-              </>
-            )}
+          <button className="btn btn-outline-secondary" onClick={() => load({ mode: "refresh" })} disabled={initialLoading || refreshing}>
+            {initialLoading || refreshing ? <><span className="spinner-border spinner-border-sm me-2" />{t("users.refreshing", "Refreshing...")}</> : <><i className="bi bi-arrow-clockwise me-2" />{t("users.refresh", "Refresh")}</>}
           </button>
-
-          <button className="btn btn-warning" onClick={openCreate} disabled={initialLoading}>
-            <i className="bi bi-plus-lg me-2" />
-            {t("users.new", "New user")}
-          </button>
+          <button className="btn btn-warning" onClick={openCreate} disabled={initialLoading}><i className="bi bi-plus-lg me-2" />{t("users.new", "New user")}</button>
         </div>
       </div>
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          {initialLoading ? (
-            <div className="d-flex align-items-center gap-2 text-muted mb-3">
-              <div className="spinner-border spinner-border-sm" />
-              {t("users.loading", "Loading...")}
-            </div>
-          ) : null}
+      <div className="card border-0 shadow-sm"><div className="card-body">{initialLoading ? <div className="d-flex align-items-center gap-2 text-muted mb-3"><div className="spinner-border spinner-border-sm" />{t("users.loading", "Loading...")}</div> : null}<div className="table-responsive"><table ref={tableRef} className="table align-middle mb-0"><thead><tr className="text-muted small"><th>{t("users.table.name", "Name")}</th><th>{t("users.table.email", "Email")}</th><th>{t("users.table.phone", "Phone")}</th><th>{t("users.table.roles", "Roles")}</th><th>{t("users.table.status", "Status")}</th><th style={{ width: 180 }} className="text-end">{t("users.table.actions", "Actions")}</th></tr></thead><tbody /></table></div>{!initialLoading && items.length === 0 ? <div className="alert alert-light border mt-3 mb-0">{t("users.empty", "No users found.")}</div> : null}</div></div>
 
-          <div className="table-responsive">
-            <table ref={tableRef} className="table align-middle mb-0">
-              <thead>
-                <tr className="text-muted small">
-                  <th>{t("users.table.name", "Name")}</th>
-                  <th>{t("users.table.email", "Email")}</th>
-                  <th>{t("users.table.phone", "Phone")}</th>
-                  <th>{t("users.table.roles", "Roles")}</th>
-                  <th>{t("users.table.status", "Status")}</th>
-                  <th style={{ width: 180 }} className="text-end">
-                    {t("users.table.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody />
-            </table>
-          </div>
-        </div>
-      </div>
+      {open && <><div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true"><div className="modal-dialog modal-dialog-centered"><div className="modal-content border-0 shadow"><div className="modal-header"><h5 className="modal-title">{editing ? t("users.modal.editTitle", "Edit user") : t("users.modal.createTitle", "Create user")}</h5><button type="button" className="btn-close" onClick={closeModal} /></div><form onSubmit={onSubmit}><div className="modal-body">{globalError && <div className="alert alert-danger py-2">{globalError}</div>}<div className="mb-3"><label className="form-label">{t("users.modal.avatar", "Avatar")}</label><TranslatedFileInput accept="image/*" error={errors.avatar?.[0] || ""} selectedText={form.avatar?.name || ""} onChange={(e) => { const file = e.target.files?.[0] || null; setForm((p) => ({ ...p, avatar: file })); if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview); if (file) setAvatarPreview(URL.createObjectURL(file)); }} />{avatarPreview ? <div className="mt-2"><img src={avatarPreview} alt={t("users.modal.avatar", "Avatar")} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 12 }} /></div> : null}</div><div className="mb-3"><label className="form-label">{t("users.modal.name", "Name")}</label><input className={`form-control ${errors.name ? "is-invalid" : ""}`} value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />{errors.name && <span className="text-danger small">{errors.name[0]}</span>}</div><div className="mb-3"><label className="form-label">{t("users.modal.email", "Email")}</label><input className={`form-control ${errors.email ? "is-invalid" : ""}`} value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} />{errors.email && <span className="text-danger small">{errors.email[0]}</span>}</div><div className="mb-3"><label className="form-label">{t("users.modal.phone", "Phone")}</label><input className="form-control" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} /></div><div className="mb-3"><label className="form-label">{t("users.modal.status", "Status")}</label><select className="form-select" value={form.status ?? "active"} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}><option value="active">{t("users.status.active", "Active")}</option><option value="inactive">{t("users.status.inactive", "Inactive")}</option></select></div><div className="mb-3"><label className="form-label">{t("users.modal.password", "Password")}{editing ? <span className="text-muted small ms-2">({t("users.modal.passwordOptional", "optional")})</span> : null}</label><input type="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} />{errors.password && <span className="text-danger small">{errors.password[0]}</span>}</div><div className="mb-3"><label className="form-label">{t("users.modal.passwordConfirm", "Confirm password")}</label><input type="password" className="form-control" value={form.password_confirmation} onChange={(e) => setForm((p) => ({ ...p, password_confirmation: e.target.value }))} /></div><div className="mb-3"><label className="form-label">{t("users.modal.role", "Role")}</label><select className={`form-select ${errors.role ? "is-invalid" : ""}`} value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}><option value="" disabled>{t("users.modal.rolePlaceholder", "Select a role")}</option>{availableRoles.map((role) => <option key={role.id ?? role.name} value={role.name}>{role.name}</option>)}</select>{errors.role && <span className="text-danger small">{errors.role[0]}</span>}</div></div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>{t("users.modal.cancel", "Cancel")}</button><button className="btn btn-warning" disabled={saving}>{saving ? <><span className="spinner-border spinner-border-sm me-2" />{t("users.modal.saving", "Saving...")}</> : t("users.modal.save", "Save")}</button></div></form></div></div></div><div className="modal-backdrop fade show" onClick={closeModal} /></>}
 
-      {/* Modal create/edit */}
-      {open && (
-        <>
-          <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content border-0 shadow">
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    {editing ? t("users.modal.editTitle", "Edit user") : t("users.modal.createTitle", "Create user")}
-                  </h5>
-                  <button type="button" className="btn-close" onClick={closeModal} />
-                </div>
+      {deleteOpen && <><div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true"><div className="modal-dialog modal-dialog-centered"><div className="modal-content border-0 shadow"><div className="modal-header"><h5 className="modal-title">{t("users.delete.title", "Confirm")}</h5><button type="button" className="btn-close" onClick={closeDeleteModal} /></div><div className="modal-body">{deleteTarget ? <p className="mb-0">{t("users.delete.message", "Delete user")} <b>{deleteTarget.name}</b> ?</p> : <p className="mb-0">{t("users.delete.message2", "Delete this user?")}</p>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={closeDeleteModal} disabled={deleting}>{t("users.modal.cancel", "Cancel")}</button><button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>{deleting ? <><span className="spinner-border spinner-border-sm me-2" />{t("users.delete.deleting", "Deleting...")}</> : t("users.delete.btn", "Delete")}</button></div></div></div></div><div className="modal-backdrop fade show" onClick={closeDeleteModal} /></>}
 
-                <form onSubmit={onSubmit}>
-                  <div className="modal-body">
-                    {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
-<div className="mb-3">
-  <label className="form-label">{t("users.modal.avatar", "Avatar")}</label>
-
-  <input
-    type="file"
-    className={`form-control ${errors.avatar ? "is-invalid" : ""}`}
-    accept="image/*"
-    onChange={(e) => {
-      const file = e.target.files?.[0] || null;
-      setForm((p) => ({ ...p, avatar: file }));
-
-      if (file) setAvatarPreview(URL.createObjectURL(file));
-    }}
-  />
-
-  {errors.avatar && <span className="text-danger small">{errors.avatar[0]}</span>}
-
-  {avatarPreview ? (
-    <div className="mt-2">
-      <img
-        src={avatarPreview}
-        alt="avatar"
-        style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 12 }}
-      />
-    </div>
-  ) : null}
-</div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("users.modal.name", "Name")}</label>
-                      <input
-                        className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                        value={form.name}
-                        onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                      />
-                      {errors.name && <span className="text-danger small">{errors.name[0]}</span>}
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("users.modal.email", "Email")}</label>
-                      <input
-                        className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                        value={form.email}
-                        onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                      />
-                      {errors.email && <span className="text-danger small">{errors.email[0]}</span>}
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("users.modal.phone", "Phone")}</label>
-                      <input
-                        className="form-control"
-                        value={form.phone}
-                        onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("users.modal.status", "Status")}</label>
-                      <select
-                        className="form-select"
-                        value={form.status ?? "active"}
-                        onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
-                      >
-                        <option value="active">{t("users.status.active", "Active")}</option>
-                        <option value="inactive">{t("users.status.inactive", "Inactive")}</option>
-                      </select>
-                    </div>
-
-                    {/* Password: obligatoire à la création, optionnel en édition */}
-                    <div className="mb-3">
-                      <label className="form-label">
-                        {t("users.modal.password", "Password")}
-                        {editing ? <span className="text-muted small ms-2">({t("users.modal.passwordOptional", "optional")})</span> : null}
-                      </label>
-                      <input
-                        type="password"
-                        className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                        value={form.password}
-                        onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                      />
-                      {errors.password && <span className="text-danger small">{errors.password[0]}</span>}
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">{t("users.modal.passwordConfirm", "Confirm password")}</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        value={form.password_confirmation}
-                        onChange={(e) => setForm((p) => ({ ...p, password_confirmation: e.target.value }))}
-                      />
-                    </div>
-
-<div className="mb-3">
-  <label className="form-label">{t("users.modal.role", "Role")}</label>
-  <select
-    className={`form-select ${errors.role ? "is-invalid" : ""}`}
-    value={form.role}
-    onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
-  >
-    <option value="" disabled>
-      {t("users.modal.rolePlaceholder", "Select a role")}
-    </option>
-    {availableRoles.map((role) => (
-      <option key={role.id ?? role.name} value={role.name}>
-        {role.name}
-      </option>
-    ))}
-  </select>
-  {errors.role && <span className="text-danger small">{errors.role[0]}</span>}
-</div>
-
-                  </div>
-
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>
-                      {t("users.modal.cancel", "Cancel")}
-                    </button>
-                    <button className="btn btn-warning" disabled={saving}>
-                      {saving ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" />
-                          {t("users.modal.saving", "Saving...")}
-                        </>
-                      ) : (
-                        t("users.modal.save", "Save")
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-backdrop fade show" onClick={closeModal} />
-        </>
-      )}
-
-      {/* Modal delete */}
-      {deleteOpen && (
-        <>
-          <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content border-0 shadow">
-                <div className="modal-header">
-                  <h5 className="modal-title">{t("users.delete.title", "Confirm")}</h5>
-                  <button type="button" className="btn-close" onClick={closeDeleteModal} />
-                </div>
-
-                <div className="modal-body">
-                  {deleteTarget ? (
-                    <p className="mb-0">
-                      {t("users.delete.message", "Delete user")} <b>{deleteTarget.name}</b> ?
-                    </p>
-                  ) : (
-                    <p className="mb-0">{t("users.delete.message2", "Delete this user?")}</p>
-                  )}
-                </div>
-
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeDeleteModal} disabled={deleting}>
-                    {t("users.modal.cancel", "Cancel")}
-                  </button>
-
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
-                    {deleting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        {t("users.delete.deleting", "Deleting...")}
-                      </>
-                    ) : (
-                      t("users.delete.btn", "Delete")
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-backdrop fade show" onClick={closeDeleteModal} />
-        </>
-      )}
-
-      {/* Toast */}
-      {toast.open && (
-        <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}>
-          <div className={`toast show text-bg-${toast.type} border-0`}>
-            <div className="d-flex">
-              <div className="toast-body">{toast.message}</div>
-              <button
-                type="button"
-                className="btn-close btn-close-white me-2 m-auto"
-                onClick={() => setToast((x) => ({ ...x, open: false }))}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {toast.open && <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}><div className={`toast show text-bg-${toast.type} border-0`}><div className="d-flex"><div className="toast-body">{toast.message}</div><button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setToast((x) => ({ ...x, open: false }))} /></div></div></div>}
     </div>
   );
 }

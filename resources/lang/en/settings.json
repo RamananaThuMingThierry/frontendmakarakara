@@ -1,0 +1,113 @@
+{
+  "title": "Settings",
+  "subtitle": "Manage the about section, payment methods and cities.",
+  "loading": "Loading...",
+  "tabs": {
+    "about": "About",
+    "payments": "Payment methods",
+    "cities": "Cities"
+  },
+  "actions": {
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "toggle": "Enable/Disable"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "about": {
+    "title": "About the platform",
+    "previewTitle": "Quick preview",
+    "logoAlt": "Platform logo",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "logo": "Logo",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address"
+    },
+    "placeholders": {
+      "title": "Ex: MAHAKARAKARA",
+      "description": "Present your platform...",
+      "address": "Address / City",
+      "facebook": "Facebook page link",
+      "instagram": "Instagram link",
+      "whatsapp": "Ex: +261..."
+    },
+    "hints": {
+      "logo": "Used in emails and PDF invoices sent to customers."
+    }
+  },
+  "payments": {
+    "title": "Payment methods",
+    "empty": "No payment methods.",
+    "noImage": "No image",
+    "code": "Code",
+    "defaultDeleteName": "this payment method",
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "image": "Image / Logo"
+    },
+    "placeholders": {
+      "name": "Ex: Cash on delivery",
+      "code": "Ex: cod"
+    },
+    "hints": {
+      "code": "Ex: cod, mvola, orange_money..."
+    },
+    "modal": {
+      "createTitle": "Add payment method",
+      "editTitle": "Edit payment method"
+    }
+  },
+  "cities": {
+    "title": "Cities",
+    "empty": "No cities.",
+    "region": "Region",
+    "defaultDeleteName": "this city",
+    "fields": {
+      "name": "Name",
+      "region": "Region"
+    },
+    "placeholders": {
+      "name": "Ex: Antananarivo",
+      "region": "Ex: Analamanga"
+    },
+    "modal": {
+      "createTitle": "Add city",
+      "editTitle": "Edit city"
+    }
+  },
+  "delete": {
+    "title": "Confirm deletion",
+    "paymentMessage": "Are you sure you want to delete",
+    "cityMessage": "Are you sure you want to delete",
+    "warning": "This action is irreversible.",
+    "deleting": "Deleting..."
+  },
+  "alert": {
+    "aboutSaved": "About section updated successfully.",
+    "saveError": "Error while saving.",
+    "citiesLoadError": "Error while loading cities.",
+    "cityCreated": "City created.",
+    "cityUpdated": "City updated.",
+    "citySaveError": "Error while saving the city.",
+    "toggleError": "Error while changing the status.",
+    "cityDeleted": "City deleted.",
+    "deleteError": "Error while deleting.",
+    "paymentsLoadError": "Error while loading payment methods.",
+    "paymentCreated": "Payment method created.",
+    "paymentUpdated": "Payment method updated.",
+    "paymentSaveError": "Error while saving the payment method.",
+    "paymentDeleted": "Payment method deleted.",
+    "loadError": "Loading error."
+  }
+}

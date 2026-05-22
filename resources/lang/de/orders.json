@@ -1,0 +1,83 @@
+﻿{
+  "title": "Bestellverwaltung",
+  "subtitle": "Kundenbestellungen verfolgen und Bestellpositionen einsehen.",
+  "total": "Gesamt",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "loading": "Wird geladen...",
+  "empty": "Keine Bestellungen gefunden.",
+  "error": {
+    "load": "Bestellungen konnten nicht geladen werden.",
+    "details": "Bestelldetails konnten nicht geladen werden.",
+    "action": "Aktion für diese Bestellung nicht verfügbar."
+  },
+  "table": {
+    "order": "Bestellung",
+    "customer": "Kunde",
+    "items": "Artikel",
+    "quantity": "Menge",
+    "status": "Status",
+    "orderStatus": "Bestellung",
+    "paymentStatus": "Zahlung",
+    "total": "Gesamt",
+    "date": "Datum",
+    "actions": "Aktionen"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "confirmed": "Bestätigt",
+    "processing": "In Bearbeitung",
+    "delivered": "Geliefert",
+    "cancelled": "Storniert"
+  },
+  "paymentStatus": {
+    "unpaid": "Unbezahlt",
+    "pending_verification": "Prüfung",
+    "paid": "Bezahlt",
+    "refunded": "Erstattet"
+  },
+  "show": {
+    "title": "Bestelldetails",
+    "loading": "Details werden geladen...",
+    "empty": "Keine Details verfügbar.",
+    "order": "Bestellung",
+    "customer": "Kunde",
+    "address": "Adresse",
+    "openMaps": "In Google Maps öffnen",
+    "notes": "Notizen",
+    "notesPlaceholder": "Interne Notiz zu dieser Bestellung hinzufügen...",
+    "orderStatus": "Bestellstatus",
+    "paymentStatus": "Zahlungsstatus",
+    "paymentMethod": "Zahlungsmethode",
+    "deliveryFee": "Liefergebühr",
+    "deliveryFeeHelp": "Dieser Betrag wird vom Admin entsprechend der Lieferdistanz festgelegt. `0` bedeutet kostenlose Lieferung. Die Gebühr sollte vor der Bestätigung festgelegt werden.",
+    "invoice": "Rechnung",
+    "receipt": "Beleg",
+    "receiptSentAt": "Beleg gesendet am",
+    "subtotal": "Zwischensumme",
+    "discount": "Rabatt",
+    "total": "Gesamt",
+    "totalHelp": "Der Gesamtbetrag enthält die für diese Bestellung festgelegte Liefergebühr."
+  },
+  "items": {
+    "title": "Bestellpositionen",
+    "empty": "Keine Positionen verfügbar.",
+    "product": "Produkt",
+    "sku": "SKU",
+    "quantity": "Menge",
+    "unitPrice": "Stückpreis",
+    "lineTotal": "Zeilensumme"
+  },
+  "actions": {
+    "view": "Ansehen",
+    "save": "Speichern",
+    "saveNote": "Notiz speichern",
+    "confirm": "Bestätigen",
+    "processing": "In Bearbeitung setzen",
+    "markPaid": "Als bezahlt markieren",
+    "sendReceipt": "Beleg senden",
+    "deliver": "Liefern",
+    "cancel": "Stornieren",
+    "close": "Schließen"
+  }
+}

@@ -1,0 +1,44 @@
+﻿{
+  "title": "Mensajes de contacto",
+  "subtitle": "Lista, consulta y eliminación de solicitudes.",
+  "total": "Total",
+  "search": "Buscar...",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "loading": "Cargando...",
+  "empty": "No se encontraron mensajes.",
+  "table": {
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "subject": "Asunto",
+    "date": "Fecha",
+    "actions": "Acciones"
+  },
+  "actions": {
+    "view": "Ver",
+    "delete": "Eliminar"
+  },
+  "show": {
+    "title": "Detalle del mensaje",
+    "loading": "Cargando el detalle...",
+    "message": "Mensaje",
+    "empty": "No hay detalles disponibles.",
+    "close": "Cerrar"
+  },
+  "delete": {
+    "title": "Confirmación",
+    "message": "Eliminar el mensaje de",
+    "message2": "¿Eliminar este mensaje?",
+    "cancel": "Cancelar",
+    "deleting": "Eliminando..."
+  },
+  "toast": {
+    "deleted": "Mensaje eliminado correctamente.",
+    "deleteFailed": "Error al eliminar."
+  },
+  "error": {
+    "load": "No se pudieron cargar los mensajes de contacto.",
+    "show": "No se pudo cargar el mensaje."
+  }
+}

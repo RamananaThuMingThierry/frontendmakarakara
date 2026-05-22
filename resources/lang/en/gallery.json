@@ -1,0 +1,53 @@
+﻿{
+  "title": "Gallery",
+  "subtitle": "Manage images displayed in the site gallery.",
+  "search": "Search...",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "new": "Add image",
+  "loading": "Loading...",
+  "empty": "No images found.",
+  "table": {
+    "image": "Image",
+    "name": "Name",
+    "likes": "Likes",
+    "createdAt": "Added on",
+    "actions": "Actions"
+  },
+  "modal": {
+    "createTitle": "Add image",
+    "image": "Image",
+    "name": "Name",
+    "likes": "Likes",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "noImage": "No image"
+  },
+  "show": {
+    "title": "Image details",
+    "name": "Name",
+    "likes": "Likes",
+    "createdAt": "Added on"
+  },
+  "actions": {
+    "view": "View",
+    "delete": "Delete",
+    "close": "Close"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Delete image",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "created": "Image added successfully.",
+    "deleted": "Image deleted.",
+    "saveFailed": "Save failed.",
+    "deleteFailed": "Delete failed."
+  },
+  "error": {
+    "load": "Unable to load the gallery.",
+    "show": "Unable to load the image."
+  }
+}

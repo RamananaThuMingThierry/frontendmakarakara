@@ -1,0 +1,49 @@
+﻿{
+  "nav": {
+    "dashboard": "Panel",
+    "categories": "Categorías",
+    "brands": "Marcas",
+    "orders": "Pedidos",
+    "coupons": "Cupones",
+    "testimonials": "Testimonios",
+    "gallery": "Galería",
+    "reservations": "Reservas",
+    "sliders": "Banners",
+    "users": "Usuarios",
+    "contacts": "Contactos",
+    "settings": "Configuración",
+    "activityLogs": "Registro de actividad",
+    "account": "Mi cuenta",
+    "logout": "Cerrar sesión"
+  },
+  "header": {
+    "dashboard": "Panel",
+    "admin": "Admin",
+    "notifications": "Notificaciones",
+    "unread": "sin leer",
+    "markAllRead": "Marcar todo como leído",
+    "loading": "Cargando...",
+    "empty": "No hay notificaciones.",
+    "viewMore": "Ver más",
+    "language": "Idioma",
+    "account": "Mi cuenta",
+    "new": "Nuevo"
+  },
+  "sidebar": {
+    "backToSite": "Volver al sitio",
+    "expand": "Expandir menú",
+    "collapse": "Reducir menú"
+  },
+  "footer": {
+    "adminDashboard": "Panel de administración",
+    "secure": "Seguro",
+    "performance": "Rendimiento"
+  },
+  "logout": {
+    "title": "Cerrar sesión",
+    "message": "¿Realmente deseas cerrar sesión?",
+    "confirm": "Sí, cerrar sesión",
+    "cancel": "Cancelar",
+    "loading": "Cerrando sesión..."
+  }
+}

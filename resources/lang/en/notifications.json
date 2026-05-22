@@ -1,0 +1,40 @@
+{
+  "title": "Notifications",
+  "subtitle": "Admin notification center with full history.",
+  "loading": "Loading...",
+  "empty": "No notifications.",
+  "summary": {
+    "unread": "Unread",
+    "total": "Total"
+  },
+  "badges": {
+    "unread": "Unread"
+  },
+  "meta": {
+    "reference": "Reference",
+    "noReference": "No direct reference",
+    "readAt": "Read on"
+  },
+  "actions": {
+    "showAll": "Show all",
+    "showUnread": "Show unread",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "open": "Open"
+  },
+  "error": {
+    "load": "Unable to load notifications.",
+    "markAllRead": "Unable to mark notifications as read."
+  },
+  "categories": {
+    "order": "Order",
+    "reservation": "Reservation",
+    "contact": "Contact",
+    "review": "Review",
+    "inventory": "Inventory",
+    "system": "System",
+    "default": "Notification"
+  }
+}

@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useI18n } from "../../../../hooks/website/I18nContext";
 
 export default function ProductHeader({ product }) {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { categoryId, productId } = useParams();
 
@@ -11,31 +13,23 @@ export default function ProductHeader({ product }) {
         <div className="text-muted small">
           {product.is_active ? (
             <span className="badge text-bg-success rounded-pill me-1">
-              <i className="bi bi-check" /> Actif
+              <i className="bi bi-check" /> {t("products.status.active", "Active")}
             </span>
           ) : (
-            <span className="badge text-bg-secondary me-1">Inactif</span>
+            <span className="badge text-bg-secondary me-1">{t("products.status.inactive", "Inactive")}</span>
           )}{" "}
-          · SKU: {product.sku || "-"} · Categorie: {product.category?.name || "-"}
+          | SKU: {product.sku || "-"} | {t("products.fields.category", "Category")}: {product.category?.name || "-"}
         </div>
       </div>
 
       <div className="d-flex gap-2">
-        <button
-          className="btn btn-outline-secondary btn-sm"
-          type="button"
-          onClick={() => navigate(`/admin/categories/${categoryId}`)}
-        >
+        <button className="btn btn-outline-secondary btn-sm" type="button" onClick={() => navigate(`/admin/categories/${categoryId}`)}>
           <i className="bi bi-arrow-left me-1" />
-          Retour
+          {t("common.back", "Back")}
         </button>
-        <button
-          className="btn btn-outline-primary btn-sm"
-          type="button"
-          onClick={() => navigate(`/admin/categories/${categoryId}/products/${productId}/edit`)}
-        >
+        <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => navigate(`/admin/categories/${categoryId}/products/${productId}/edit`)}>
           <i className="bi bi-pencil me-1" />
-          Modifier
+          {t("products.actions.edit", "Edit")}
         </button>
       </div>
     </div>

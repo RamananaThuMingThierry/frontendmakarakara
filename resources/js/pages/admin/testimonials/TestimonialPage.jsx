@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { testimonialsApi } from "../../../api/testimonials";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
+import { useI18n } from "../../../hooks/website/I18nContext";
 
 function buildImageUrl(path) {
   if (!path) return "";
@@ -22,14 +24,13 @@ const initialForm = {
 };
 
 export default function TestimonialPage() {
+  const { t } = useI18n();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
-
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
-
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -37,11 +38,9 @@ export default function TestimonialPage() {
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
   const [photoPreview, setPhotoPreview] = useState("");
-
   const [showOpen, setShowOpen] = useState(false);
   const [showing, setShowing] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
-
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -61,7 +60,7 @@ export default function TestimonialPage() {
       const data = await testimonialsApi.list();
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger les testimonials.");
+      setError(e?.response?.data?.message || t("testimonials.error.load", "Unable to load testimonials."));
     } finally {
       if (mode === "initial") setLoading(false);
       else setRefreshing(false);
@@ -71,6 +70,12 @@ export default function TestimonialPage() {
   useEffect(() => {
     load({ mode: "initial" });
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreview?.startsWith("blob:")) URL.revokeObjectURL(photoPreview);
+    };
+  }, [photoPreview]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -123,9 +128,7 @@ export default function TestimonialPage() {
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
-    if (errors[field]) {
-      setErrors((current) => ({ ...current, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
     if (globalError) setGlobalError("");
   }
 
@@ -138,11 +141,7 @@ export default function TestimonialPage() {
     payload.append("message", form.message);
     payload.append("position", String(form.position ?? 0));
     payload.append("is_active", form.is_active ? "1" : "0");
-
-    if (form.photo_url instanceof File) {
-      payload.append("photo_url", form.photo_url);
-    }
-
+    if (form.photo_url instanceof File) payload.append("photo_url", form.photo_url);
     return payload;
   }
 
@@ -162,11 +161,11 @@ export default function TestimonialPage() {
       setOpen(false);
       setEditing(null);
       resetFormState();
-      showToast("success", result.message || (editing ? "Testimonial mis a jour." : "Testimonial cree."));
+      showToast("success", result.message || (editing ? t("testimonials.toast.updated", "Testimonial updated.") : t("testimonials.toast.created", "Testimonial created.")));
     } catch (e2) {
       const data = e2?.response?.data;
       if (data?.errors) setErrors(data.errors);
-      else setGlobalError(data?.message || "Echec de l'enregistrement.");
+      else setGlobalError(data?.message || t("testimonials.toast.saveFailed", "Save failed."));
     } finally {
       setSaving(false);
     }
@@ -181,7 +180,7 @@ export default function TestimonialPage() {
       const data = await testimonialsApi.show(item.encrypted_id ?? item.id);
       setShowing(data);
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Impossible de charger le testimonial.");
+      showToast("danger", e?.response?.data?.message || t("testimonials.error.show", "Unable to load the testimonial."));
       setShowOpen(false);
     } finally {
       setShowLoading(false);
@@ -207,7 +206,6 @@ export default function TestimonialPage() {
 
   async function confirmDelete() {
     if (!deleteTarget || deleting) return;
-
     setDeleting(true);
     try {
       const result = await testimonialsApi.remove(deleteTarget.encrypted_id ?? deleteTarget.id);
@@ -218,9 +216,9 @@ export default function TestimonialPage() {
       }
       setDeleteOpen(false);
       setDeleteTarget(null);
-      showToast("success", result.message || "Testimonial supprime.");
+      showToast("success", result.message || t("testimonials.toast.deleted", "Testimonial deleted."));
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Echec de la suppression.");
+      showToast("danger", e?.response?.data?.message || t("testimonials.toast.deleteFailed", "Delete failed."));
     } finally {
       setDeleting(false);
     }
@@ -230,115 +228,52 @@ export default function TestimonialPage() {
     <div className="container-fluid">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
-          <h4 className="mb-1">Testimonials</h4>
-          <div className="text-muted small">Gestion des avis clients affiches sur le site.</div>
+          <h4 className="mb-1">{t("testimonials.title", "Testimonials")}</h4>
+          <div className="text-muted small">{t("testimonials.subtitle", "Manage customer reviews displayed on the site.")}</div>
         </div>
 
         <div className="d-flex gap-2">
-          <input
-            className="form-control"
-            style={{ width: 300 }}
-            placeholder="Rechercher..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            disabled={loading}
-          />
-
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => load({ mode: "refresh" })}
-            disabled={loading || refreshing}
-          >
-            {loading || refreshing ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                Actualisation...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-arrow-clockwise me-2" />
-                Actualiser
-              </>
-            )}
+          <input className="form-control" style={{ width: 300 }} placeholder={t("testimonials.search", "Search...")} value={search} onChange={(e) => setSearch(e.target.value)} disabled={loading} />
+          <button className="btn btn-outline-secondary" onClick={() => load({ mode: "refresh" })} disabled={loading || refreshing}>
+            {loading || refreshing ? <><span className="spinner-border spinner-border-sm me-2" />{t("testimonials.refreshing", "Refreshing...")}</> : <><i className="bi bi-arrow-clockwise me-2" />{t("testimonials.refresh", "Refresh")}</>}
           </button>
-
-          <button className="btn btn-warning" onClick={openCreate} disabled={loading}>
-            <i className="bi bi-plus-lg me-2" />
-            Nouveau testimonial
-          </button>
+          <button className="btn btn-warning" onClick={openCreate} disabled={loading}><i className="bi bi-plus-lg me-2" />{t("testimonials.new", "New testimonial")}</button>
         </div>
       </div>
 
       <div className="card border-0 shadow-sm">
         <div className="card-body">
           {error ? <div className="alert alert-danger">{error}</div> : null}
-
           {loading ? (
-            <div className="d-flex align-items-center gap-2 text-muted">
-              <span className="spinner-border spinner-border-sm" />
-              Chargement...
-            </div>
+            <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("testimonials.loading", "Loading...")}</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center text-muted py-4">Aucun testimonial trouve.</div>
+            <div className="text-center text-muted py-4">{t("testimonials.empty", "No testimonials found.")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table align-middle mb-0">
                 <thead>
                   <tr className="text-muted small">
-                    <th style={{ width: 90 }}>Photo</th>
-                    <th>Nom</th>
-                    <th>Ville</th>
-                    <th>Produit</th>
-                    <th>Note</th>
-                    <th>Position</th>
-                    <th>Statut</th>
-                    <th className="text-end" style={{ width: 240 }}>
-                      Actions
-                    </th>
+                    <th style={{ width: 90 }}>{t("testimonials.table.photo", "Photo")}</th>
+                    <th>{t("testimonials.table.name", "Name")}</th>
+                    <th>{t("testimonials.table.city", "City")}</th>
+                    <th>{t("testimonials.table.product", "Product")}</th>
+                    <th>{t("testimonials.table.rating", "Rating")}</th>
+                    <th>{t("testimonials.table.position", "Position")}</th>
+                    <th>{t("testimonials.table.status", "Status")}</th>
+                    <th className="text-end" style={{ width: 240 }}>{t("testimonials.table.actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((item) => (
                     <tr key={item.id}>
-                      <td>
-                        {item.photo_url ? (
-                          <img
-                            src={buildImageUrl(item.photo_url)}
-                            alt={item.name}
-                            style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 12 }}
-                          />
-                        ) : (
-                          <div
-                            className="bg-light text-muted d-inline-flex align-items-center justify-content-center"
-                            style={{ width: 52, height: 52, borderRadius: 12 }}
-                          >
-                            <i className="bi bi-person" />
-                          </div>
-                        )}
-                      </td>
+                      <td>{item.photo_url ? <img src={buildImageUrl(item.photo_url)} alt={item.name} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 12 }} /> : <div className="bg-light text-muted d-inline-flex align-items-center justify-content-center" style={{ width: 52, height: 52, borderRadius: 12 }}><i className="bi bi-person" /></div>}</td>
                       <td className="fw-semibold">{item.name}</td>
                       <td>{item.city || "-"}</td>
                       <td>{item.product_used || "-"}</td>
                       <td>{item.rating ? `${item.rating}/5` : "-"}</td>
                       <td>{item.position ?? 0}</td>
-                      <td>
-                        <span className={`badge ${item.is_active ? "text-bg-success" : "text-bg-secondary"}`}>
-                          {item.is_active ? "Actif" : "Inactif"}
-                        </span>
-                      </td>
-                      <td className="text-end">
-                        <div className="d-inline-flex gap-2">
-                          <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)}>
-                            <i className="bi bi-eye" />
-                          </button>
-                          <button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(item)}>
-                            <i className="bi bi-pencil-square" />
-                          </button>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)}>
-                            <i className="bi bi-trash3" />
-                          </button>
-                        </div>
-                      </td>
+                      <td><span className={`badge ${item.is_active ? "text-bg-success" : "text-bg-secondary"}`}>{item.is_active ? t("testimonials.status.active", "Active") : t("testimonials.status.inactive", "Inactive")}</span></td>
+                      <td className="text-end"><div className="d-inline-flex gap-2"><button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)}><i className="bi bi-eye" /></button><button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(item)}><i className="bi bi-pencil-square" /></button><button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)}><i className="bi bi-trash3" /></button></div></td>
                     </tr>
                   ))}
                 </tbody>
@@ -354,157 +289,42 @@ export default function TestimonialPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">{editing ? "Modifier le testimonial" : "Nouveau testimonial"}</h5>
+                  <h5 className="modal-title">{editing ? t("testimonials.modal.editTitle", "Edit testimonial") : t("testimonials.modal.createTitle", "New testimonial")}</h5>
                   <button type="button" className="btn-close" onClick={closeModal} disabled={saving} />
                 </div>
 
                 <form onSubmit={onSubmit}>
                   <div className="modal-body">
                     {globalError ? <div className="alert alert-danger py-2">{globalError}</div> : null}
-
                     <div className="row g-3">
                       <div className="col-12 col-lg-4">
-                        <label className="form-label">Photo</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className={`form-control ${errors.photo_url ? "is-invalid" : ""}`}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0] || null;
-                            updateField("photo_url", file);
-                            setPhotoPreview(file ? URL.createObjectURL(file) : editing ? buildImageUrl(editing.photo_url) : "");
-                          }}
-                        />
-                        {errors.photo_url ? <div className="invalid-feedback">{errors.photo_url[0]}</div> : null}
-
-                        <div className="mt-3">
-                          {photoPreview ? (
-                            <img
-                              src={photoPreview}
-                              alt="Preview"
-                              className="img-fluid rounded-3 border"
-                              style={{ maxHeight: 240, objectFit: "cover" }}
-                            />
-                          ) : (
-                            <div className="border rounded-3 p-4 text-center text-muted">Aucune image</div>
-                          )}
-                        </div>
+                        <label className="form-label">{t("testimonials.modal.photo", "Photo")}</label>
+                        <TranslatedFileInput accept="image/*" error={errors.photo_url?.[0] || ""} selectedText={form.photo_url?.name || ""} onChange={(e) => { const file = e.target.files?.[0] || null; updateField("photo_url", file); if (photoPreview?.startsWith("blob:")) URL.revokeObjectURL(photoPreview); setPhotoPreview(file ? URL.createObjectURL(file) : editing ? buildImageUrl(editing.photo_url) : ""); }} />
+                        <div className="mt-3">{photoPreview ? <img src={photoPreview} alt={t("testimonials.modal.preview", "Preview")} className="img-fluid rounded-3 border" style={{ maxHeight: 240, objectFit: "cover" }} /> : <div className="border rounded-3 p-4 text-center text-muted">{t("testimonials.modal.noImage", "No image")}</div>}</div>
                       </div>
 
                       <div className="col-12 col-lg-8">
                         <div className="row g-3">
-                          <div className="col-12 col-md-6">
-                            <label className="form-label">Nom *</label>
-                            <input
-                              className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                              value={form.name}
-                              onChange={(e) => updateField("name", e.target.value)}
-                            />
-                            {errors.name ? <div className="invalid-feedback">{errors.name[0]}</div> : null}
-                          </div>
-
-                          <div className="col-12 col-md-6">
-                            <label className="form-label">Ville</label>
-                            <input
-                              className={`form-control ${errors.city ? "is-invalid" : ""}`}
-                              value={form.city}
-                              onChange={(e) => updateField("city", e.target.value)}
-                            />
-                            {errors.city ? <div className="invalid-feedback">{errors.city[0]}</div> : null}
-                          </div>
-
-                          <div className="col-12 col-md-6">
-                            <label className="form-label">Produit utilise</label>
-                            <input
-                              className={`form-control ${errors.product_used ? "is-invalid" : ""}`}
-                              value={form.product_used}
-                              onChange={(e) => updateField("product_used", e.target.value)}
-                            />
-                            {errors.product_used ? (
-                              <div className="invalid-feedback">{errors.product_used[0]}</div>
-                            ) : null}
-                          </div>
-
-                          <div className="col-12 col-md-3">
-                            <label className="form-label">Note</label>
-                            <select
-                              className={`form-select ${errors.rating ? "is-invalid" : ""}`}
-                              value={form.rating}
-                              onChange={(e) => updateField("rating", e.target.value)}
-                            >
-                              <option value="">Aucune</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                              <option value="4">4</option>
-                              <option value="5">5</option>
-                            </select>
-                            {errors.rating ? <div className="invalid-feedback">{errors.rating[0]}</div> : null}
-                          </div>
-
-                          <div className="col-12 col-md-3">
-                            <label className="form-label">Position</label>
-                            <input
-                              type="number"
-                              min="0"
-                              className={`form-control ${errors.position ? "is-invalid" : ""}`}
-                              value={form.position}
-                              onChange={(e) => updateField("position", e.target.value)}
-                            />
-                            {errors.position ? <div className="invalid-feedback">{errors.position[0]}</div> : null}
-                          </div>
-
-                          <div className="col-12">
-                            <label className="form-label">Message *</label>
-                            <textarea
-                              rows={6}
-                              className={`form-control ${errors.message ? "is-invalid" : ""}`}
-                              value={form.message}
-                              onChange={(e) => updateField("message", e.target.value)}
-                            />
-                            {errors.message ? <div className="invalid-feedback">{errors.message[0]}</div> : null}
-                          </div>
-
-                          <div className="col-12">
-                            <div className="form-check form-switch">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="testimonial-active"
-                                checked={form.is_active}
-                                onChange={(e) => updateField("is_active", e.target.checked)}
-                              />
-                              <label className="form-check-label" htmlFor="testimonial-active">
-                                Visible sur le site
-                              </label>
-                            </div>
-                            {errors.is_active ? <div className="text-danger small mt-1">{errors.is_active[0]}</div> : null}
-                          </div>
+                          <div className="col-12 col-md-6"><label className="form-label">{t("testimonials.modal.name", "Name")} *</label><input className={`form-control ${errors.name ? "is-invalid" : ""}`} value={form.name} onChange={(e) => updateField("name", e.target.value)} />{errors.name ? <div className="invalid-feedback">{errors.name[0]}</div> : null}</div>
+                          <div className="col-12 col-md-6"><label className="form-label">{t("testimonials.modal.city", "City")}</label><input className={`form-control ${errors.city ? "is-invalid" : ""}`} value={form.city} onChange={(e) => updateField("city", e.target.value)} />{errors.city ? <div className="invalid-feedback">{errors.city[0]}</div> : null}</div>
+                          <div className="col-12 col-md-6"><label className="form-label">{t("testimonials.modal.product", "Product used")}</label><input className={`form-control ${errors.product_used ? "is-invalid" : ""}`} value={form.product_used} onChange={(e) => updateField("product_used", e.target.value)} />{errors.product_used ? <div className="invalid-feedback">{errors.product_used[0]}</div> : null}</div>
+                          <div className="col-12 col-md-3"><label className="form-label">{t("testimonials.modal.rating", "Rating")}</label><select className={`form-select ${errors.rating ? "is-invalid" : ""}`} value={form.rating} onChange={(e) => updateField("rating", e.target.value)}><option value="">{t("testimonials.modal.none", "None")}</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>{errors.rating ? <div className="invalid-feedback">{errors.rating[0]}</div> : null}</div>
+                          <div className="col-12 col-md-3"><label className="form-label">{t("testimonials.modal.position", "Position")}</label><input type="number" min="0" className={`form-control ${errors.position ? "is-invalid" : ""}`} value={form.position} onChange={(e) => updateField("position", e.target.value)} />{errors.position ? <div className="invalid-feedback">{errors.position[0]}</div> : null}</div>
+                          <div className="col-12"><label className="form-label">{t("testimonials.modal.message", "Message")} *</label><textarea rows={6} className={`form-control ${errors.message ? "is-invalid" : ""}`} value={form.message} onChange={(e) => updateField("message", e.target.value)} />{errors.message ? <div className="invalid-feedback">{errors.message[0]}</div> : null}</div>
+                          <div className="col-12"><div className="form-check form-switch"><input className="form-check-input" type="checkbox" id="testimonial-active" checked={form.is_active} onChange={(e) => updateField("is_active", e.target.checked)} /><label className="form-check-label" htmlFor="testimonial-active">{t("testimonials.modal.visible", "Visible on the site")}</label></div>{errors.is_active ? <div className="text-danger small mt-1">{errors.is_active[0]}</div> : null}</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>
-                      Annuler
-                    </button>
-                    <button type="submit" className="btn btn-warning" disabled={saving}>
-                      {saving ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" />
-                          Enregistrement...
-                        </>
-                      ) : (
-                        "Enregistrer"
-                      )}
-                    </button>
+                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>{t("testimonials.modal.cancel", "Cancel")}</button>
+                    <button type="submit" className="btn btn-warning" disabled={saving}>{saving ? <><span className="spinner-border spinner-border-sm me-2" />{t("testimonials.modal.saving", "Saving...")}</> : t("testimonials.modal.save", "Save")}</button>
                   </div>
                 </form>
               </div>
             </div>
           </div>
-
           <div className="modal-backdrop fade show" onClick={closeModal} />
         </>
       )}
@@ -515,85 +335,35 @@ export default function TestimonialPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Detail du testimonial</h5>
+                  <h5 className="modal-title">{t("testimonials.show.title", "Testimonial details")}</h5>
                   <button type="button" className="btn-close" onClick={closeShow} disabled={showLoading} />
                 </div>
-
                 <div className="modal-body">
                   {showLoading ? (
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <span className="spinner-border spinner-border-sm" />
-                      Chargement...
-                    </div>
+                    <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("testimonials.loading", "Loading...")}</div>
                   ) : showing ? (
                     <div className="row g-4">
-                      <div className="col-12 col-lg-4">
-                        {showing.photo_url ? (
-                          <img
-                            src={buildImageUrl(showing.photo_url)}
-                            alt={showing.name}
-                            className="img-fluid rounded-3 border"
-                          />
-                        ) : (
-                          <div className="border rounded-3 p-5 text-center text-muted">Aucune image</div>
-                        )}
-                      </div>
-
+                      <div className="col-12 col-lg-4">{showing.photo_url ? <img src={buildImageUrl(showing.photo_url)} alt={showing.name} className="img-fluid rounded-3 border" /> : <div className="border rounded-3 p-5 text-center text-muted">{t("testimonials.modal.noImage", "No image")}</div>}</div>
                       <div className="col-12 col-lg-8">
-                        <div className="mb-3">
-                          <div className="text-muted small">Nom</div>
-                          <div className="fw-semibold">{showing.name}</div>
-                        </div>
+                        <div className="mb-3"><div className="text-muted small">{t("testimonials.table.name", "Name")}</div><div className="fw-semibold">{showing.name}</div></div>
                         <div className="row g-3 mb-3">
-                          <div className="col-6">
-                            <div className="text-muted small">Ville</div>
-                            <div>{showing.city || "-"}</div>
-                          </div>
-                          <div className="col-6">
-                            <div className="text-muted small">Produit</div>
-                            <div>{showing.product_used || "-"}</div>
-                          </div>
-                          <div className="col-6">
-                            <div className="text-muted small">Note</div>
-                            <div>{showing.rating ? `${showing.rating}/5` : "-"}</div>
-                          </div>
-                          <div className="col-6">
-                            <div className="text-muted small">Statut</div>
-                            <div>{showing.is_active ? "Actif" : "Inactif"}</div>
-                          </div>
+                          <div className="col-6"><div className="text-muted small">{t("testimonials.table.city", "City")}</div><div>{showing.city || "-"}</div></div>
+                          <div className="col-6"><div className="text-muted small">{t("testimonials.table.product", "Product")}</div><div>{showing.product_used || "-"}</div></div>
+                          <div className="col-6"><div className="text-muted small">{t("testimonials.table.rating", "Rating")}</div><div>{showing.rating ? `${showing.rating}/5` : "-"}</div></div>
+                          <div className="col-6"><div className="text-muted small">{t("testimonials.table.status", "Status")}</div><div>{showing.is_active ? t("testimonials.status.active", "Active") : t("testimonials.status.inactive", "Inactive")}</div></div>
                         </div>
-                        <div>
-                          <div className="text-muted small mb-2">Message</div>
-                          <div className="bg-light rounded-3 p-3" style={{ whiteSpace: "pre-wrap" }}>
-                            {showing.message || "-"}
-                          </div>
-                        </div>
+                        <div><div className="text-muted small mb-2">{t("testimonials.modal.message", "Message")}</div><div className="bg-light rounded-3 p-3" style={{ whiteSpace: "pre-wrap" }}>{showing.message || "-"}</div></div>
                       </div>
                     </div>
                   ) : null}
                 </div>
-
                 <div className="modal-footer">
-                  {showing ? (
-                    <button
-                      type="button"
-                      className="btn btn-dark me-auto"
-                      onClick={() => {
-                        setShowOpen(false);
-                        openEdit(showing);
-                      }}
-                    >
-                      Modifier
-                    </button>
-                  ) : null}
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>
-                    Fermer
-                  </button>
+                  {showing ? <button type="button" className="btn btn-dark me-auto" onClick={() => { setShowOpen(false); openEdit(showing); }}>{t("testimonials.actions.edit", "Edit")}</button> : null}
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>{t("testimonials.actions.close", "Close")}</button>
                 </div>
               </div>
             </div>
           </div>
-
           <div className="modal-backdrop fade show" onClick={closeShow} />
         </>
       )}
@@ -604,33 +374,17 @@ export default function TestimonialPage() {
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Confirmation</h5>
+                  <h5 className="modal-title">{t("testimonials.delete.title", "Confirmation")}</h5>
                   <button type="button" className="btn-close" onClick={closeDelete} disabled={deleting} />
                 </div>
-                <div className="modal-body">
-                  <p className="mb-0">
-                    Supprimer le testimonial de <b>{deleteTarget?.name}</b> ?
-                  </p>
-                </div>
+                <div className="modal-body"><p className="mb-0">{t("testimonials.delete.message", "Delete the testimonial from")} <b>{deleteTarget?.name}</b> ?</p></div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeDelete} disabled={deleting}>
-                    Annuler
-                  </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
-                    {deleting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        Suppression...
-                      </>
-                    ) : (
-                      "Supprimer"
-                    )}
-                  </button>
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeDelete} disabled={deleting}>{t("testimonials.modal.cancel", "Cancel")}</button>
+                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>{deleting ? <><span className="spinner-border spinner-border-sm me-2" />{t("testimonials.delete.deleting", "Deleting...")}</> : t("testimonials.actions.delete", "Delete")}</button>
                 </div>
               </div>
             </div>
           </div>
-
           <div className="modal-backdrop fade show" onClick={closeDelete} />
         </>
       )}
@@ -640,11 +394,7 @@ export default function TestimonialPage() {
           <div className={`toast show text-bg-${toast.type} border-0`}>
             <div className="d-flex">
               <div className="toast-body">{toast.message}</div>
-              <button
-                type="button"
-                className="btn-close btn-close-white me-2 m-auto"
-                onClick={() => setToast((current) => ({ ...current, open: false }))}
-              />
+              <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setToast((current) => ({ ...current, open: false }))} />
             </div>
           </div>
         </div>

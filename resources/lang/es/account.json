@@ -1,0 +1,57 @@
+﻿{
+  "title": "Mi cuenta",
+  "subtitle": "Consulta y actualiza tu información personal.",
+  "loading": "Cargando la cuenta...",
+  "errors": {
+    "load": "No se puede cargar la cuenta."
+  },
+  "summary": {
+    "adminFallback": "Administrador",
+    "emailUnavailable": "Correo no disponible",
+    "phone": "Teléfono",
+    "notProvided": "No informado",
+    "emailVerification": "Verificación de correo"
+  },
+  "status": {
+    "verified": "Verificado",
+    "pending": "Pendiente"
+  },
+  "verification": {
+    "title": "Correo no verificado",
+    "text": "Envía un nuevo correo de verificación para validar esta dirección.",
+    "button": "Verificar correo",
+    "sending": "Enviando...",
+    "notice": "Si cambias tu dirección de correo, se requerirá una nueva verificación."
+  },
+  "profile": {
+    "title": "Información del usuario",
+    "subtitle": "Edita tu perfil de administrador sin salir del panel.",
+    "avatarAlt": "Avatar",
+    "avatar": "Foto de perfil",
+    "name": "Nombre completo",
+    "email": "Dirección de correo",
+    "phone": "Teléfono"
+  },
+  "password": {
+    "title": "Cambiar contraseña",
+    "subtitle": "Por razones de seguridad, se cerrará tu sesión después del cambio.",
+    "current": "Contraseña actual",
+    "new": "Nueva contraseña",
+    "confirmation": "Confirmación"
+  },
+  "actions": {
+    "saving": "Guardando...",
+    "saveChanges": "Guardar cambios",
+    "updating": "Actualizando...",
+    "changePassword": "Cambiar contraseña"
+  },
+  "toast": {
+    "profileUpdated": "Información actualizada.",
+    "profileUpdateFailed": "No se pudo actualizar.",
+    "passwordUpdated": "Contraseña actualizada.",
+    "passwordReconnect": "Contraseña actualizada. Vuelve a iniciar sesión.",
+    "passwordUpdateFailed": "No se pudo cambiar la contraseña.",
+    "verificationSent": "Correo de verificación enviado.",
+    "verificationFailed": "No se pudo enviar el correo de verificación."
+  }
+}

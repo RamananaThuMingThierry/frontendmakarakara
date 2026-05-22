@@ -1,0 +1,61 @@
+﻿{
+  "title": "Suivi des réservations",
+  "subtitle": "Historique des produits réservés, libérés et consommés.",
+  "total": "Total",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "loading": "Chargement...",
+  "empty": "Aucune réservation trouvée.",
+  "error": {
+    "load": "Impossible de charger les réservations.",
+    "details": "Impossible de charger le détail de la réservation."
+  },
+  "status": {
+    "active": "Active",
+    "released": "Libérée",
+    "consumed": "Consommée"
+  },
+  "source": {
+    "order": "Commande",
+    "cart": "Panier",
+    "reservation": "Réservation"
+  },
+  "table": {
+    "customer": "Client",
+    "product": "Produit",
+    "city": "Ville",
+    "quantity": "Quantité",
+    "source": "Source",
+    "status": "Statut",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "show": {
+    "title": "Détail de la réservation",
+    "loading": "Chargement du détail...",
+    "empty": "Aucun détail disponible.",
+    "customer": "Client",
+    "product": "Produit",
+    "city": "Ville",
+    "quantity": "Quantité",
+    "status": "Statut",
+    "source": "Source",
+    "expiresAt": "Expire le",
+    "reservedAt": "Réservé le",
+    "releasedAt": "Libéré le",
+    "consumedAt": "Consommé le",
+    "reason": "Motif"
+  },
+  "items": {
+    "title": "Items de la réservation",
+    "empty": "Aucun item disponible.",
+    "product": "Produit",
+    "city": "Ville",
+    "price": "Prix",
+    "quantity": "Quantité"
+  },
+  "actions": {
+    "view": "Voir",
+    "close": "Fermer"
+  }
+}

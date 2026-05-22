@@ -8,37 +8,25 @@
   "refreshing": "Actualizando...",
   "loading": "Cargando...",
   "empty": "No se encontraron registros.",
-
   "errors": {
     "load": "No se pudieron cargar los registros."
   },
-
   "toast": {
     "deleted": "Eliminado.",
     "deleteFailed": "Error al eliminar."
   },
-
   "actions": {
     "show": "Ver",
     "delete": "Eliminar"
   },
-
   "card": {
     "id": "Registro",
-    "entity": "Entidad",
-    "user": "Usuario",
     "date": "Fecha"
   },
-
   "show": {
     "title": "Detalles del registro",
-    "action": "Acción",
-    "entity": "Entidad",
-    "user": "Usuario",
-    "date": "Fecha",
     "metadata": "Metadatos"
   },
-
   "delete": {
     "title": "Confirmar",
     "message": "Eliminar este registro",
@@ -46,9 +34,24 @@
     "deleting": "Eliminando...",
     "btn": "Eliminar"
   },
-
   "modal": {
     "close": "Cerrar",
     "cancel": "Cancelar"
+  },
+  "fields": {
+    "id": "ID",
+    "action": "Acción",
+    "color": "Color",
+    "method": "Método",
+    "httpStatus": "Estado HTTP",
+    "user": "Usuario",
+    "userId": "ID de usuario",
+    "entity": "Entidad",
+    "entityId": "ID de entidad",
+    "route": "Ruta",
+    "url": "URL",
+    "message": "Mensaje",
+    "createdAt": "Creado el",
+    "updatedAt": "Modificado el"
   }
 }

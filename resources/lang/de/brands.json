@@ -1,58 +1,55 @@
 {
-  "brands": {
-    "title": "Marken",
-    "subtitle": "Marken verwalten",
-
-    "loading": "Lädt...",
-    "refresh": "Aktualisieren",
-    "refreshing": "Wird aktualisiert...",
-    "new": "Neue Marke",
-
-    "table": {
-      "index": "#",
-      "logo": "Logo",
-      "name": "Name",
-      "slug": "Slug",
-      "status": "Status",
-      "description": "Beschreibung",
-      "actions": "Aktionen"
-    },
-
-    "modal": {
-      "createTitle": "Erstellen",
-      "editTitle": "Bearbeiten",
-      "cancel": "Abbrechen",
-      "save": "Speichern",
-      "saving": "Wird gespeichert...",
-      "active": "Aktiv",
-
-      "name": "Name",
-      "slug": "Slug",
-      "logo": "Logo (URL)",
-      "description": "Beschreibung",
-
-      "placeholderName": "Z. B.: Nike",
-      "placeholderSlug": "Z. B.: nike",
-      "placeholderLogo": "https://.../logo.png",
-      "placeholderDescription": "Kurze Beschreibung",
-      "logoPreview": "Vorschau"
-    },
-
-    "delete": {
-      "title": "Bestätigen",
-      "message": "Marke löschen",
-      "message2": "Diese Marke löschen?",
-      "btn": "Löschen",
-      "deleting": "Wird gelöscht..."
-    },
-
-    "toast": {
-      "nameRequired": "Name ist erforderlich",
-      "created": "Erstellt.",
-      "updated": "Aktualisiert.",
-      "deleted": "Gelöscht.",
-      "saveFailed": "Speichern fehlgeschlagen",
-      "deleteFailed": "Löschen fehlgeschlagen."
-    }
+  "title": "Marken",
+  "subtitle": "Marken verwalten",
+  "loading": "Wird geladen...",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "new": "Neue Marke",
+  "active": "Aktiv",
+  "inactive": "Inaktiv",
+  "empty": "Keine Marken gefunden.",
+  "table": {
+    "index": "#",
+    "logo": "Logo",
+    "name": "Name",
+    "slug": "Slug",
+    "status": "Status",
+    "description": "Beschreibung",
+    "actions": "Aktionen"
+  },
+  "modal": {
+    "createTitle": "Marke erstellen",
+    "editTitle": "Marke bearbeiten",
+    "cancel": "Abbrechen",
+    "close": "Schliessen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "active": "Aktiv",
+    "name": "Name",
+    "logo": "Logo",
+    "description": "Beschreibung",
+    "placeholderName": "Z. B.: Nike",
+    "placeholderDescription": "Kurze Beschreibung",
+    "removeLogo": "Entfernen",
+    "logoHelp": "Waehlen Sie eine Bilddatei (PNG, JPG, SVG)."
+  },
+  "show": {
+    "title": "Markendetails"
+  },
+  "delete": {
+    "title": "Bestaetigung",
+    "message": "Marke loeschen",
+    "message2": "Diese Marke loeschen?",
+    "btn": "Loeschen",
+    "deleting": "Wird geloescht..."
+  },
+  "toast": {
+    "loadFailed": "Laden fehlgeschlagen.",
+    "nameRequired": "Name ist erforderlich.",
+    "created": "Marke erstellt.",
+    "updated": "Marke aktualisiert.",
+    "deleted": "Marke geloescht.",
+    "saveFailed": "Speichern fehlgeschlagen.",
+    "deleteFailed": "Loeschen fehlgeschlagen."
   }
 }

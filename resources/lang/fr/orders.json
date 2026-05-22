@@ -1,0 +1,83 @@
+﻿{
+  "title": "Gestion des commandes",
+  "subtitle": "Suivi des commandes clients et consultation des order items.",
+  "total": "Total",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "loading": "Chargement...",
+  "empty": "Aucune commande trouvée.",
+  "error": {
+    "load": "Impossible de charger les commandes.",
+    "details": "Impossible de charger le détail de la commande.",
+    "action": "Action impossible sur cette commande."
+  },
+  "table": {
+    "order": "Commande",
+    "customer": "Client",
+    "items": "Articles",
+    "quantity": "Quantité",
+    "status": "Statut",
+    "orderStatus": "Commande",
+    "paymentStatus": "Paiement",
+    "total": "Total",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "status": {
+    "pending": "En attente",
+    "confirmed": "Confirmée",
+    "processing": "En traitement",
+    "delivered": "Livrée",
+    "cancelled": "Annulée"
+  },
+  "paymentStatus": {
+    "unpaid": "Non payée",
+    "pending_verification": "Vérification",
+    "paid": "Payée",
+    "refunded": "Remboursée"
+  },
+  "show": {
+    "title": "Détail de la commande",
+    "loading": "Chargement du détail...",
+    "empty": "Aucun détail disponible.",
+    "order": "Commande",
+    "customer": "Client",
+    "address": "Adresse",
+    "openMaps": "Ouvrir dans Google Maps",
+    "notes": "Notes",
+    "notesPlaceholder": "Ajouter une note interne sur cette commande...",
+    "orderStatus": "Statut commande",
+    "paymentStatus": "Statut paiement",
+    "paymentMethod": "Moyen de paiement",
+    "deliveryFee": "Frais de livraison",
+    "deliveryFeeHelp": "Ce montant est défini par l'admin selon la distance de livraison. `0` signifie livraison gratuite. Le frais doit être fixé avant confirmation.",
+    "invoice": "Facture",
+    "receipt": "Reçu",
+    "receiptSentAt": "Reçu envoyé le",
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "total": "Total",
+    "totalHelp": "Le total inclut le frais de livraison défini pour cette commande."
+  },
+  "items": {
+    "title": "Order items",
+    "empty": "Aucun item disponible.",
+    "product": "Produit",
+    "sku": "SKU",
+    "quantity": "Quantité",
+    "unitPrice": "Prix unitaire",
+    "lineTotal": "Total ligne"
+  },
+  "actions": {
+    "view": "Voir",
+    "save": "Enregistrer",
+    "saveNote": "Enregistrer la note",
+    "confirm": "Confirmer",
+    "processing": "Mettre en traitement",
+    "markPaid": "Marquer payée",
+    "sendReceipt": "Envoyer reçu",
+    "deliver": "Livrer",
+    "cancel": "Annuler",
+    "close": "Fermer"
+  }
+}

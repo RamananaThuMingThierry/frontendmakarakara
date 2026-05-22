@@ -1,0 +1,66 @@
+﻿{
+  "title": "Témoignages",
+  "subtitle": "Gestion des avis clients affichés sur le site.",
+  "search": "Rechercher...",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "new": "Nouveau témoignage",
+  "loading": "Chargement...",
+  "empty": "Aucun témoignage trouvé.",
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "table": {
+    "photo": "Photo",
+    "name": "Nom",
+    "city": "Ville",
+    "product": "Produit",
+    "rating": "Note",
+    "position": "Position",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "modal": {
+    "createTitle": "Nouveau témoignage",
+    "editTitle": "Modifier le témoignage",
+    "photo": "Photo",
+    "name": "Nom",
+    "city": "Ville",
+    "product": "Produit utilisé",
+    "rating": "Note",
+    "position": "Position",
+    "message": "Message",
+    "visible": "Visible sur le site",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "noImage": "Aucune image",
+    "none": "Aucune"
+  },
+  "show": {
+    "title": "Détail du témoignage"
+  },
+  "actions": {
+    "view": "Voir",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "close": "Fermer"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer le témoignage de",
+    "deleting": "Suppression..."
+  },
+  "toast": {
+    "created": "Témoignage créé.",
+    "updated": "Témoignage mis à jour.",
+    "deleted": "Témoignage supprimé.",
+    "saveFailed": "Échec de l'enregistrement.",
+    "deleteFailed": "Échec de la suppression."
+  },
+  "error": {
+    "load": "Impossible de charger les témoignages.",
+    "show": "Impossible de charger le témoignage."
+  }
+}

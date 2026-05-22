@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { couponsApi } from "../../../api/coupons";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
@@ -15,24 +15,24 @@ function formatDateTimeInput(value) {
   return localDate.toISOString().slice(0, 16);
 }
 
-function formatDateTimeDisplay(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleString("fr-FR");
-}
-
-function formatMoney(value) {
-  const amount = Number(value ?? 0);
-  return new Intl.NumberFormat("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
 export default function CouponsPage() {
   const { lang, t } = useI18n();
   const DT_LANG_URL = useMemo(() => `/lang/datatables/${lang}.json`, [lang]);
+
+  const formatDateTimeDisplay = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleString(lang === "en" ? "en-US" : lang);
+  };
+
+  const formatMoney = (value) => {
+    const amount = Number(value ?? 0);
+    return new Intl.NumberFormat(lang === "en" ? "en-US" : lang, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
 
   const [items, setItems] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -40,7 +40,6 @@ export default function CouponsPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
-
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [showOpen, setShowOpen] = useState(false);
@@ -50,17 +49,7 @@ export default function CouponsPage() {
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
-
-  const [form, setForm] = useState({
-    code: "",
-    value: "",
-    type: "fixed",
-    min_subtotal: "",
-    starts_at: "",
-    ends_at: "",
-    usage_limit: "",
-    is_active: true,
-  });
+  const [form, setForm] = useState({ code: "", value: "", type: "fixed", min_subtotal: "", starts_at: "", ends_at: "", usage_limit: "", is_active: true });
 
   const tableRef = useRef(null);
   const dtRef = useRef(null);
@@ -73,9 +62,7 @@ export default function CouponsPage() {
   function showToast(type, message) {
     setToast({ open: true, type, message });
     window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => {
-      setToast((current) => ({ ...current, open: false }));
-    }, 3500);
+    showToast._t = window.setTimeout(() => setToast((current) => ({ ...current, open: false })), 3500);
   }
 
   const getRowId = (row) => row?.encrypted_id ?? row?.id;
@@ -87,6 +74,8 @@ export default function CouponsPage() {
     try {
       const rows = await couponsApi.list();
       setItems(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      showToast("danger", e?.response?.data?.message || t("coupons.toast.loadFailed", "Load failed."));
     } finally {
       if (mode === "initial") setInitialLoading(false);
       setRefreshing(false);
@@ -98,16 +87,7 @@ export default function CouponsPage() {
   }, []);
 
   function resetForm() {
-    setForm({
-      code: "",
-      value: "",
-      type: "fixed",
-      min_subtotal: "",
-      starts_at: "",
-      ends_at: "",
-      usage_limit: "",
-      is_active: true,
-    });
+    setForm({ code: "", value: "", type: "fixed", min_subtotal: "", starts_at: "", ends_at: "", usage_limit: "", is_active: true });
     setErrors({});
     setGlobalError("");
   }
@@ -150,7 +130,7 @@ export default function CouponsPage() {
       const details = await couponsApi.show(getRowId(coupon));
       setShowing(details);
     } catch {
-      showToast("danger", t("coupons.toast.detailsFailed", "Impossible de charger les détails."));
+      showToast("danger", t("coupons.toast.detailsFailed", "Unable to load details."));
     } finally {
       setLoadingDetails(false);
     }
@@ -173,9 +153,7 @@ export default function CouponsPage() {
   }
 
   useEffect(() => {
-    if (initialLoading) return;
-    if (!tableRef.current) return;
-
+    if (initialLoading || !tableRef.current) return;
     const $table = $(tableRef.current);
 
     if (dtRef.current) {
@@ -190,101 +168,28 @@ export default function CouponsPage() {
     }
 
     dtRef.current = $table.DataTable({
-      data: [],
-      pageLength: 10,
-      lengthMenu: [10, 15, 25, 50, 100],
-      ordering: true,
-      searching: true,
-      responsive: true,
-      language: { url: DT_LANG_URL },
+      data: [], pageLength: 10, lengthMenu: [10, 15, 25, 50, 100], ordering: true, searching: true, responsive: true, language: { url: DT_LANG_URL },
       columns: [
         { data: "code", defaultContent: "" },
+        { data: "type", width: 120, render: (value) => value === "percent" ? `<span class="badge text-bg-info">${t("coupons.type.percent", "Percentage")}</span>` : `<span class="badge text-bg-dark">${t("coupons.type.fixed", "Fixed amount")}</span>` },
+        { data: "value", width: 120, render: (value, tt, row) => row?.type === "percent" ? `${formatMoney(value)} %` : `${formatMoney(value)} ${t("coupons.currency", "DA")}` },
+        { data: "min_subtotal", width: 140, render: (value) => `${formatMoney(value)} ${t("coupons.currency", "DA")}` },
         {
-          data: "type",
-          width: 120,
-          render: (value) =>
-            value === "percent"
-              ? `<span class="badge text-bg-info">Pourcentage</span>`
-              : `<span class="badge text-bg-dark">Fixe</span>`,
-        },
-        {
-          data: "value",
-          width: 120,
-          render: (value, tt, row) =>
-            row?.type === "percent" ? `${formatMoney(value)} %` : `${formatMoney(value)} DA`,
-        },
-        {
-          data: "min_subtotal",
-          width: 140,
-          render: (value) => `${formatMoney(value)} DA`,
-        },
-        {
-          data: null,
-          width: 220,
-          render: (d, tt, row) => {
+          data: null, width: 220, render: (d, tt, row) => {
             const start = formatDateTimeDisplay(row?.starts_at);
             const end = formatDateTimeDisplay(row?.ends_at);
-            return `
-              <div class="small">
-                <div><span class="text-muted">Début:</span> ${start}</div>
-                <div><span class="text-muted">Fin:</span> ${end}</div>
-              </div>
-            `;
+            return `<div class="small"><div><span class="text-muted">${t("coupons.validity.start", "Start")}:</span> ${start}</div><div><span class="text-muted">${t("coupons.validity.end", "End")}:</span> ${end}</div></div>`;
           },
         },
-        {
-          data: "usage_limit",
-          width: 120,
-          render: (value) => (value ? value : `<span class="text-muted small">Illimité</span>`),
-        },
-        {
-          data: "is_active",
-          width: 120,
-          render: (value) =>
-            value
-              ? `<span class="badge text-bg-success">Actif</span>`
-              : `<span class="badge text-bg-secondary">Inactif</span>`,
-        },
-        {
-          data: null,
-          orderable: false,
-          className: "text-end",
-          width: 180,
-          render: (d, tt, row) => {
-            const id = getRowId(row);
-            return `
-              <button class="btn btn-sm btn-outline-primary me-2 js-show" data-id="${id}">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-dark me-2 js-edit" data-id="${id}">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger js-del" data-id="${id}">
-                <i class="bi bi-trash3"></i>
-              </button>
-            `;
-          },
-        },
+        { data: "usage_limit", width: 120, render: (value) => (value ? value : `<span class="text-muted small">${t("coupons.form.unlimited", "Unlimited")}</span>`) },
+        { data: "is_active", width: 120, render: (value) => value ? `<span class="badge text-bg-success">${t("coupons.status.active", "Active")}</span>` : `<span class="badge text-bg-secondary">${t("coupons.status.inactive", "Inactive")}</span>` },
+        { data: null, orderable: false, className: "text-end", width: 180, render: (d, tt, row) => { const id = getRowId(row); return `<button class="btn btn-sm btn-outline-primary me-2 js-show" data-id="${id}"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-outline-dark me-2 js-edit" data-id="${id}"><i class="bi bi-pencil-square"></i></button><button class="btn btn-sm btn-outline-danger js-del" data-id="${id}"><i class="bi bi-trash3"></i></button>`; } },
       ],
     });
 
-    $table.on("click", ".js-show", (e) => {
-      const id = $(e.currentTarget).data("id");
-      const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id));
-      if (coupon) openShow(coupon);
-    });
-
-    $table.on("click", ".js-edit", (e) => {
-      const id = $(e.currentTarget).data("id");
-      const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id));
-      if (coupon) openEdit(coupon);
-    });
-
-    $table.on("click", ".js-del", (e) => {
-      const id = $(e.currentTarget).data("id");
-      const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id));
-      if (coupon) onDeleteAsk(coupon);
-    });
+    $table.on("click", ".js-show", (e) => { const id = $(e.currentTarget).data("id"); const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id)); if (coupon) openShow(coupon); });
+    $table.on("click", ".js-edit", (e) => { const id = $(e.currentTarget).data("id"); const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id)); if (coupon) openEdit(coupon); });
+    $table.on("click", ".js-del", (e) => { const id = $(e.currentTarget).data("id"); const coupon = itemsRef.current.find((x) => String(getRowId(x)) === String(id)); if (coupon) onDeleteAsk(coupon); });
 
     return () => {
       try {
@@ -295,16 +200,14 @@ export default function CouponsPage() {
       dtRef.current?.destroy();
       dtRef.current = null;
     };
-  }, [initialLoading, DT_LANG_URL]);
+  }, [initialLoading, DT_LANG_URL, lang]);
 
   useEffect(() => {
     if (!dtRef.current) return;
-
     const dt = dtRef.current;
     const page = dt.page();
     const search = dt.search();
     const order = dt.order();
-
     dt.clear();
     dt.rows.add(items);
     dt.draw(false);
@@ -333,19 +236,18 @@ export default function CouponsPage() {
     try {
       if (editing) {
         await couponsApi.update(getRowId(editing), payload);
-        showToast("success", t("coupons.toast.updated", "Coupon mis à jour."));
+        showToast("success", t("coupons.toast.updated", "Coupon updated."));
       } else {
         await couponsApi.create(payload);
-        showToast("success", t("coupons.toast.created", "Coupon créé."));
+        showToast("success", t("coupons.toast.created", "Coupon created."));
       }
-
       await load({ mode: "refresh" });
       setOpen(false);
       setEditing(null);
     } catch (e2) {
       const data = e2?.response?.data;
       if (data?.errors) setErrors(data.errors);
-      else setGlobalError(data?.message || t("coupons.toast.saveFailed", "Échec de l'enregistrement."));
+      else setGlobalError(data?.message || t("coupons.toast.saveFailed", "Save failed."));
     } finally {
       setSaving(false);
     }
@@ -353,16 +255,15 @@ export default function CouponsPage() {
 
   async function confirmDelete() {
     if (!deleteTarget || deleting) return;
-
     setDeleting(true);
     try {
       await couponsApi.remove(getRowId(deleteTarget));
       await load({ mode: "refresh" });
       setDeleteOpen(false);
       setDeleteTarget(null);
-      showToast("success", t("coupons.toast.deleted", "Coupon supprimé."));
+      showToast("success", t("coupons.toast.deleted", "Coupon deleted."));
     } catch (e) {
-      const message = e?.response?.data?.message || t("coupons.toast.deleteFailed", "Échec de la suppression.");
+      const message = e?.response?.data?.message || t("coupons.toast.deleteFailed", "Delete failed.");
       showToast("danger", message);
     } finally {
       setDeleting(false);
@@ -374,346 +275,25 @@ export default function CouponsPage() {
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
           <h4 className="mb-1">{t("coupons.title", "Coupons")}</h4>
-          <div className="text-muted small">{t("coupons.subtitle", "Gérez les coupons de réduction")}</div>
+          <div className="text-muted small">{t("coupons.subtitle", "Manage discount coupons")}</div>
         </div>
-
         <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => load({ mode: "refresh" })}
-            disabled={initialLoading || refreshing}
-          >
-            {initialLoading || refreshing ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                {t("coupons.refreshing", "Actualisation...")}
-              </>
-            ) : (
-              <>
-                <i className="bi bi-arrow-clockwise me-2" />
-                {t("coupons.refresh", "Actualiser")}
-              </>
-            )}
+          <button className="btn btn-outline-secondary" onClick={() => load({ mode: "refresh" })} disabled={initialLoading || refreshing}>
+            {initialLoading || refreshing ? <><span className="spinner-border spinner-border-sm me-2" />{t("coupons.refreshing", "Refreshing...")}</> : <><i className="bi bi-arrow-clockwise me-2" />{t("coupons.refresh", "Refresh")}</>}
           </button>
-
-          <button className="btn btn-warning" onClick={openCreate} disabled={initialLoading}>
-            <i className="bi bi-plus-lg me-2" />
-            {t("coupons.new", "Nouveau coupon")}
-          </button>
+          <button className="btn btn-warning" onClick={openCreate} disabled={initialLoading}><i className="bi bi-plus-lg me-2" />{t("coupons.new", "New coupon")}</button>
         </div>
       </div>
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          {initialLoading ? (
-            <div className="d-flex align-items-center gap-2 text-muted mb-3">
-              <div className="spinner-border spinner-border-sm" />
-              {t("coupons.loading", "Chargement...")}
-            </div>
-          ) : null}
+      <div className="card border-0 shadow-sm"><div className="card-body">{initialLoading ? <div className="d-flex align-items-center gap-2 text-muted mb-3"><div className="spinner-border spinner-border-sm" />{t("coupons.loading", "Loading...")}</div> : null}<div className="table-responsive"><table ref={tableRef} className="table align-middle mb-0"><thead><tr className="text-muted small"><th>{t("coupons.table.code", "Code")}</th><th style={{ width: 120 }}>{t("coupons.table.type", "Type")}</th><th style={{ width: 120 }}>{t("coupons.table.value", "Value")}</th><th style={{ width: 140 }}>{t("coupons.table.minSubtotal", "Minimum")}</th><th style={{ width: 220 }}>{t("coupons.table.validity", "Validity")}</th><th style={{ width: 120 }}>{t("coupons.table.usageLimit", "Limit")}</th><th style={{ width: 120 }}>{t("coupons.table.status", "Status")}</th><th style={{ width: 180 }} className="text-end">{t("coupons.table.actions", "Actions")}</th></tr></thead><tbody /></table></div>{!initialLoading && items.length === 0 ? <div className="alert alert-light border mt-3 mb-0">{t("coupons.empty", "No coupons found.")}</div> : null}</div></div>
 
-          <div className="table-responsive">
-            <table ref={tableRef} className="table align-middle mb-0">
-              <thead>
-                <tr className="text-muted small">
-                  <th>{t("coupons.table.code", "Code")}</th>
-                  <th style={{ width: 120 }}>{t("coupons.table.type", "Type")}</th>
-                  <th style={{ width: 120 }}>{t("coupons.table.value", "Valeur")}</th>
-                  <th style={{ width: 140 }}>{t("coupons.table.minSubtotal", "Minimum")}</th>
-                  <th style={{ width: 220 }}>{t("coupons.table.validity", "Validité")}</th>
-                  <th style={{ width: 120 }}>{t("coupons.table.usageLimit", "Limite")}</th>
-                  <th style={{ width: 120 }}>{t("coupons.table.status", "Statut")}</th>
-                  <th style={{ width: 180 }} className="text-end">
-                    {t("coupons.table.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody />
-            </table>
-          </div>
-        </div>
-      </div>
+      {open && <><div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true"><div className="modal-dialog modal-dialog-centered"><div className="modal-content border-0 shadow"><div className="modal-header"><h5 className="modal-title">{editing ? t("coupons.modal.editTitle", "Edit coupon") : t("coupons.modal.createTitle", "Create coupon")}</h5><button type="button" className="btn-close" onClick={closeModal} /></div><form onSubmit={onSubmit}><div className="modal-body">{globalError && <div className="alert alert-danger py-2">{globalError}</div>}<div className="mb-3"><label className="form-label">{t("coupons.form.code", "Code")}</label><input className={`form-control ${errors.code ? "is-invalid" : ""}`} value={form.code} onChange={(e) => setForm((p) => ({ ...p, code: e.target.value.toUpperCase() }))} placeholder="PROMO10" autoFocus />{errors.code && <span className="text-danger small">{errors.code[0]}</span>}</div><div className="row g-3"><div className="col-md-4"><label className="form-label">{t("coupons.form.type", "Type")}</label><select className={`form-select ${errors.type ? "is-invalid" : ""}`} value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}><option value="fixed">{t("coupons.type.fixed", "Fixed amount")}</option><option value="percent">{t("coupons.type.percent", "Percentage")}</option></select>{errors.type && <span className="text-danger small">{errors.type[0]}</span>}</div><div className="col-md-4"><label className="form-label">{t("coupons.form.value", "Value")}</label><input type="number" min="0" step="0.01" className={`form-control ${errors.value ? "is-invalid" : ""}`} value={form.value} onChange={(e) => setForm((p) => ({ ...p, value: e.target.value }))} />{errors.value && <span className="text-danger small">{errors.value[0]}</span>}</div><div className="col-md-4"><label className="form-label">{t("coupons.form.minSubtotal", "Minimum subtotal")}</label><input type="number" min="0" step="0.01" className={`form-control ${errors.min_subtotal ? "is-invalid" : ""}`} value={form.min_subtotal} onChange={(e) => setForm((p) => ({ ...p, min_subtotal: e.target.value }))} />{errors.min_subtotal && <span className="text-danger small">{errors.min_subtotal[0]}</span>}</div></div><div className="row g-3 mt-1"><div className="col-md-6"><label className="form-label">{t("coupons.form.startsAt", "Validity start")}</label><input type="datetime-local" className={`form-control ${errors.starts_at ? "is-invalid" : ""}`} value={form.starts_at} onChange={(e) => setForm((p) => ({ ...p, starts_at: e.target.value }))} />{errors.starts_at && <span className="text-danger small">{errors.starts_at[0]}</span>}</div><div className="col-md-6"><label className="form-label">{t("coupons.form.endsAt", "Validity end")}</label><input type="datetime-local" className={`form-control ${errors.ends_at ? "is-invalid" : ""}`} value={form.ends_at} onChange={(e) => setForm((p) => ({ ...p, ends_at: e.target.value }))} />{errors.ends_at && <span className="text-danger small">{errors.ends_at[0]}</span>}</div></div><div className="row g-3 mt-1"><div className="col-md-6"><label className="form-label">{t("coupons.form.usageLimit", "Usage limit")}</label><input type="number" min="1" step="1" className={`form-control ${errors.usage_limit ? "is-invalid" : ""}`} value={form.usage_limit} onChange={(e) => setForm((p) => ({ ...p, usage_limit: e.target.value }))} placeholder={t("coupons.form.unlimitedPlaceholder", "Leave empty for unlimited")} />{errors.usage_limit && <span className="text-danger small">{errors.usage_limit[0]}</span>}</div><div className="col-md-6 d-flex align-items-end"><div className="form-check mb-2"><input className="form-check-input" type="checkbox" id="coupon-active" checked={!!form.is_active} onChange={(e) => setForm((p) => ({ ...p, is_active: e.target.checked }))} /><label className="form-check-label" htmlFor="coupon-active">{t("coupons.form.active", "Active coupon")}</label></div></div></div></div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>{t("coupons.modal.cancel", "Cancel")}</button><button className="btn btn-warning" disabled={saving}>{saving ? <><span className="spinner-border spinner-border-sm me-2" />{t("coupons.modal.saving", "Saving...")}</> : t("coupons.modal.save", "Save")}</button></div></form></div></div></div><div className="modal-backdrop fade show" onClick={closeModal} /></>}
 
-      {open && (
-        <>
-          <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content border-0 shadow">
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    {editing ? t("coupons.modal.editTitle", "Modifier le coupon") : t("coupons.modal.createTitle", "Créer un coupon")}
-                  </h5>
-                  <button type="button" className="btn-close" onClick={closeModal} />
-                </div>
+      {showOpen && <><div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true"><div className="modal-dialog"><div className="modal-content border-0 shadow"><div className="modal-header"><h5 className="modal-title">{t("coupons.show.title", "Coupon details")}</h5><button type="button" className="btn-close" onClick={closeShow} /></div><div className="modal-body">{loadingDetails ? <div className="d-flex align-items-center gap-2 text-muted"><div className="spinner-border spinner-border-sm" />{t("coupons.show.loading", "Loading details...")}</div> : showing ? <><div className="mb-2"><div className="text-muted small">{t("coupons.table.code", "Code")}</div><div className="fw-semibold">{showing.code || "-"}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.table.type", "Type")}</div><div>{showing.type === "percent" ? t("coupons.type.percent", "Percentage") : t("coupons.type.fixed", "Fixed amount")}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.table.value", "Value")}</div><div>{showing.type === "percent" ? `${formatMoney(showing.value)} %` : `${formatMoney(showing.value)} ${t("coupons.currency", "DA")}`}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.table.minSubtotal", "Minimum subtotal")}</div><div>{formatMoney(showing.min_subtotal)} {t("coupons.currency", "DA")}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.table.validity", "Validity")}</div><div>{t("coupons.validity.start", "Start")}: {formatDateTimeDisplay(showing.starts_at)}</div><div>{t("coupons.validity.end", "End")}: {formatDateTimeDisplay(showing.ends_at)}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.table.usageLimit", "Usage limit")}</div><div>{showing.usage_limit ?? t("coupons.form.unlimited", "Unlimited")}</div></div><div className="mb-2"><div className="text-muted small">{t("coupons.show.usedCount", "Usage count")}</div><div>{showing.used_count ?? 0}</div></div><div><div className="text-muted small">{t("coupons.table.status", "Status")}</div><div>{showing.is_active ? <span className="badge text-bg-success">{t("coupons.status.active", "Active")}</span> : <span className="badge text-bg-secondary">{t("coupons.status.inactive", "Inactive")}</span>}</div></div></> : null}</div><div className="modal-footer"><button type="button" className="btn btn-sm btn-outline-secondary" onClick={closeShow}>{t("coupons.show.close", "Close")}</button></div></div></div></div><div className="modal-backdrop fade show" onClick={closeShow} /></>}
 
-                <form onSubmit={onSubmit}>
-                  <div className="modal-body">
-                    {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
+      {deleteOpen && <><div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true"><div className="modal-dialog modal-dialog-centered"><div className="modal-content border-0 shadow"><div className="modal-header"><h5 className="modal-title">{t("coupons.delete.title", "Confirmation")}</h5><button type="button" className="btn-close" onClick={closeDeleteModal} /></div><div className="modal-body">{deleteTarget ? <p className="mb-0">{t("coupons.delete.message", "Delete coupon")} <b>{deleteTarget.code}</b> ?</p> : <p className="mb-0">{t("coupons.delete.message2", "Delete this coupon?")}</p>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={closeDeleteModal} disabled={deleting}>{t("coupons.modal.cancel", "Cancel")}</button><button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>{deleting ? <><span className="spinner-border spinner-border-sm me-2" />{t("coupons.delete.deleting", "Deleting...")}</> : t("coupons.delete.btn", "Delete")}</button></div></div></div></div><div className="modal-backdrop fade show" onClick={closeDeleteModal} /></>}
 
-                    <div className="mb-3">
-                      <label className="form-label">{t("coupons.form.code", "Code")}</label>
-                      <input
-                        className={`form-control ${errors.code ? "is-invalid" : ""}`}
-                        value={form.code}
-                        onChange={(e) => setForm((p) => ({ ...p, code: e.target.value.toUpperCase() }))}
-                        placeholder="PROMO10"
-                        autoFocus
-                      />
-                      {errors.code && <span className="text-danger small">{errors.code[0]}</span>}
-                    </div>
-
-                    <div className="row g-3">
-                      <div className="col-md-4">
-                        <label className="form-label">{t("coupons.form.type", "Type")}</label>
-                        <select
-                          className={`form-select ${errors.type ? "is-invalid" : ""}`}
-                          value={form.type}
-                          onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}
-                        >
-                          <option value="fixed">{t("coupons.type.fixed", "Montant fixe")}</option>
-                          <option value="percent">{t("coupons.type.percent", "Pourcentage")}</option>
-                        </select>
-                        {errors.type && <span className="text-danger small">{errors.type[0]}</span>}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">{t("coupons.form.value", "Valeur")}</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          className={`form-control ${errors.value ? "is-invalid" : ""}`}
-                          value={form.value}
-                          onChange={(e) => setForm((p) => ({ ...p, value: e.target.value }))}
-                        />
-                        {errors.value && <span className="text-danger small">{errors.value[0]}</span>}
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">{t("coupons.form.minSubtotal", "Sous-total minimum")}</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          className={`form-control ${errors.min_subtotal ? "is-invalid" : ""}`}
-                          value={form.min_subtotal}
-                          onChange={(e) => setForm((p) => ({ ...p, min_subtotal: e.target.value }))}
-                        />
-                        {errors.min_subtotal && <span className="text-danger small">{errors.min_subtotal[0]}</span>}
-                      </div>
-                    </div>
-
-                    <div className="row g-3 mt-1">
-                      <div className="col-md-6">
-                        <label className="form-label">{t("coupons.form.startsAt", "Début de validité")}</label>
-                        <input
-                          type="datetime-local"
-                          className={`form-control ${errors.starts_at ? "is-invalid" : ""}`}
-                          value={form.starts_at}
-                          onChange={(e) => setForm((p) => ({ ...p, starts_at: e.target.value }))}
-                        />
-                        {errors.starts_at && <span className="text-danger small">{errors.starts_at[0]}</span>}
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">{t("coupons.form.endsAt", "Fin de validité")}</label>
-                        <input
-                          type="datetime-local"
-                          className={`form-control ${errors.ends_at ? "is-invalid" : ""}`}
-                          value={form.ends_at}
-                          onChange={(e) => setForm((p) => ({ ...p, ends_at: e.target.value }))}
-                        />
-                        {errors.ends_at && <span className="text-danger small">{errors.ends_at[0]}</span>}
-                      </div>
-                    </div>
-
-                    <div className="row g-3 mt-1">
-                      <div className="col-md-6">
-                        <label className="form-label">{t("coupons.form.usageLimit", "Limite d'utilisation")}</label>
-                        <input
-                          type="number"
-                          min="1"
-                          step="1"
-                          className={`form-control ${errors.usage_limit ? "is-invalid" : ""}`}
-                          value={form.usage_limit}
-                          onChange={(e) => setForm((p) => ({ ...p, usage_limit: e.target.value }))}
-                          placeholder={t("coupons.form.unlimited", "Laisser vide pour illimité")}
-                        />
-                        {errors.usage_limit && <span className="text-danger small">{errors.usage_limit[0]}</span>}
-                      </div>
-
-                      <div className="col-md-6 d-flex align-items-end">
-                        <div className="form-check mb-2">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="coupon-active"
-                            checked={!!form.is_active}
-                            onChange={(e) => setForm((p) => ({ ...p, is_active: e.target.checked }))}
-                          />
-                          <label className="form-check-label" htmlFor="coupon-active">
-                            {t("coupons.form.active", "Coupon actif")}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>
-                      {t("coupons.modal.cancel", "Annuler")}
-                    </button>
-                    <button className="btn btn-warning" disabled={saving}>
-                      {saving ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" />
-                          {t("coupons.modal.saving", "Enregistrement...")}
-                        </>
-                      ) : (
-                        t("coupons.modal.save", "Enregistrer")
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-backdrop fade show" onClick={closeModal} />
-        </>
-      )}
-
-      {showOpen && (
-        <>
-          <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog">
-              <div className="modal-content border-0 shadow">
-                <div className="modal-header">
-                  <h5 className="modal-title">{t("coupons.show.title", "Détails du coupon")}</h5>
-                  <button type="button" className="btn-close" onClick={closeShow} />
-                </div>
-
-                <div className="modal-body">
-                  {loadingDetails ? (
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <div className="spinner-border spinner-border-sm" />
-                      {t("coupons.show.loading", "Chargement des détails...")}
-                    </div>
-                  ) : showing ? (
-                    <>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.code", "Code")}</div>
-                        <div className="fw-semibold">{showing.code || "—"}</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.type", "Type")}</div>
-                        <div>{showing.type === "percent" ? "Pourcentage" : "Montant fixe"}</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.value", "Valeur")}</div>
-                        <div>{showing.type === "percent" ? `${formatMoney(showing.value)} %` : `${formatMoney(showing.value)} DA`}</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.minSubtotal", "Sous-total minimum")}</div>
-                        <div>{formatMoney(showing.min_subtotal)} DA</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.validity", "Validité")}</div>
-                        <div>Début: {formatDateTimeDisplay(showing.starts_at)}</div>
-                        <div>Fin: {formatDateTimeDisplay(showing.ends_at)}</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.table.usageLimit", "Limite d'utilisation")}</div>
-                        <div>{showing.usage_limit ?? "Illimité"}</div>
-                      </div>
-                      <div className="mb-2">
-                        <div className="text-muted small">{t("coupons.show.usedCount", "Nombre d'utilisations")}</div>
-                        <div>{showing.used_count ?? 0}</div>
-                      </div>
-                      <div>
-                        <div className="text-muted small">{t("coupons.table.status", "Statut")}</div>
-                        <div>
-                          {showing.is_active ? (
-                            <span className="badge text-bg-success">Actif</span>
-                          ) : (
-                            <span className="badge text-bg-secondary">Inactif</span>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-sm btn-outline-secondary" onClick={closeShow}>
-                    {t("coupons.show.close", "Fermer")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-backdrop fade show" onClick={closeShow} />
-        </>
-      )}
-
-      {deleteOpen && (
-        <>
-          <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content border-0 shadow">
-                <div className="modal-header">
-                  <h5 className="modal-title">{t("coupons.delete.title", "Confirmation")}</h5>
-                  <button type="button" className="btn-close" onClick={closeDeleteModal} />
-                </div>
-
-                <div className="modal-body">
-                  {deleteTarget ? (
-                    <p className="mb-0">
-                      {t("coupons.delete.message", "Supprimer le coupon")} <b>{deleteTarget.code}</b> ?
-                    </p>
-                  ) : (
-                    <p className="mb-0">{t("coupons.delete.message2", "Supprimer ce coupon ?")}</p>
-                  )}
-                </div>
-
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeDeleteModal} disabled={deleting}>
-                    {t("coupons.modal.cancel", "Annuler")}
-                  </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
-                    {deleting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        {t("coupons.delete.deleting", "Suppression...")}
-                      </>
-                    ) : (
-                      t("coupons.delete.btn", "Supprimer")
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-backdrop fade show" onClick={closeDeleteModal} />
-        </>
-      )}
-
-      {toast.open && (
-        <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}>
-          <div className={`toast show text-bg-${toast.type} border-0`}>
-            <div className="d-flex">
-              <div className="toast-body">{toast.message}</div>
-              <button
-                type="button"
-                className="btn-close btn-close-white me-2 m-auto"
-                onClick={() => setToast((current) => ({ ...current, open: false }))}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {toast.open && <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}><div className={`toast show text-bg-${toast.type} border-0`}><div className="d-flex"><div className="toast-body">{toast.message}</div><button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setToast((current) => ({ ...current, open: false }))} /></div></div></div>}
     </div>
   );
 }

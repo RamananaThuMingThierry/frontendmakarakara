@@ -1,0 +1,61 @@
+﻿{
+  "title": "Reservation tracking",
+  "subtitle": "History of reserved, released and consumed products.",
+  "total": "Total",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "loading": "Loading...",
+  "empty": "No reservations found.",
+  "error": {
+    "load": "Unable to load reservations.",
+    "details": "Unable to load reservation details."
+  },
+  "status": {
+    "active": "Active",
+    "released": "Released",
+    "consumed": "Consumed"
+  },
+  "source": {
+    "order": "Order",
+    "cart": "Cart",
+    "reservation": "Reservation"
+  },
+  "table": {
+    "customer": "Customer",
+    "product": "Product",
+    "city": "City",
+    "quantity": "Quantity",
+    "source": "Source",
+    "status": "Status",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "show": {
+    "title": "Reservation details",
+    "loading": "Loading details...",
+    "empty": "No details available.",
+    "customer": "Customer",
+    "product": "Product",
+    "city": "City",
+    "quantity": "Quantity",
+    "status": "Status",
+    "source": "Source",
+    "expiresAt": "Expires at",
+    "reservedAt": "Reserved at",
+    "releasedAt": "Released at",
+    "consumedAt": "Consumed at",
+    "reason": "Reason"
+  },
+  "items": {
+    "title": "Reservation items",
+    "empty": "No items available.",
+    "product": "Product",
+    "city": "City",
+    "price": "Price",
+    "quantity": "Quantity"
+  },
+  "actions": {
+    "view": "View",
+    "close": "Close"
+  }
+}

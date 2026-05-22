@@ -1,0 +1,162 @@
+{
+  "loading": "Loading...",
+  "fields": {
+    "product": "Product",
+    "category": "Category",
+    "name": "Product name",
+    "barcode": "Barcode",
+    "priceMga": "Price (MGA)",
+    "description": "Description",
+    "images": "Images",
+    "imagesHelp": "Formats: jpg, jpeg, png, webp. Max 4MB / image.",
+    "active": "Active"
+  },
+  "placeholders": {
+    "name": "Ex: Karting GT4 270cc",
+    "sku": "Ex: SKU-0001",
+    "barcode": "Ex: 123456789",
+    "price": "Ex: 25000"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "tabs": {
+    "inventory": "Inventory",
+    "movements": "Movements"
+  },
+  "actions": {
+    "create": "Create",
+    "update": "Update",
+    "edit": "Edit",
+    "remove": "Remove"
+  },
+  "create": {
+    "title": "Create product",
+    "categoryFixed": "The category is set automatically."
+  },
+  "edit": {
+    "title": "Edit product",
+    "existingImages": "Existing images",
+    "noExistingImages": "No saved images."
+  },
+  "images": {
+    "title": "Product images",
+    "addTitle": "Add images",
+    "addAction": "Add",
+    "deleteAction": "Delete",
+    "files": "Files",
+    "filesHelp": "Select multiple images. You can remove one before upload.",
+    "selectedCount": "image(s) selected",
+    "clearAll": "Remove all",
+    "noneSelected": "No image selected.",
+    "noneToDelete": "No image to delete.",
+    "selectToDelete": "Select images to delete.",
+    "itemAlt": "Product image",
+    "view": "View image",
+    "previous": "Previous",
+    "next": "Next",
+    "uploading": "Uploading...",
+    "deleting": "Deleting...",
+    "deleteTitle": "Delete images",
+    "errors": {
+      "generic": "An error occurred. Check the image size or format and try again."
+    }
+  },
+  "summary": {
+    "title": "Summary",
+    "basePrice": "Base price",
+    "brand": "Brand",
+    "totalStock": "Total stock",
+    "reservedStock": "Reserved",
+    "citiesCount": "Linked cities"
+  },
+  "movements": {
+    "types": {
+      "in": "Inbound",
+      "out": "Outbound",
+      "adjust": "Adjustment",
+      "transfer": "Transfer",
+      "return": "Return"
+    },
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "cityFrom": "Source city",
+      "cityTo": "Destination city",
+      "quantity": "Quantity",
+      "before": "Before",
+      "after": "After",
+      "user": "User",
+      "reason": "Reason"
+    }
+  },
+  "inventory": {
+    "viewTitle": "Inventory details",
+    "createTitle": "Add inventory",
+    "editTitle": "Edit inventory",
+    "adjustTitle": "Adjust stock",
+    "transferTitle": "Transfer stock",
+    "selectCity": "Select a city",
+    "validating": "Validating...",
+    "actions": {
+      "add": "Add inventory",
+      "adjust": "Adjust",
+      "transfer": "Transfer"
+    },
+    "adjust": {
+      "up": "Increase (+)",
+      "down": "Decrease (-)",
+      "confirm": "Confirm adjustment"
+    },
+    "transfer": {
+      "confirm": "Confirm transfer"
+    },
+    "status": {
+      "ok": "Normal",
+      "low_stock": "Low",
+      "out_of_stock": "Out of stock",
+      "inactive": "Inactive"
+    },
+    "table": {
+      "city": "City",
+      "price": "Price",
+      "comparePrice": "Compare price",
+      "quantity": "Qty",
+      "reserved": "Reserved",
+      "minStock": "Min stock",
+      "available": "Available",
+      "status": "Status",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "meta": {
+      "createdAt": "Created at",
+      "updatedAt": "Updated at",
+      "reason": "Reason",
+      "note": "Note"
+    },
+    "errors": {
+      "generic": "An error occurred."
+    }
+  },
+  "cityPricing": {
+    "title": "Prices by city",
+    "definePrice": "Set a price",
+    "editPrice": "Edit price",
+    "currency": "Currency",
+    "empty": "No city configured.",
+    "allAdded": "All cities have already been added",
+    "optional": "optional",
+    "notePlaceholder": "Ex: promo price, conditions, etc.",
+    "deleteConfirm": "Remove this city from the product?"
+  },
+  "errors": {
+    "missingCategoryId": "Missing category_id in URL.",
+    "loadCategory": "Unable to load category.",
+    "loadProduct": "Unable to load product.",
+    "nameRequired": "Product name is required.",
+    "createFailed": "Product creation failed.",
+    "updateFailed": "Product update failed."
+  }
+}

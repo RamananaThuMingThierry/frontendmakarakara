@@ -2,22 +2,19 @@
   "title": "Slides",
   "subtitle": "Gérer les images du slider",
   "total": "Total",
-  "active": "Actifs",
-  "loading": "Chargement…",
+  "active": "Actif",
+  "loading": "Chargement...",
   "empty": "Aucun slide trouvé.",
-
   "errors": {
-    "load": "Impossible de charger les slides.",
-    "save": "Enregistrement impossible.",
-    "delete": "Suppression impossible."
+    "load": "Échec du chargement des slides.",
+    "save": "Échec de l'enregistrement.",
+    "delete": "Échec de la suppression."
   },
-
   "toast": {
     "created": "Slide créé.",
     "updated": "Slide mis à jour.",
     "deleted": "Slide supprimé."
   },
-
   "table": {
     "image": "Image",
     "title": "Titre",
@@ -25,12 +22,10 @@
     "status": "Statut",
     "actions": "Actions"
   },
-
   "status": {
     "active": "Actif",
     "inactive": "Inactif"
   },
-
   "buttons": {
     "new": "Nouveau slide",
     "edit": "Modifier",
@@ -42,7 +37,6 @@
     "moveDown": "Descendre",
     "refresh": "Actualiser"
   },
-
   "form": {
     "createTitle": "Nouveau slide",
     "editTitle": "Modifier le slide",
@@ -51,18 +45,25 @@
     "fieldPosition": "Position",
     "fieldActive": "Actif",
     "fieldImage": "Image",
+    "subtitlePlaceholder": "Sous-titre (optionnel)",
     "imageRequired": "Veuillez choisir une image.",
-    "imageHint": "Conseil : utilisez une image large (ex : 1600×600).",
+    "imageRequiredLabel": "(obligatoire)",
+    "imageOptional": "(optionnelle si vous voulez la remplacer)",
+    "imageHint": "Astuce : utilisez une image large (ex. : 1600x600) pour un rendu propre.",
     "preview": "Aperçu",
     "noImage": "Pas d'image",
-    "creating": "Création…",
-    "updating": "Mise à jour…"
+    "creating": "Création...",
+    "updating": "Mise à jour...",
+    "create": "Créer",
+    "update": "Mettre à jour"
   },
-
   "delete": {
     "title": "Confirmation",
     "message": "Voulez-vous vraiment supprimer ce slide ?",
-    "deleting": "Suppression…",
+    "deleting": "Suppression...",
     "btn": "Oui, supprimer"
+  },
+  "modal": {
+    "cancel": "Annuler"
   }
 }

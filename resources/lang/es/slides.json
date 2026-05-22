@@ -1,23 +1,20 @@
 {
   "title": "Slides",
-  "subtitle": "Administrar imágenes del slider",
+  "subtitle": "Gestionar las imágenes del slider",
   "total": "Total",
-  "active": "Activos",
-  "loading": "Cargando…",
+  "active": "Activo",
+  "loading": "Cargando...",
   "empty": "No se encontraron slides.",
-
   "errors": {
-    "load": "No se pudieron cargar los slides.",
-    "save": "No se pudo guardar.",
-    "delete": "No se pudo eliminar."
+    "load": "Error al cargar los slides.",
+    "save": "Error al guardar.",
+    "delete": "Error al eliminar."
   },
-
   "toast": {
     "created": "Slide creado.",
     "updated": "Slide actualizado.",
     "deleted": "Slide eliminado."
   },
-
   "table": {
     "image": "Imagen",
     "title": "Título",
@@ -25,12 +22,10 @@
     "status": "Estado",
     "actions": "Acciones"
   },
-
   "status": {
     "active": "Activo",
     "inactive": "Inactivo"
   },
-
   "buttons": {
     "new": "Nuevo slide",
     "edit": "Editar",
@@ -42,7 +37,6 @@
     "moveDown": "Bajar",
     "refresh": "Actualizar"
   },
-
   "form": {
     "createTitle": "Nuevo slide",
     "editTitle": "Editar slide",
@@ -51,18 +45,25 @@
     "fieldPosition": "Posición",
     "fieldActive": "Activo",
     "fieldImage": "Imagen",
+    "subtitlePlaceholder": "Subtítulo (opcional)",
     "imageRequired": "Por favor, elige una imagen.",
-    "imageHint": "Consejo: usa una imagen ancha (por ejemplo 1600×600).",
+    "imageRequiredLabel": "(obligatoria)",
+    "imageOptional": "(opcional si quieres reemplazarla)",
+    "imageHint": "Consejo: usa una imagen ancha (p. ej. 1600x600).",
     "preview": "Vista previa",
     "noImage": "Sin imagen",
-    "creating": "Creando…",
-    "updating": "Actualizando…"
+    "creating": "Creando...",
+    "updating": "Actualizando...",
+    "create": "Crear",
+    "update": "Actualizar"
   },
-
   "delete": {
-    "title": "Confirmar",
-    "message": "¿Seguro que deseas eliminar este slide?",
-    "deleting": "Eliminando…",
+    "title": "Confirmación",
+    "message": "¿Realmente deseas eliminar este slide?",
+    "deleting": "Eliminando...",
     "btn": "Sí, eliminar"
+  },
+  "modal": {
+    "cancel": "Cancelar"
   }
 }

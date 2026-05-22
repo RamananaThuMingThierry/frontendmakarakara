@@ -1,0 +1,22 @@
+﻿{
+  "title": "Dashboard",
+  "loading": "Loading dashboard...",
+  "errors": { "load": "Unable to load the dashboard." },
+  "filters": { "aria": "Dashboard period", "daily": "Daily", "monthly": "Monthly", "reset": "Reset" },
+  "common": { "revenueShort": "Revenue", "ordersShort": "Orders", "top10": "Top 10", "top10Cities": "Top 10 cities", "orders": "orders", "products": "products", "productsSold": "products sold" },
+  "orderStatus": { "pending": "Pending", "confirmed": "Confirmed", "processing": "Processing", "delivered": "Delivered", "cancelled": "Cancelled" },
+  "paymentStatus": { "unpaid": "Unpaid", "pending_verification": "Verification", "paid": "Paid", "refunded": "Refunded" },
+  "stats": { "revenue": "Collected revenue", "orders": "Orders in period", "averageBasket": "Average basket", "newCustomers": "New customers", "pendingPayments": "Payments to verify", "pendingOrders": "Pending orders", "activeReservations": "Active reservations", "activeProducts": "Active products", "bestCity": "Top revenue city" },
+  "hints": { "paidOrders": "paid orders", "cancelled": "cancelled", "activeOrders": "active orders", "totalCustomers": "customers total", "mobileMoney": "Pending mobile money", "confirmProcess": "To confirm or process", "blockedProducts": "Products still blocked", "catalogProducts": "products in catalog" },
+  "charts": { "visual": { "title": "Visual trends", "hourly": "Collected revenue and order volume by hour.", "daily": "Collected revenue and order volume by day.", "hourDetail": "Hourly detail", "periodDetail": "Period detail", "markers": "Markers", "hourView": "Hourly view", "dayView": "Daily view", "maxRevenue": "Max revenue", "maxOrders": "Max orders" } },
+  "attention": { "title": "Admin attention points", "pendingPayments": "Payments to validate", "openOrders": "Open orders", "pendingOrders": "Pending orders", "confirmProcess": "Confirm or process", "activeReservations": "Active reservations", "viewReservations": "View reservations", "activeCatalog": "Active catalog", "manageProducts": "Manage products" },
+  "breakdown": { "orders": "Order breakdown", "payments": "Payment breakdown" },
+  "topProducts": { "title": "Top sold products", "byRevenue": "By revenue", "sales": "sales" },
+  "citySales": { "title": "Revenue by city", "subtitle": "Revenue from products sold by city" },
+  "cityQuantity": { "title": "Quantity sold by city", "subtitle": "Volume of products sold by city" },
+  "recentOrders": { "title": "Latest orders", "empty": "No recent orders.", "footer": "Showing the last 10 orders.", "table": { "order": "Order", "customer": "Customer", "amount": "Amount", "status": "Status" } },
+  "cityTable": { "title": "Orders by city", "empty": "No city data.", "city": "City", "orders": "Orders", "products": "Products", "revenue": "Revenue" },
+  "activity": { "title": "Recent admin activity", "empty": "No recent activity.", "footer": "Showing the last 10 activities.", "table": { "date": "Date", "action": "Action", "user": "User", "message": "Message" } },
+  "actions": { "viewMore": "View more" },
+  "empty": { "period": "No data for this period.", "available": "No data available.", "sales": "No sales for this period.", "citySales": "No city sales for this period.", "noCitySales": "No city sales" }
+}

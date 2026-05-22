@@ -1,0 +1,49 @@
+﻿{
+  "nav": {
+    "dashboard": "Dashboard",
+    "categories": "Kategorien",
+    "brands": "Marken",
+    "orders": "Bestellungen",
+    "coupons": "Gutscheine",
+    "testimonials": "Referenzen",
+    "gallery": "Galerie",
+    "reservations": "Reservierungen",
+    "sliders": "Banner",
+    "users": "Benutzer",
+    "contacts": "Kontakte",
+    "settings": "Einstellungen",
+    "activityLogs": "Aktivitätsprotokoll",
+    "account": "Mein Konto",
+    "logout": "Abmelden"
+  },
+  "header": {
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "notifications": "Benachrichtigungen",
+    "unread": "ungelesen",
+    "markAllRead": "Alle als gelesen markieren",
+    "loading": "Wird geladen...",
+    "empty": "Keine Benachrichtigungen.",
+    "viewMore": "Mehr anzeigen",
+    "language": "Sprache",
+    "account": "Mein Konto",
+    "new": "Neu"
+  },
+  "sidebar": {
+    "backToSite": "Zurück zur Website",
+    "expand": "Menü erweitern",
+    "collapse": "Menü reduzieren"
+  },
+  "footer": {
+    "adminDashboard": "Admin-Dashboard",
+    "secure": "Sicher",
+    "performance": "Leistung"
+  },
+  "logout": {
+    "title": "Abmelden",
+    "message": "Möchten Sie sich wirklich abmelden?",
+    "confirm": "Ja, abmelden",
+    "cancel": "Abbrechen",
+    "loading": "Abmeldung..."
+  }
+}

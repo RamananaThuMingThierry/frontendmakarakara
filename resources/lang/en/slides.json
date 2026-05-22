@@ -3,21 +3,18 @@
   "subtitle": "Manage slider images",
   "total": "Total",
   "active": "Active",
-  "loading": "Loading…",
+  "loading": "Loading...",
   "empty": "No slides found.",
-
   "errors": {
     "load": "Failed to load slides.",
     "save": "Failed to save.",
     "delete": "Failed to delete."
   },
-
   "toast": {
     "created": "Slide created.",
     "updated": "Slide updated.",
     "deleted": "Slide deleted."
   },
-
   "table": {
     "image": "Image",
     "title": "Title",
@@ -25,12 +22,10 @@
     "status": "Status",
     "actions": "Actions"
   },
-
   "status": {
     "active": "Active",
     "inactive": "Inactive"
   },
-
   "buttons": {
     "new": "New slide",
     "edit": "Edit",
@@ -42,7 +37,6 @@
     "moveDown": "Move down",
     "refresh": "Refresh"
   },
-
   "form": {
     "createTitle": "New slide",
     "editTitle": "Edit slide",
@@ -51,18 +45,25 @@
     "fieldPosition": "Position",
     "fieldActive": "Active",
     "fieldImage": "Image",
+    "subtitlePlaceholder": "Subtitle (optional)",
     "imageRequired": "Please choose an image.",
-    "imageHint": "Tip: use a wide image (e.g. 1600×600).",
+    "imageRequiredLabel": "(required)",
+    "imageOptional": "(optional if you want to replace it)",
+    "imageHint": "Tip: use a wide image (e.g. 1600x600).",
     "preview": "Preview",
     "noImage": "No image",
-    "creating": "Creating…",
-    "updating": "Updating…"
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "create": "Create",
+    "update": "Update"
   },
-
   "delete": {
     "title": "Confirm",
     "message": "Do you really want to delete this slide?",
-    "deleting": "Deleting…",
+    "deleting": "Deleting...",
     "btn": "Yes, delete"
+  },
+  "modal": {
+    "cancel": "Cancel"
   }
 }

@@ -1,0 +1,61 @@
+﻿{
+  "title": "Seguimiento de reservas",
+  "subtitle": "Historial de productos reservados, liberados y consumidos.",
+  "total": "Total",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "loading": "Cargando...",
+  "empty": "No se encontraron reservas.",
+  "error": {
+    "load": "No se pudieron cargar las reservas.",
+    "details": "No se pudo cargar el detalle de la reserva."
+  },
+  "status": {
+    "active": "Activa",
+    "released": "Liberada",
+    "consumed": "Consumida"
+  },
+  "source": {
+    "order": "Pedido",
+    "cart": "Carrito",
+    "reservation": "Reserva"
+  },
+  "table": {
+    "customer": "Cliente",
+    "product": "Producto",
+    "city": "Ciudad",
+    "quantity": "Cantidad",
+    "source": "Origen",
+    "status": "Estado",
+    "date": "Fecha",
+    "actions": "Acciones"
+  },
+  "show": {
+    "title": "Detalle de la reserva",
+    "loading": "Cargando el detalle...",
+    "empty": "No hay detalles disponibles.",
+    "customer": "Cliente",
+    "product": "Producto",
+    "city": "Ciudad",
+    "quantity": "Cantidad",
+    "status": "Estado",
+    "source": "Origen",
+    "expiresAt": "Expira el",
+    "reservedAt": "Reservado el",
+    "releasedAt": "Liberado el",
+    "consumedAt": "Consumido el",
+    "reason": "Motivo"
+  },
+  "items": {
+    "title": "Ítems de la reserva",
+    "empty": "No hay ítems disponibles.",
+    "product": "Producto",
+    "city": "Ciudad",
+    "price": "Precio",
+    "quantity": "Cantidad"
+  },
+  "actions": {
+    "view": "Ver",
+    "close": "Cerrar"
+  }
+}

@@ -5,8 +5,10 @@ import ProductInfo from "./components/ProductInfo";
 import InventoryTable from "./components/InventoryTable";
 import StockMouvements from "./components/StockMovements";
 import { productsApi } from "../../../api/products";
+import { useI18n } from "../../../hooks/website/I18nContext";
 
 export default function ProductManagePage() {
+  const { t } = useI18n();
   const { categoryId, productId } = useParams();
   const [product, setProduct] = useState(null);
 
@@ -26,34 +28,20 @@ export default function ProductManagePage() {
       <ProductHeader product={product} />
 
       <div className="row g-2">
-        <ProductInfo product={product} />
+        <ProductInfo product={product} onRefresh={loadProduct} />
 
         <div className="col-12">
           <div className="card shadow-sm mt-2">
             <div className="card-header bg-white">
               <ul className="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
                 <li className="nav-item" role="presentation">
-                  <button
-                    className="nav-link active"
-                    id="inventory-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#tab-inventory"
-                    type="button"
-                    role="tab"
-                  >
-                    <i className="bi bi-box-seam"></i> Inventaire
+                  <button className="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
+                    <i className="bi bi-box-seam"></i> {t("products.tabs.inventory", "Inventory")}
                   </button>
                 </li>
                 <li className="nav-item" role="presentation">
-                  <button
-                    className="nav-link"
-                    id="movements-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#tab-movements"
-                    type="button"
-                    role="tab"
-                  >
-                    <i className="bi bi-arrow-left-right"></i> Mouvements
+                  <button className="nav-link" id="movements-tab" data-bs-toggle="tab" data-bs-target="#tab-movements" type="button" role="tab">
+                    <i className="bi bi-arrow-left-right"></i> {t("products.tabs.movements", "Movements")}
                   </button>
                 </li>
               </ul>
@@ -61,21 +49,10 @@ export default function ProductManagePage() {
 
             <div className="card-body">
               <div className="tab-content" id="productTabsContent">
-                <div
-                  className="tab-pane fade show active"
-                  id="tab-inventory"
-                  role="tabpanel"
-                  aria-labelledby="inventory-tab"
-                >
+                <div className="tab-pane fade show active" id="tab-inventory" role="tabpanel" aria-labelledby="inventory-tab">
                   <InventoryTable product={product} reload={loadProduct} />
                 </div>
-
-                <div
-                  className="tab-pane fade"
-                  id="tab-movements"
-                  role="tabpanel"
-                  aria-labelledby="movements-tab"
-                >
+                <div className="tab-pane fade" id="tab-movements" role="tabpanel" aria-labelledby="movements-tab">
                   <StockMouvements product={product} />
                 </div>
               </div>

@@ -3,21 +3,18 @@
   "subtitle": "Slider-Bilder verwalten",
   "total": "Gesamt",
   "active": "Aktiv",
-  "loading": "Wird geladen…",
+  "loading": "Wird geladen...",
   "empty": "Keine Slides gefunden.",
-
   "errors": {
     "load": "Slides konnten nicht geladen werden.",
     "save": "Speichern fehlgeschlagen.",
     "delete": "Löschen fehlgeschlagen."
   },
-
   "toast": {
     "created": "Slide erstellt.",
     "updated": "Slide aktualisiert.",
     "deleted": "Slide gelöscht."
   },
-
   "table": {
     "image": "Bild",
     "title": "Titel",
@@ -25,12 +22,10 @@
     "status": "Status",
     "actions": "Aktionen"
   },
-
   "status": {
     "active": "Aktiv",
     "inactive": "Inaktiv"
   },
-
   "buttons": {
     "new": "Neuer Slide",
     "edit": "Bearbeiten",
@@ -42,7 +37,6 @@
     "moveDown": "Nach unten",
     "refresh": "Aktualisieren"
   },
-
   "form": {
     "createTitle": "Neuer Slide",
     "editTitle": "Slide bearbeiten",
@@ -51,18 +45,25 @@
     "fieldPosition": "Position",
     "fieldActive": "Aktiv",
     "fieldImage": "Bild",
-    "imageRequired": "Bitte ein Bild auswählen.",
-    "imageHint": "Tipp: Verwenden Sie ein breites Bild (z. B. 1600×600).",
+    "subtitlePlaceholder": "Untertitel (optional)",
+    "imageRequired": "Bitte wählen Sie ein Bild aus.",
+    "imageRequiredLabel": "(erforderlich)",
+    "imageOptional": "(optional, wenn Sie es ersetzen möchten)",
+    "imageHint": "Tipp: Verwenden Sie ein breites Bild (z. B. 1600x600).",
     "preview": "Vorschau",
     "noImage": "Kein Bild",
-    "creating": "Wird erstellt…",
-    "updating": "Wird aktualisiert…"
+    "creating": "Wird erstellt...",
+    "updating": "Wird aktualisiert...",
+    "create": "Erstellen",
+    "update": "Aktualisieren"
   },
-
   "delete": {
     "title": "Bestätigen",
-    "message": "Diesen Slide wirklich löschen?",
-    "deleting": "Wird gelöscht…",
+    "message": "Möchten Sie diesen Slide wirklich löschen?",
+    "deleting": "Wird gelöscht...",
     "btn": "Ja, löschen"
+  },
+  "modal": {
+    "cancel": "Abbrechen"
   }
 }

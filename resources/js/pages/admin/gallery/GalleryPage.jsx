@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { galleryApi } from "../../../api/gallery";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
+import { useI18n } from "../../../hooks/website/I18nContext";
 import { imageUrl } from "../../../utils/Url";
 
 const initialForm = {
@@ -9,6 +11,7 @@ const initialForm = {
 };
 
 export default function GalleryPage() {
+  const { lang, t } = useI18n();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,6 +41,15 @@ export default function GalleryPage() {
     showToast._t = window.setTimeout(() => setToast((current) => ({ ...current, open: false })), 3500);
   }
 
+  function formatDate(value) {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleString(lang || "fr");
+    } catch {
+      return value;
+    }
+  }
+
   async function load({ mode = "initial" } = {}) {
     if (mode === "initial") setLoading(true);
     else setRefreshing(true);
@@ -49,7 +61,7 @@ export default function GalleryPage() {
       const rows = Array.isArray(data) ? data : data?.data ?? [];
       setItems(rows);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger la galerie.");
+      setError(e?.response?.data?.message || t("gallery.error.load", "Unable to load the gallery."));
     } finally {
       if (mode === "initial") setLoading(false);
       else setRefreshing(false);
@@ -59,6 +71,12 @@ export default function GalleryPage() {
   useEffect(() => {
     load({ mode: "initial" });
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -75,6 +93,7 @@ export default function GalleryPage() {
     setForm(initialForm);
     setErrors({});
     setGlobalError("");
+    if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
     setImagePreview("");
   }
 
@@ -120,11 +139,11 @@ export default function GalleryPage() {
       await load({ mode: "refresh" });
       setOpen(false);
       resetFormState();
-      showToast("success", result.message || "Image ajoutee avec succes.");
+      showToast("success", result.message || t("gallery.toast.created", "Image added successfully."));
     } catch (e2) {
       const data = e2?.response?.data;
       if (data?.errors) setErrors(data.errors);
-      else setGlobalError(data?.message || "Echec de l'enregistrement.");
+      else setGlobalError(data?.message || t("gallery.toast.saveFailed", "Save failed."));
     } finally {
       setSaving(false);
     }
@@ -139,7 +158,7 @@ export default function GalleryPage() {
       const data = await galleryApi.show(item.encrypted_id ?? item.id);
       setShowing(data);
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Impossible de charger l'image.");
+      showToast("danger", e?.response?.data?.message || t("gallery.error.show", "Unable to load the image."));
       setShowOpen(false);
     } finally {
       setShowLoading(false);
@@ -176,9 +195,9 @@ export default function GalleryPage() {
       }
       setDeleteOpen(false);
       setDeleteTarget(null);
-      showToast("success", result.message || "Image supprimee.");
+      showToast("success", result.message || t("gallery.toast.deleted", "Image deleted."));
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Echec de la suppression.");
+      showToast("danger", e?.response?.data?.message || t("gallery.toast.deleteFailed", "Delete failed."));
     } finally {
       setDeleting(false);
     }
@@ -188,15 +207,15 @@ export default function GalleryPage() {
     <div className="container-fluid">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
-          <h4 className="mb-1">Gallery</h4>
-          <div className="text-muted small">Gestion des images affichees dans la galerie du site.</div>
+          <h4 className="mb-1">{t("gallery.title", "Gallery")}</h4>
+          <div className="text-muted small">{t("gallery.subtitle", "Manage images displayed in the site gallery.")}</div>
         </div>
 
         <div className="d-flex gap-2">
           <input
             className="form-control"
             style={{ width: 300 }}
-            placeholder="Rechercher..."
+            placeholder={t("gallery.search", "Search...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             disabled={loading}
@@ -210,19 +229,19 @@ export default function GalleryPage() {
             {loading || refreshing ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" />
-                Actualisation...
+                {t("gallery.refreshing", "Refreshing...")}
               </>
             ) : (
               <>
                 <i className="bi bi-arrow-clockwise me-2" />
-                Actualiser
+                {t("gallery.refresh", "Refresh")}
               </>
             )}
           </button>
 
           <button className="btn btn-warning" onClick={openCreate} disabled={loading}>
             <i className="bi bi-plus-lg me-2" />
-            Ajouter
+            {t("gallery.new", "Add image")}
           </button>
         </div>
       </div>
@@ -234,21 +253,21 @@ export default function GalleryPage() {
           {loading ? (
             <div className="d-flex align-items-center gap-2 text-muted">
               <span className="spinner-border spinner-border-sm" />
-              Chargement...
+              {t("gallery.loading", "Loading...")}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center text-muted py-4">Aucune image trouvee.</div>
+            <div className="text-center text-muted py-4">{t("gallery.empty", "No images found.")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table align-middle mb-0">
                 <thead>
                   <tr className="text-muted small">
-                    <th style={{ width: 96 }}>Image</th>
-                    <th>Nom</th>
-                    <th style={{ width: 100 }}>Likes</th>
-                    <th style={{ width: 180 }}>Ajoutee le</th>
+                    <th style={{ width: 96 }}>{t("gallery.table.image", "Image")}</th>
+                    <th>{t("gallery.table.name", "Name")}</th>
+                    <th style={{ width: 100 }}>{t("gallery.table.likes", "Likes")}</th>
+                    <th style={{ width: 180 }}>{t("gallery.table.createdAt", "Added on")}</th>
                     <th className="text-end" style={{ width: 180 }}>
-                      Actions
+                      {t("gallery.table.actions", "Actions")}
                     </th>
                   </tr>
                 </thead>
@@ -264,13 +283,13 @@ export default function GalleryPage() {
                       </td>
                       <td className="fw-semibold">{item.name || "-"}</td>
                       <td>{item.likes ?? 0}</td>
-                      <td>{item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
+                      <td>{formatDate(item.created_at)}</td>
                       <td className="text-end">
                         <div className="d-inline-flex gap-2">
-                          <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)}>
+                          <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)} title={t("gallery.actions.view", "View")}>
                             <i className="bi bi-eye" />
                           </button>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)}>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)} title={t("gallery.actions.delete", "Delete")}>
                             <i className="bi bi-trash3" />
                           </button>
                         </div>
@@ -290,7 +309,7 @@ export default function GalleryPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Ajouter une image</h5>
+                  <h5 className="modal-title">{t("gallery.modal.createTitle", "Add image")}</h5>
                   <button type="button" className="btn-close" onClick={closeModal} disabled={saving} />
                 </div>
 
@@ -300,29 +319,29 @@ export default function GalleryPage() {
 
                     <div className="row g-3">
                       <div className="col-12 col-lg-5">
-                        <label className="form-label">Image *</label>
-                        <input
-                          type="file"
+                        <label className="form-label">{t("gallery.modal.image", "Image")} *</label>
+                        <TranslatedFileInput
                           accept="image/*"
-                          className={`form-control ${errors.image_url ? "is-invalid" : ""}`}
+                          error={errors.image_url?.[0] || ""}
+                          selectedText={form.image_url?.name || ""}
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             updateField("image_url", file);
+                            if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
                             setImagePreview(file ? URL.createObjectURL(file) : "");
                           }}
                         />
-                        {errors.image_url ? <div className="invalid-feedback">{errors.image_url[0]}</div> : null}
 
                         <div className="mt-3">
                           {imagePreview ? (
                             <img
                               src={imagePreview}
-                              alt="Preview"
+                              alt={t("gallery.modal.preview", "Preview")}
                               className="img-fluid rounded-3 border"
                               style={{ maxHeight: 260, objectFit: "cover" }}
                             />
                           ) : (
-                            <div className="border rounded-3 p-5 text-center text-muted">Aucune image</div>
+                            <div className="border rounded-3 p-5 text-center text-muted">{t("gallery.modal.noImage", "No image")}</div>
                           )}
                         </div>
                       </div>
@@ -330,7 +349,7 @@ export default function GalleryPage() {
                       <div className="col-12 col-lg-7">
                         <div className="row g-3">
                           <div className="col-12">
-                            <label className="form-label">Nom</label>
+                            <label className="form-label">{t("gallery.modal.name", "Name")}</label>
                             <input
                               className={`form-control ${errors.name ? "is-invalid" : ""}`}
                               value={form.name}
@@ -340,7 +359,7 @@ export default function GalleryPage() {
                           </div>
 
                           <div className="col-12 col-md-6">
-                            <label className="form-label">Likes</label>
+                            <label className="form-label">{t("gallery.modal.likes", "Likes")}</label>
                             <input
                               type="number"
                               min="0"
@@ -357,16 +376,16 @@ export default function GalleryPage() {
 
                   <div className="modal-footer">
                     <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>
-                      Annuler
+                      {t("gallery.modal.cancel", "Cancel")}
                     </button>
                     <button type="submit" className="btn btn-warning" disabled={saving}>
                       {saving ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          Enregistrement...
+                          {t("gallery.modal.saving", "Saving...")}
                         </>
                       ) : (
-                        "Enregistrer"
+                        t("gallery.modal.save", "Save")
                       )}
                     </button>
                   </div>
@@ -385,7 +404,7 @@ export default function GalleryPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Detail de l'image</h5>
+                  <h5 className="modal-title">{t("gallery.show.title", "Image details")}</h5>
                   <button type="button" className="btn-close" onClick={closeShow} disabled={showLoading} />
                 </div>
 
@@ -393,7 +412,7 @@ export default function GalleryPage() {
                   {showLoading ? (
                     <div className="d-flex align-items-center gap-2 text-muted">
                       <span className="spinner-border spinner-border-sm" />
-                      Chargement...
+                      {t("gallery.loading", "Loading...")}
                     </div>
                   ) : showing ? (
                     <div className="row g-4">
@@ -407,16 +426,16 @@ export default function GalleryPage() {
 
                       <div className="col-12 col-lg-6">
                         <div className="mb-3">
-                          <div className="text-muted small">Nom</div>
+                          <div className="text-muted small">{t("gallery.show.name", "Name")}</div>
                           <div className="fw-semibold">{showing.name || "-"}</div>
                         </div>
                         <div className="mb-3">
-                          <div className="text-muted small">Likes</div>
+                          <div className="text-muted small">{t("gallery.show.likes", "Likes")}</div>
                           <div>{showing.likes ?? 0}</div>
                         </div>
                         <div>
-                          <div className="text-muted small">Date d'ajout</div>
-                          <div>{showing.created_at ? new Date(showing.created_at).toLocaleString() : "-"}</div>
+                          <div className="text-muted small">{t("gallery.show.createdAt", "Added on")}</div>
+                          <div>{formatDate(showing.created_at)}</div>
                         </div>
                       </div>
                     </div>
@@ -433,11 +452,11 @@ export default function GalleryPage() {
                         askDelete(showing);
                       }}
                     >
-                      Supprimer
+                      {t("gallery.actions.delete", "Delete")}
                     </button>
                   ) : null}
                   <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>
-                    Fermer
+                    {t("gallery.actions.close", "Close")}
                   </button>
                 </div>
               </div>
@@ -454,26 +473,27 @@ export default function GalleryPage() {
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Confirmation</h5>
+                  <h5 className="modal-title">{t("gallery.delete.title", "Confirmation")}</h5>
                   <button type="button" className="btn-close" onClick={closeDelete} disabled={deleting} />
                 </div>
                 <div className="modal-body">
                   <p className="mb-0">
-                    Supprimer l'image <b>{deleteTarget?.name || `#${deleteTarget?.id}`}</b> ?
+                    {t("gallery.delete.message", "Delete image")}{" "}
+                    <b>{deleteTarget?.name || `#${deleteTarget?.id}`}</b> ?
                   </p>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-outline-secondary" onClick={closeDelete} disabled={deleting}>
-                    Annuler
+                    {t("gallery.modal.cancel", "Cancel")}
                   </button>
                   <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
                     {deleting ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" />
-                        Suppression...
+                        {t("gallery.delete.deleting", "Deleting...")}
                       </>
                     ) : (
-                      "Supprimer"
+                      t("gallery.actions.delete", "Delete")
                     )}
                   </button>
                 </div>

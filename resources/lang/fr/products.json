@@ -1,0 +1,162 @@
+{
+  "loading": "Chargement...",
+  "fields": {
+    "product": "Produit",
+    "category": "Catégorie",
+    "name": "Nom du produit",
+    "barcode": "Code-barres",
+    "priceMga": "Prix (MGA)",
+    "description": "Description",
+    "images": "Images",
+    "imagesHelp": "Formats: jpg, jpeg, png, webp. Max 4MB / image.",
+    "active": "Actif"
+  },
+  "placeholders": {
+    "name": "Ex: Karting GT4 270cc",
+    "sku": "Ex: SKU-0001",
+    "barcode": "Ex: 123456789",
+    "price": "Ex: 25000"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "tabs": {
+    "inventory": "Inventaire",
+    "movements": "Mouvements"
+  },
+  "actions": {
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "edit": "Modifier",
+    "remove": "Retirer"
+  },
+  "create": {
+    "title": "Créer un produit",
+    "categoryFixed": "La catégorie est définie automatiquement."
+  },
+  "edit": {
+    "title": "Modifier le produit",
+    "existingImages": "Images existantes",
+    "noExistingImages": "Aucune image conservée."
+  },
+  "images": {
+    "title": "Images du produit",
+    "addTitle": "Ajouter des images",
+    "addAction": "Ajouter",
+    "deleteAction": "Supprimer",
+    "files": "Fichiers",
+    "filesHelp": "Sélectionne plusieurs images. Tu peux en retirer une avant l'envoi.",
+    "selectedCount": "image(s) sélectionnée(s)",
+    "clearAll": "Tout retirer",
+    "noneSelected": "Aucune image sélectionnée.",
+    "noneToDelete": "Aucune image à supprimer.",
+    "selectToDelete": "Sélectionne les images à supprimer.",
+    "itemAlt": "Image produit",
+    "view": "Voir image",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "uploading": "Envoi...",
+    "deleting": "Suppression...",
+    "deleteTitle": "Supprimer des images",
+    "errors": {
+      "generic": "Une erreur est survenue. Vérifie la taille ou le format de l'image puis réessaie."
+    }
+  },
+  "summary": {
+    "title": "Résumé",
+    "basePrice": "Prix base",
+    "brand": "Marque",
+    "totalStock": "Stock total",
+    "reservedStock": "Réservé",
+    "citiesCount": "Villes associées"
+  },
+  "movements": {
+    "types": {
+      "in": "Entrée",
+      "out": "Sortie",
+      "adjust": "Ajustement",
+      "transfer": "Transfert",
+      "return": "Retour"
+    },
+    "table": {
+      "date": "Date",
+      "type": "Type",
+      "cityFrom": "Ville source",
+      "cityTo": "Ville destination",
+      "quantity": "Quantité",
+      "before": "Avant",
+      "after": "Après",
+      "user": "Utilisateur",
+      "reason": "Motif"
+    }
+  },
+  "inventory": {
+    "viewTitle": "Détail inventaire",
+    "createTitle": "Ajouter un inventaire",
+    "editTitle": "Modifier l'inventaire",
+    "adjustTitle": "Ajuster le stock",
+    "transferTitle": "Transférer le stock",
+    "selectCity": "Sélectionner une ville",
+    "validating": "Validation...",
+    "actions": {
+      "add": "Ajouter un inventaire",
+      "adjust": "Ajuster",
+      "transfer": "Transfert"
+    },
+    "adjust": {
+      "up": "Augmenter (+)",
+      "down": "Diminuer (-)",
+      "confirm": "Valider l'ajustement"
+    },
+    "transfer": {
+      "confirm": "Valider le transfert"
+    },
+    "status": {
+      "ok": "Normal",
+      "low_stock": "Faible",
+      "out_of_stock": "Rupture",
+      "inactive": "Inactif"
+    },
+    "table": {
+      "city": "Ville",
+      "price": "Prix",
+      "comparePrice": "Prix barré",
+      "quantity": "Qté",
+      "reserved": "Réservé",
+      "minStock": "Stock min",
+      "available": "Disponible",
+      "status": "Statut",
+      "createdAt": "Création",
+      "actions": "Actions"
+    },
+    "meta": {
+      "createdAt": "Créé le",
+      "updatedAt": "Mis à jour le",
+      "reason": "Raison",
+      "note": "Note"
+    },
+    "errors": {
+      "generic": "Une erreur est survenue."
+    }
+  },
+  "cityPricing": {
+    "title": "Prix par ville",
+    "definePrice": "Définir un prix",
+    "editPrice": "Modifier le prix",
+    "currency": "Devise",
+    "empty": "Aucune ville définie.",
+    "allAdded": "Toutes les villes sont déjà ajoutées",
+    "optional": "optionnel",
+    "notePlaceholder": "Ex: prix promo, conditions, etc.",
+    "deleteConfirm": "Supprimer cette ville du produit ?"
+  },
+  "errors": {
+    "missingCategoryId": "category_id manquant dans l'URL.",
+    "loadCategory": "Impossible de charger la catégorie.",
+    "loadProduct": "Impossible de charger le produit.",
+    "nameRequired": "Le nom du produit est requis.",
+    "createFailed": "Création du produit échouée.",
+    "updateFailed": "Modification du produit échouée."
+  }
+}

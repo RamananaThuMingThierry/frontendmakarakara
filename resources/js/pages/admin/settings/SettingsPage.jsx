@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { settingsApi } from "../../../api/settings";
-import { paymentMethodsApi } from "../../../api/payment_methods"; // <-- adapte le chemin
+import { paymentMethodsApi } from "../../../api/payment_methods";
 import { cityApi } from "../../../api/cities";
+import TranslatedFileInput from "../../../Components/common/TranslatedFileInput";
+import { useI18n } from "../../../hooks/website/I18nContext";
 import { imageUrl } from "../../../utils/Url";
 
 function Field({ label, children, hint }) {
@@ -19,12 +21,7 @@ function Modal({ open, title, onClose, children, footer }) {
 
   return (
     <>
-      <div
-        className="modal fade show"
-        style={{ display: "block" }}
-        role="dialog"
-        aria-modal="true"
-      >
+      <div className="modal fade show" style={{ display: "block" }} role="dialog" aria-modal="true">
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content border-0 shadow">
             <div className="modal-header">
@@ -41,37 +38,41 @@ function Modal({ open, title, onClose, children, footer }) {
   );
 }
 
-function DeleteModal({ open, onClose, onConfirm, loading, item }) {
+function DeleteModal({
+  open,
+  onClose,
+  onConfirm,
+  loading,
+  title,
+  confirmLabel,
+  cancelLabel,
+  deletingLabel,
+  message,
+  itemName,
+  warning,
+}) {
   if (!open) return null;
 
   return (
     <Modal
       open={open}
-      title="Confirmer la suppression"
+      title={title}
       onClose={() => (!loading ? onClose() : null)}
       footer={
         <>
-          <button
-            className="btn btn-outline-secondary"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Annuler
+          <button className="btn btn-outline-secondary" onClick={onClose} disabled={loading}>
+            {cancelLabel}
           </button>
-          <button
-            className="btn btn-danger"
-            onClick={onConfirm}
-            disabled={loading}
-          >
+          <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
             {loading ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" />
-                Suppression...
+                {deletingLabel}
               </>
             ) : (
               <>
                 <i className="bi bi-trash me-2" />
-                Supprimer
+                {confirmLabel}
               </>
             )}
           </button>
@@ -79,33 +80,28 @@ function DeleteModal({ open, onClose, onConfirm, loading, item }) {
       }
     >
       <div className="alert alert-warning mb-0">
-        Tu es sûr(e) de vouloir supprimer{" "}
-        <b>{item?.name || "ce moyen de paiement"}</b> ?
-        <div className="text-muted small mt-1">
-          Cette action est irréversible.
-        </div>
+        {message} <b>{itemName}</b> ?
+        <div className="text-muted small mt-1">{warning}</div>
       </div>
     </Modal>
   );
 }
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const tabs = useMemo(
     () => [
-      { key: "about", label: "À propos", icon: "bi-info-circle" },
-      { key: "payments", label: "Moyens de paiement", icon: "bi-credit-card" },
-      { key: "cities", label: "Villes", icon: "bi-geo-alt" },
+      { key: "about", label: t("settings.tabs.about", "About"), icon: "bi-info-circle" },
+      { key: "payments", label: t("settings.tabs.payments", "Payment methods"), icon: "bi-credit-card" },
+      { key: "cities", label: t("settings.tabs.cities", "Cities"), icon: "bi-geo-alt" },
     ],
-    []
+    [t]
   );
 
   const [tab, setTab] = useState("about");
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  // -----------------------------
-  // 1) ABOUT
-  // -----------------------------
   const [about, setAbout] = useState({
     title: "",
     description: "",
@@ -118,8 +114,47 @@ export default function SettingsPage() {
     instagram: "",
     whatsapp: "",
   });
-
   const [aboutSaving, setAboutSaving] = useState(false);
+
+  const [methods, setMethods] = useState([]);
+  const [methodsLoading, setMethodsLoading] = useState(false);
+  const [pmModalOpen, setPmModalOpen] = useState(false);
+  const [pmSaving, setPmSaving] = useState(false);
+  const [pmEditing, setPmEditing] = useState(null);
+  const [pmForm, setPmForm] = useState({
+    name: "",
+    code: "",
+    is_active: true,
+    imageFile: null,
+  });
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [cities, setCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+  const [citySaving, setCitySaving] = useState(false);
+  const [cityEditing, setCityEditing] = useState(null);
+  const [cityForm, setCityForm] = useState({
+    name: "",
+    region: "",
+    is_active: true,
+  });
+  const [cityDeleteOpen, setCityDeleteOpen] = useState(false);
+  const [cityDeleteItem, setCityDeleteItem] = useState(null);
+  const [cityDeleteLoading, setCityDeleteLoading] = useState(false);
+
+  const aboutLogoPreview = useMemo(() => {
+    if (about.logoFile) return URL.createObjectURL(about.logoFile);
+    return about.logo ? imageUrl(about.logo) : "";
+  }, [about.logo, about.logoFile]);
+
+  useEffect(() => {
+    return () => {
+      if (aboutLogoPreview?.startsWith("blob:")) URL.revokeObjectURL(aboutLogoPreview);
+    };
+  }, [aboutLogoPreview]);
 
   async function loadAbout() {
     const res = await settingsApi.show();
@@ -140,39 +175,17 @@ export default function SettingsPage() {
       setAbout((prev) => ({ ...prev, ...(res?.data || {}), logoFile: null }));
       setAlert({
         type: "success",
-        text: res?.message || "À propos mis à jour avec succès.",
+        text: res?.message || t("settings.alert.aboutSaved", "About section updated successfully."),
       });
     } catch (e) {
       setAlert({
         type: "danger",
-        text: e?.message || "Erreur lors de l'enregistrement.",
+        text: e?.message || t("settings.alert.saveError", "Error while saving."),
       });
     } finally {
       setAboutSaving(false);
     }
   }
-
-  // -----------------------------
-  // 2) PAYMENT METHODS
-  // -----------------------------
-  const [methods, setMethods] = useState([]);
-  const [methodsLoading, setMethodsLoading] = useState(false);
-
-  const [pmModalOpen, setPmModalOpen] = useState(false);
-  const [pmSaving, setPmSaving] = useState(false);
-  const [pmEditing, setPmEditing] = useState(null);
-
-  const [pmForm, setPmForm] = useState({
-    name: "",
-    code: "",
-    is_active: true,
-    imageFile: null, // optionnel (voir notes)
-  });
-
-  // DELETE modal
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteItem, setDeleteItem] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   function openCreatePM() {
     setPmEditing(null);
@@ -202,153 +215,130 @@ export default function SettingsPage() {
     setDeleteItem(null);
   }
 
-  // -----------------------------
-// 3) CITIES
-// -----------------------------
-const [cities, setCities] = useState([]);
-const [citiesLoading, setCitiesLoading] = useState(false);
-
-const [cityModalOpen, setCityModalOpen] = useState(false);
-const [citySaving, setCitySaving] = useState(false);
-const [cityEditing, setCityEditing] = useState(null);
-
-const [cityForm, setCityForm] = useState({
-  name: "",
-  region: "",
-  is_active: true,
-});
-
-// delete
-const [cityDeleteOpen, setCityDeleteOpen] = useState(false);
-const [cityDeleteItem, setCityDeleteItem] = useState(null);
-const [cityDeleteLoading, setCityDeleteLoading] = useState(false);
-
-function openCreateCity() {
-  setCityEditing(null);
-  setCityForm({ name: "", region: "", is_active: true });
-  setCityModalOpen(true);
-}
-
-function openEditCity(item) {
-  setCityEditing(item);
-  setCityForm({
-    name: item?.name || "",
-    region: item?.region || "",
-    is_active: !!item?.is_active,
-  });
-  setCityModalOpen(true);
-}
-
-function openDeleteCity(item) {
-  setCityDeleteItem(item);
-  setCityDeleteOpen(true);
-}
-
-function closeDeleteCity() {
-  if (cityDeleteLoading) return;
-  setCityDeleteOpen(false);
-  setCityDeleteItem(null);
-}
-
-async function loadCities() {
-  setCitiesLoading(true);
-  setAlert(null);
-  try {
-    const list = await cityApi.index();
-    setCities(Array.isArray(list) ? list : []);
-  } catch (e) {
-    setAlert({
-      type: "danger",
-      text: e?.message || "Erreur lors du chargement des villes.",
-    });
-    setCities([]);
-  } finally {
-    setCitiesLoading(false);
+  function openCreateCity() {
+    setCityEditing(null);
+    setCityForm({ name: "", region: "", is_active: true });
+    setCityModalOpen(true);
   }
-}
 
-async function submitCity() {
-  setCitySaving(true);
-  setAlert(null);
+  function openEditCity(item) {
+    setCityEditing(item);
+    setCityForm({
+      name: item?.name || "",
+      region: item?.region || "",
+      is_active: !!item?.is_active,
+    });
+    setCityModalOpen(true);
+  }
 
-  try {
-    const payload = {
-      name: cityForm.name,
-      region: cityForm.region,
-      is_active: cityForm.is_active ? 1 : 0,
-    };
+  function openDeleteCity(item) {
+    setCityDeleteItem(item);
+    setCityDeleteOpen(true);
+  }
 
-    if (!cityEditing) {
-      const res = await cityApi.create(payload);
-      setAlert({ type: "success", text: res?.message || "Ville créée." });
-    } else {
-      const encryptedId = cityEditing?.encrypted_id;
-      const res = await cityApi.update(encryptedId, payload);
-      setAlert({ type: "success", text: res?.message || "Ville modifiée." });
+  function closeDeleteCity() {
+    if (cityDeleteLoading) return;
+    setCityDeleteOpen(false);
+    setCityDeleteItem(null);
+  }
+
+  async function loadCities() {
+    setCitiesLoading(true);
+    setAlert(null);
+    try {
+      const list = await cityApi.index();
+      setCities(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setAlert({
+        type: "danger",
+        text: e?.message || t("settings.alert.citiesLoadError", "Error while loading cities."),
+      });
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
     }
-
-    setCityModalOpen(false);
-    await loadCities();
-  } catch (e) {
-    setAlert({
-      type: "danger",
-      text: e?.message || "Erreur lors de l'enregistrement de la ville.",
-    });
-  } finally {
-    setCitySaving(false);
   }
-}
 
-async function toggleCity(item) {
-  setAlert(null);
-  try {
-    const encryptedId = item?.encrypted_id;
-    const payload = { is_active: item.is_active ? 0 : 1 };
+  async function submitCity() {
+    setCitySaving(true);
+    setAlert(null);
 
-    const res = await cityApi.update(encryptedId, payload);
+    try {
+      const payload = {
+        name: cityForm.name,
+        region: cityForm.region,
+        is_active: cityForm.is_active ? 1 : 0,
+      };
 
-    setCities((prev) =>
-      prev.map((c) =>
-        c?.encrypted_id === encryptedId ? { ...c, is_active: !c.is_active } : c
-      )
-    );
+      if (!cityEditing) {
+        const res = await cityApi.create(payload);
+        setAlert({ type: "success", text: res?.message || t("settings.alert.cityCreated", "City created.") });
+      } else {
+        const encryptedId = cityEditing?.encrypted_id;
+        const res = await cityApi.update(encryptedId, payload);
+        setAlert({ type: "success", text: res?.message || t("settings.alert.cityUpdated", "City updated.") });
+      }
 
-    if (res?.message) setAlert({ type: "success", text: res.message });
-  } catch (e) {
-    setAlert({
-      type: "danger",
-      text: e?.message || "Erreur lors de l'activation/désactivation.",
-    });
+      setCityModalOpen(false);
+      await loadCities();
+    } catch (e) {
+      setAlert({
+        type: "danger",
+        text: e?.message || t("settings.alert.citySaveError", "Error while saving the city."),
+      });
+    } finally {
+      setCitySaving(false);
+    }
   }
-}
 
-async function confirmDeleteCity() {
-  if (!cityDeleteItem) return;
+  async function toggleCity(item) {
+    setAlert(null);
+    try {
+      const encryptedId = item?.encrypted_id;
+      const payload = { is_active: item.is_active ? 0 : 1 };
+      const res = await cityApi.update(encryptedId, payload);
 
-  setCityDeleteLoading(true);
-  setAlert(null);
+      setCities((prev) =>
+        prev.map((c) =>
+          c?.encrypted_id === encryptedId ? { ...c, is_active: !c.is_active } : c
+        )
+      );
 
-  try {
-    const encryptedId = cityDeleteItem?.encrypted_id;
-    const res = await cityApi.remove(encryptedId);
-
-    setCities((prev) => prev.filter((c) => c?.encrypted_id !== encryptedId));
-
-    setAlert({
-      type: "success",
-      text: res?.message || "Ville supprimée.",
-    });
-
-    closeDeleteCity();
-  } catch (e) {
-    setAlert({
-      type: "danger",
-      text: e?.message || "Erreur lors de la suppression.",
-    });
-  } finally {
-    setCityDeleteLoading(false);
+      if (res?.message) setAlert({ type: "success", text: res.message });
+    } catch (e) {
+      setAlert({
+        type: "danger",
+        text: e?.message || t("settings.alert.toggleError", "Error while changing the status."),
+      });
+    }
   }
-}
+
+  async function confirmDeleteCity() {
+    if (!cityDeleteItem) return;
+
+    setCityDeleteLoading(true);
+    setAlert(null);
+
+    try {
+      const encryptedId = cityDeleteItem?.encrypted_id;
+      const res = await cityApi.remove(encryptedId);
+
+      setCities((prev) => prev.filter((c) => c?.encrypted_id !== encryptedId));
+      setAlert({
+        type: "success",
+        text: res?.message || t("settings.alert.cityDeleted", "City deleted."),
+      });
+
+      closeDeleteCity();
+    } catch (e) {
+      setAlert({
+        type: "danger",
+        text: e?.message || t("settings.alert.deleteError", "Error while deleting."),
+      });
+    } finally {
+      setCityDeleteLoading(false);
+    }
+  }
 
   async function loadPaymentMethods() {
     setMethodsLoading(true);
@@ -359,7 +349,7 @@ async function confirmDeleteCity() {
     } catch (e) {
       setAlert({
         type: "danger",
-        text: e?.message || "Erreur lors du chargement des moyens de paiement.",
+        text: e?.message || t("settings.alert.paymentsLoadError", "Error while loading payment methods."),
       });
       setMethods([]);
     } finally {
@@ -380,14 +370,12 @@ async function confirmDeleteCity() {
       };
 
       if (!pmEditing) {
-
         const res = await paymentMethodsApi.create(payload);
-        setAlert({ type: "success", text: res?.message || "Moyen de paiement créé." });
+        setAlert({ type: "success", text: res?.message || t("settings.alert.paymentCreated", "Payment method created.") });
       } else {
-
         const encryptedId = pmEditing?.encrypted_id;
         const res = await paymentMethodsApi.update(encryptedId, payload);
-        setAlert({ type: "success", text: res?.message || "Moyen de paiement modifié." });
+        setAlert({ type: "success", text: res?.message || t("settings.alert.paymentUpdated", "Payment method updated.") });
       }
 
       setPmModalOpen(false);
@@ -395,7 +383,7 @@ async function confirmDeleteCity() {
     } catch (e) {
       setAlert({
         type: "danger",
-        text: e?.message || "Erreur lors de l'enregistrement du moyen de paiement.",
+        text: e?.message || t("settings.alert.paymentSaveError", "Error while saving the payment method."),
       });
     } finally {
       setPmSaving(false);
@@ -407,15 +395,11 @@ async function confirmDeleteCity() {
     try {
       const encryptedId = item?.encrypted_id;
       const payload = { is_active: item.is_active ? 0 : 1 };
-
-      console.log(encryptedId, payload);
       const res = await paymentMethodsApi.update(encryptedId, payload);
 
       setMethods((prev) =>
         prev.map((m) =>
-          m?.encrypted_id === encryptedId
-            ? { ...m, is_active: !m.is_active }
-            : m
+          m?.encrypted_id === encryptedId ? { ...m, is_active: !m.is_active } : m
         )
       );
 
@@ -423,12 +407,12 @@ async function confirmDeleteCity() {
     } catch (e) {
       setAlert({
         type: "danger",
-        text: e?.message || "Erreur lors de l'activation/désactivation.",
+        text: e?.message || t("settings.alert.toggleError", "Error while changing the status."),
       });
     }
   }
 
-async function confirmDeletePaymentMethod() {
+  async function confirmDeletePaymentMethod() {
     if (!deleteItem) return;
 
     setDeleteLoading(true);
@@ -439,26 +423,22 @@ async function confirmDeletePaymentMethod() {
       const res = await paymentMethodsApi.remove(encryptedId);
 
       setMethods((prev) => prev.filter((m) => m?.encrypted_id !== encryptedId));
-
       setAlert({
         type: "success",
-        text: res?.message || "Moyen de paiement supprimé.",
+        text: res?.message || t("settings.alert.paymentDeleted", "Payment method deleted."),
       });
 
       closeDeletePM();
     } catch (e) {
       setAlert({
         type: "danger",
-        text: e?.message || "Erreur lors de la suppression.",
+        text: e?.message || t("settings.alert.deleteError", "Error while deleting."),
       });
     } finally {
       setDeleteLoading(false);
     }
   }
 
-  // -----------------------------
-  // INIT LOAD
-  // -----------------------------
   useEffect(() => {
     let mounted = true;
 
@@ -471,7 +451,7 @@ async function confirmDeletePaymentMethod() {
         await loadCities();
       } catch (e) {
         if (mounted) {
-          setAlert({ type: "danger", text: e?.message || "Erreur de chargement." });
+          setAlert({ type: "danger", text: e?.message || t("settings.alert.loadError", "Loading error.") });
         }
       } finally {
         if (mounted) setLoading(false);
@@ -487,155 +467,124 @@ async function confirmDeletePaymentMethod() {
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h4 className="mb-1">Paramètres</h4>
-          <div className="text-muted small">
-            Gérer l&apos;à propos et les moyens de paiement
-          </div>
+          <h4 className="mb-1">{t("settings.title", "Settings")}</h4>
+          <div className="text-muted small">{t("settings.subtitle", "Manage the about section, payment methods and cities.")}</div>
         </div>
       </div>
 
       {alert ? (
-        <div
-          className={`alert alert-${alert.type} d-flex align-items-center justify-content-between`}
-          role="alert"
-        >
+        <div className={`alert alert-${alert.type} d-flex align-items-center justify-content-between`} role="alert">
           <span>{alert.text}</span>
-          <button
-            className="btn btn-sm btn-outline-secondary"
-            onClick={() => setAlert(null)}
-            type="button"
-          >
-            Fermer
+          <button className="btn btn-sm btn-outline-secondary" onClick={() => setAlert(null)} type="button">
+            {t("settings.actions.close", "Close")}
           </button>
         </div>
       ) : null}
 
-    <ul className="nav nav-tabs mb-3">
-      {tabs.map((t) => (
-        <li className="nav-item" key={t.key}>
-          <button
-            type="button"
-            className={`nav-link ${tab === t.key ? "active" : ""}`}
-            onClick={() => setTab(t.key)}
-          >
-            <i className={`bi ${t.icon} me-2`} />
-            {t.label}
-          </button>
-        </li>
-      ))}
-    </ul>
+      <ul className="nav nav-tabs mb-3">
+        {tabs.map((item) => (
+          <li className="nav-item" key={item.key}>
+            <button
+              type="button"
+              className={`nav-link ${tab === item.key ? "active" : ""}`}
+              onClick={() => setTab(item.key)}
+            >
+              <i className={`bi ${item.icon} me-2`} />
+              {item.label}
+            </button>
+          </li>
+        ))}
+      </ul>
 
       {loading ? (
         <div className="p-4 bg-white border rounded-3">
           <div className="d-flex align-items-center gap-2">
             <span className="spinner-border spinner-border-sm" />
-            <span>Chargement...</span>
+            <span>{t("settings.loading", "Loading...")}</span>
           </div>
         </div>
       ) : null}
 
-      {/* ABOUT TAB */}
       {!loading && tab === "about" ? (
         <div className="row g-3">
           <div className="col-12 col-xl-8">
             <div className="bg-white border rounded-3 p-3">
               <div className="d-flex align-items-center justify-content-between mb-2">
-                <h5 className="mb-0">À propos de la plateforme</h5>
-                <button
-                  className="btn btn-warning btn-sm"
-                  onClick={saveAbout}
-                  type="button"
-                  disabled={aboutSaving}
-                >
+                <h5 className="mb-0">{t("settings.about.title", "About the platform")}</h5>
+                <button className="btn btn-warning btn-sm" onClick={saveAbout} type="button" disabled={aboutSaving}>
                   {aboutSaving ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" />
-                      Enregistrement...
+                      {t("settings.actions.saving", "Saving...")}
                     </>
                   ) : (
                     <>
                       <i className="bi bi-save me-2" />
-                      Enregistrer
+                      {t("settings.actions.save", "Save")}
                     </>
                   )}
                 </button>
               </div>
 
-              <Field label="Titre">
+              <Field label={t("settings.about.fields.title", "Title")}>
                 <input
                   className="form-control"
                   value={about.title}
-                  onChange={(e) =>
-                    setAbout((p) => ({ ...p, title: e.target.value }))
-                  }
-                  placeholder="Ex: MAHAKARAKARA"
+                  onChange={(e) => setAbout((p) => ({ ...p, title: e.target.value }))}
+                  placeholder={t("settings.about.placeholders.title", "Ex: MAHAKARAKARA")}
                 />
               </Field>
 
-              <Field label="Description">
+              <Field label={t("settings.about.fields.description", "Description")}>
                 <textarea
                   className="form-control"
                   rows={6}
                   value={about.description}
-                  onChange={(e) =>
-                    setAbout((p) => ({ ...p, description: e.target.value }))
-                  }
-                  placeholder="Présente ta plateforme..."
+                  onChange={(e) => setAbout((p) => ({ ...p, description: e.target.value }))}
+                  placeholder={t("settings.about.placeholders.description", "Present your platform...")}
                 />
               </Field>
 
               <Field
-                label="Logo"
-                hint="Utilisé dans les emails et factures PDF envoyés aux clients."
+                label={t("settings.about.fields.logo", "Logo")}
+                hint={t("settings.about.hints.logo", "Used in emails and PDF invoices sent to customers.")}
               >
-                <input
-                  type="file"
-                  className="form-control"
+                <TranslatedFileInput
                   accept="image/*"
-                  onChange={(e) =>
-                    setAbout((p) => ({
-                      ...p,
-                      logoFile: e.target.files?.[0] || null,
-                    }))
-                  }
+                  selectedText={about.logoFile?.name || ""}
+                  onChange={(e) => setAbout((p) => ({ ...p, logoFile: e.target.files?.[0] || null }))}
                 />
               </Field>
 
               <div className="row">
                 <div className="col-md-6">
-                  <Field label="Téléphone">
+                  <Field label={t("settings.about.fields.phone", "Phone")}>
                     <input
                       className="form-control"
                       value={about.phone}
-                      onChange={(e) =>
-                        setAbout((p) => ({ ...p, phone: e.target.value }))
-                      }
+                      onChange={(e) => setAbout((p) => ({ ...p, phone: e.target.value }))}
                       placeholder="+261 ..."
                     />
                   </Field>
                 </div>
                 <div className="col-md-6">
-                  <Field label="Email">
+                  <Field label={t("settings.about.fields.email", "Email")}>
                     <input
                       className="form-control"
                       value={about.email}
-                      onChange={(e) =>
-                        setAbout((p) => ({ ...p, email: e.target.value }))
-                      }
+                      onChange={(e) => setAbout((p) => ({ ...p, email: e.target.value }))}
                       placeholder="contact@..."
                     />
                   </Field>
                 </div>
               </div>
 
-              <Field label="Adresse">
+              <Field label={t("settings.about.fields.address", "Address")}>
                 <input
                   className="form-control"
                   value={about.address}
-                  onChange={(e) =>
-                    setAbout((p) => ({ ...p, address: e.target.value }))
-                  }
-                  placeholder="Adresse / Ville"
+                  onChange={(e) => setAbout((p) => ({ ...p, address: e.target.value }))}
+                  placeholder={t("settings.about.placeholders.address", "Address / City")}
                 />
               </Field>
 
@@ -645,10 +594,8 @@ async function confirmDeletePaymentMethod() {
                     <input
                       className="form-control"
                       value={about.facebook}
-                      onChange={(e) =>
-                        setAbout((p) => ({ ...p, facebook: e.target.value }))
-                      }
-                      placeholder="Lien page Facebook"
+                      onChange={(e) => setAbout((p) => ({ ...p, facebook: e.target.value }))}
+                      placeholder={t("settings.about.placeholders.facebook", "Facebook page link")}
                     />
                   </Field>
                 </div>
@@ -657,10 +604,8 @@ async function confirmDeletePaymentMethod() {
                     <input
                       className="form-control"
                       value={about.instagram}
-                      onChange={(e) =>
-                        setAbout((p) => ({ ...p, instagram: e.target.value }))
-                      }
-                      placeholder="Lien Instagram"
+                      onChange={(e) => setAbout((p) => ({ ...p, instagram: e.target.value }))}
+                      placeholder={t("settings.about.placeholders.instagram", "Instagram link")}
                     />
                   </Field>
                 </div>
@@ -669,10 +614,8 @@ async function confirmDeletePaymentMethod() {
                     <input
                       className="form-control"
                       value={about.whatsapp}
-                      onChange={(e) =>
-                        setAbout((p) => ({ ...p, whatsapp: e.target.value }))
-                      }
-                      placeholder="Ex: +261..."
+                      onChange={(e) => setAbout((p) => ({ ...p, whatsapp: e.target.value }))}
+                      placeholder={t("settings.about.placeholders.whatsapp", "Ex: +261...")}
                     />
                   </Field>
                 </div>
@@ -682,38 +625,32 @@ async function confirmDeletePaymentMethod() {
 
           <div className="col-12 col-xl-4">
             <div className="bg-white border rounded-3 p-3">
-              <h6 className="mb-2">Aperçu rapide</h6>
+              <h6 className="mb-2">{t("settings.about.previewTitle", "Quick preview")}</h6>
               <div className="border rounded-3 p-3">
-                {about.logo || about.logoFile ? (
+                {aboutLogoPreview ? (
                   <div className="mb-3">
                     <img
-                      src={
-                        about.logoFile
-                          ? URL.createObjectURL(about.logoFile)
-                          : imageUrl(about.logo)
-                      }
-                      alt={about.title || "Logo plateforme"}
+                      src={aboutLogoPreview}
+                      alt={about.title || t("settings.about.logoAlt", "Platform logo")}
                       className="rounded border bg-light"
                       style={{ width: 96, height: 96, objectFit: "contain" }}
                     />
                   </div>
                 ) : null}
-                <div className="fw-bold">{about.title || "—"}</div>
-                <div className="text-muted small mb-2">
-                  {about.description || "—"}
-                </div>
+                <div className="fw-bold">{about.title || "-"}</div>
+                <div className="text-muted small mb-2">{about.description || "-"}</div>
                 <div className="small">
                   <div>
                     <i className="bi bi-telephone me-2 text-success" />
-                    {about.phone || "—"}
+                    {about.phone || "-"}
                   </div>
                   <div>
                     <i className="bi bi-envelope me-2 text-danger" />
-                    {about.email || "—"}
+                    {about.email || "-"}
                   </div>
                   <div>
                     <i className="bi bi-geo-alt me-2" />
-                    {about.address || "—"}
+                    {about.address || "-"}
                   </div>
                 </div>
               </div>
@@ -722,30 +659,23 @@ async function confirmDeletePaymentMethod() {
         </div>
       ) : null}
 
-      {/* PAYMENT METHODS TAB */}
-{!loading && tab === "payments" ? (
+      {!loading && tab === "payments" ? (
         <div className="bg-white border rounded-3 p-3">
           <div className="d-flex align-items-center justify-content-between mb-3">
-            <h5 className="mb-0">Moyens de paiement</h5>
-            <button
-              className="btn btn-warning btn-sm"
-              onClick={openCreatePM}
-              type="button"
-            >
+            <h5 className="mb-0">{t("settings.payments.title", "Payment methods")}</h5>
+            <button className="btn btn-warning btn-sm" onClick={openCreatePM} type="button">
               <i className="bi bi-plus-lg me-2" />
-              Ajouter
+              {t("settings.actions.add", "Add")}
             </button>
           </div>
 
           {methodsLoading ? (
             <div className="d-flex align-items-center gap-2">
               <span className="spinner-border spinner-border-sm" />
-              <span>Chargement...</span>
+              <span>{t("settings.loading", "Loading...")}</span>
             </div>
           ) : methods.length === 0 ? (
-            <div className="text-center text-muted py-4">
-              Aucun moyen de paiement.
-            </div>
+            <div className="text-center text-muted py-4">{t("settings.payments.empty", "No payment methods.")}</div>
           ) : (
             <div className="row g-3">
               {methods.map((m) => (
@@ -764,7 +694,7 @@ async function confirmDeletePaymentMethod() {
                           <div
                             className="bg-light border rounded d-flex align-items-center justify-content-center"
                             style={{ width: 56, height: 56 }}
-                            title="Aucune image"
+                            title={t("settings.payments.noImage", "No image")}
                           >
                             <i className="bi bi-image text-muted" />
                           </div>
@@ -776,52 +706,36 @@ async function confirmDeletePaymentMethod() {
                           <div>
                             <div className="fw-semibold">{m.name}</div>
                             <div className="text-muted small">
-                              Code: <code>{m.code}</code>
+                              {t("settings.payments.code", "Code")} : <code>{m.code}</code>
                             </div>
                           </div>
                           <div>
                             {m.is_active ? (
-                              <span className="badge text-bg-success">
-                                Actif
-                              </span>
+                              <span className="badge text-bg-success">{t("settings.status.active", "Active")}</span>
                             ) : (
-                              <span className="badge text-bg-secondary">
-                                Inactif
-                              </span>
+                              <span className="badge text-bg-secondary">{t("settings.status.inactive", "Inactive")}</span>
                             )}
                           </div>
                         </div>
-<hr />
+                        <hr />
                         <div className="d-flex gap-2 mt-3">
                           <button
                             className="btn btn-outline-secondary btn-sm"
                             onClick={() => togglePaymentMethod(m)}
                             type="button"
-                            title="Activer/Désactiver"
+                            title={t("settings.actions.toggle", "Enable/Disable")}
                           >
-                            <i
-                              className={`bi ${
-                                m.is_active ? "bi-toggle-on" : "bi-toggle-off"
-                              }`}
-                            />
+                            <i className={`bi ${m.is_active ? "bi-toggle-on" : "bi-toggle-off"}`} />
                           </button>
 
-                          <button
-                            className="btn btn-outline-dark btn-sm"
-                            onClick={() => openEditPM(m)}
-                            type="button"
-                          >
+                          <button className="btn btn-outline-dark btn-sm" onClick={() => openEditPM(m)} type="button">
                             <i className="bi bi-pencil-square me-1" />
-                            Modifier
+                            {t("settings.actions.edit", "Edit")}
                           </button>
 
-                          <button
-                            className="btn btn-outline-danger btn-sm ms-auto"
-                            onClick={() => openDeletePM(m)}
-                            type="button"
-                          >
+                          <button className="btn btn-outline-danger btn-sm ms-auto" onClick={() => openDeletePM(m)} type="button">
                             <i className="bi bi-trash me-1" />
-                            Supprimer
+                            {t("settings.actions.delete", "Delete")}
                           </button>
                         </div>
                       </div>
@@ -834,114 +748,95 @@ async function confirmDeletePaymentMethod() {
         </div>
       ) : null}
 
-{/* CITIES TAB */}
-{!loading && tab === "cities" ? (
-  <div className="bg-white border rounded-3 p-3">
-    <div className="d-flex align-items-center justify-content-between mb-3">
-      <h5 className="mb-0">Villes</h5>
-      <button className="btn btn-warning btn-sm" onClick={openCreateCity} type="button">
-        <i className="bi bi-plus-lg me-2" />
-        Ajouter
-      </button>
-    </div>
+      {!loading && tab === "cities" ? (
+        <div className="bg-white border rounded-3 p-3">
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <h5 className="mb-0">{t("settings.cities.title", "Cities")}</h5>
+            <button className="btn btn-warning btn-sm" onClick={openCreateCity} type="button">
+              <i className="bi bi-plus-lg me-2" />
+              {t("settings.actions.add", "Add")}
+            </button>
+          </div>
 
-    {citiesLoading ? (
-      <div className="d-flex align-items-center gap-2">
-        <span className="spinner-border spinner-border-sm" />
-        <span>Chargement...</span>
-      </div>
-    ) : cities.length === 0 ? (
-      <div className="text-center text-muted py-4">Aucune ville.</div>
-    ) : (
-      <div className="row g-3">
-        {cities.map((c) => (
-          <div className="col-12 col-md-6 col-xl-4" key={c?.encrypted_id}>
-            <div className="card border-0 shadow-sm h-100">
-              <div className="card-body">
-                <div className="d-flex align-items-start justify-content-between">
-                  <div>
-                    <div className="fw-semibold">{c.name}</div>
-                    <div className="text-muted small">
-                      Région: <span>{c.region || "—"}</span>
+          {citiesLoading ? (
+            <div className="d-flex align-items-center gap-2">
+              <span className="spinner-border spinner-border-sm" />
+              <span>{t("settings.loading", "Loading...")}</span>
+            </div>
+          ) : cities.length === 0 ? (
+            <div className="text-center text-muted py-4">{t("settings.cities.empty", "No cities.")}</div>
+          ) : (
+            <div className="row g-3">
+              {cities.map((c) => (
+                <div className="col-12 col-md-6 col-xl-4" key={c?.encrypted_id}>
+                  <div className="card border-0 shadow-sm h-100">
+                    <div className="card-body">
+                      <div className="d-flex align-items-start justify-content-between">
+                        <div>
+                          <div className="fw-semibold">{c.name}</div>
+                          <div className="text-muted small">
+                            {t("settings.cities.region", "Region")} : <span>{c.region || "-"}</span>
+                          </div>
+                        </div>
+                        <div>
+                          {c.is_active ? (
+                            <span className="badge text-bg-success">{t("settings.status.active", "Active")}</span>
+                          ) : (
+                            <span className="badge text-bg-secondary">{t("settings.status.inactive", "Inactive")}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <hr />
+
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={() => toggleCity(c)}
+                          type="button"
+                          title={t("settings.actions.toggle", "Enable/Disable")}
+                        >
+                          <i className={`bi ${c.is_active ? "bi-toggle-on" : "bi-toggle-off"}`} />
+                        </button>
+
+                        <button className="btn btn-outline-dark btn-sm" onClick={() => openEditCity(c)} type="button">
+                          <i className="bi bi-pencil-square me-1" />
+                          {t("settings.actions.edit", "Edit")}
+                        </button>
+
+                        <button className="btn btn-outline-danger btn-sm ms-auto" onClick={() => openDeleteCity(c)} type="button">
+                          <i className="bi bi-trash me-1" />
+                          {t("settings.actions.delete", "Delete")}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    {c.is_active ? (
-                      <span className="badge text-bg-success">Actif</span>
-                    ) : (
-                      <span className="badge text-bg-secondary">Inactif</span>
-                    )}
-                  </div>
                 </div>
-
-                <hr />
-
-                <div className="d-flex gap-2">
-                  <button
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => toggleCity(c)}
-                    type="button"
-                    title="Activer/Désactiver"
-                  >
-                    <i className={`bi ${c.is_active ? "bi-toggle-on" : "bi-toggle-off"}`} />
-                  </button>
-
-                  <button
-                    className="btn btn-outline-dark btn-sm"
-                    onClick={() => openEditCity(c)}
-                    type="button"
-                  >
-                    <i className="bi bi-pencil-square me-1" />
-                    Modifier
-                  </button>
-
-                  <button
-                    className="btn btn-outline-danger btn-sm ms-auto"
-                    onClick={() => openDeleteCity(c)}
-                    type="button"
-                  >
-                    <i className="bi bi-trash me-1" />
-                    Supprimer
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-) : null}
+          )}
+        </div>
+      ) : null}
 
-
-      {/* MODAL CREATE/EDIT */}
       <Modal
         open={pmModalOpen}
-        title={pmEditing ? "Modifier moyen de paiement" : "Ajouter moyen de paiement"}
+        title={pmEditing ? t("settings.payments.modal.editTitle", "Edit payment method") : t("settings.payments.modal.createTitle", "Add payment method")}
         onClose={() => (!pmSaving ? setPmModalOpen(false) : null)}
         footer={
           <>
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => setPmModalOpen(false)}
-              disabled={pmSaving}
-            >
-              Annuler
+            <button className="btn btn-outline-secondary" onClick={() => setPmModalOpen(false)} disabled={pmSaving}>
+              {t("settings.actions.cancel", "Cancel")}
             </button>
-            <button
-              className="btn btn-warning"
-              onClick={submitPaymentMethod}
-              disabled={pmSaving}
-            >
+            <button className="btn btn-warning" onClick={submitPaymentMethod} disabled={pmSaving}>
               {pmSaving ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" />
-                  Enregistrement...
+                  {t("settings.actions.saving", "Saving...")}
                 </>
               ) : (
                 <>
                   <i className="bi bi-save me-2" />
-                  Enregistrer
+                  {t("settings.actions.save", "Save")}
                 </>
               )}
             </button>
@@ -950,43 +845,33 @@ async function confirmDeletePaymentMethod() {
       >
         <div className="row">
           <div className="col-md-6">
-            <Field label="Nom">
+            <Field label={t("settings.payments.fields.name", "Name")}>
               <input
                 className="form-control"
                 value={pmForm.name}
-                onChange={(e) =>
-                  setPmForm((p) => ({ ...p, name: e.target.value }))
-                }
-                placeholder="Ex: Paiement à la livraison"
+                onChange={(e) => setPmForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder={t("settings.payments.placeholders.name", "Ex: Cash on delivery")}
               />
             </Field>
           </div>
 
           <div className="col-md-6">
-            <Field label="Code" hint="Ex: cod, mvola, orange_money...">
+            <Field label={t("settings.payments.fields.code", "Code")} hint={t("settings.payments.hints.code", "Ex: cod, mvola, orange_money...")}>
               <input
                 className="form-control"
                 value={pmForm.code}
-                onChange={(e) =>
-                  setPmForm((p) => ({ ...p, code: e.target.value }))
-                }
-                placeholder="Ex: cod"
+                onChange={(e) => setPmForm((p) => ({ ...p, code: e.target.value }))}
+                placeholder={t("settings.payments.placeholders.code", "Ex: cod")}
               />
             </Field>
           </div>
         </div>
 
-        <Field label="Image / Logo">
-          <input
-            type="file"
-            className="form-control"
+        <Field label={t("settings.payments.fields.image", "Image / Logo")}>
+          <TranslatedFileInput
             accept="image/*"
-            onChange={(e) =>
-              setPmForm((p) => ({
-                ...p,
-                imageFile: e.target.files?.[0] || null,
-              }))
-            }
+            selectedText={pmForm.imageFile?.name || ""}
+            onChange={(e) => setPmForm((p) => ({ ...p, imageFile: e.target.files?.[0] || null }))}
           />
         </Field>
 
@@ -996,49 +881,47 @@ async function confirmDeletePaymentMethod() {
             type="checkbox"
             className="form-check-input"
             checked={pmForm.is_active}
-            onChange={(e) =>
-              setPmForm((p) => ({ ...p, is_active: e.target.checked }))
-            }
+            onChange={(e) => setPmForm((p) => ({ ...p, is_active: e.target.checked }))}
           />
           <label className="form-check-label" htmlFor="pm_active">
-            Actif
+            {t("settings.status.active", "Active")}
           </label>
         </div>
       </Modal>
 
-      {/* MODAL DELETE */}
       <DeleteModal
         open={deleteOpen}
-        item={deleteItem}
+        itemName={deleteItem?.name || t("settings.payments.defaultDeleteName", "this payment method")}
         loading={deleteLoading}
         onClose={closeDeletePM}
         onConfirm={confirmDeletePaymentMethod}
+        title={t("settings.delete.title", "Confirm deletion")}
+        message={t("settings.delete.paymentMessage", "Are you sure you want to delete")}
+        warning={t("settings.delete.warning", "This action is irreversible.")}
+        cancelLabel={t("settings.actions.cancel", "Cancel")}
+        confirmLabel={t("settings.actions.delete", "Delete")}
+        deletingLabel={t("settings.delete.deleting", "Deleting...")}
       />
 
-            {/* MODAL CITY CREATE/EDIT */}
       <Modal
         open={cityModalOpen}
-        title={cityEditing ? "Modifier ville" : "Ajouter ville"}
+        title={cityEditing ? t("settings.cities.modal.editTitle", "Edit city") : t("settings.cities.modal.createTitle", "Add city")}
         onClose={() => (!citySaving ? setCityModalOpen(false) : null)}
         footer={
           <>
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => setCityModalOpen(false)}
-              disabled={citySaving}
-            >
-              Annuler
+            <button className="btn btn-outline-secondary" onClick={() => setCityModalOpen(false)} disabled={citySaving}>
+              {t("settings.actions.cancel", "Cancel")}
             </button>
             <button className="btn btn-warning" onClick={submitCity} disabled={citySaving}>
               {citySaving ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" />
-                  Enregistrement...
+                  {t("settings.actions.saving", "Saving...")}
                 </>
               ) : (
                 <>
                   <i className="bi bi-save me-2" />
-                  Enregistrer
+                  {t("settings.actions.save", "Save")}
                 </>
               )}
             </button>
@@ -1047,23 +930,23 @@ async function confirmDeletePaymentMethod() {
       >
         <div className="row">
           <div className="col-md-6">
-            <Field label="Nom">
+            <Field label={t("settings.cities.fields.name", "Name")}>
               <input
                 className="form-control"
                 value={cityForm.name}
                 onChange={(e) => setCityForm((p) => ({ ...p, name: e.target.value }))}
-                placeholder="Ex: Antananarivo"
+                placeholder={t("settings.cities.placeholders.name", "Ex: Antananarivo")}
               />
             </Field>
           </div>
 
           <div className="col-md-6">
-            <Field label="Région">
+            <Field label={t("settings.cities.fields.region", "Region")}>
               <input
                 className="form-control"
                 value={cityForm.region}
                 onChange={(e) => setCityForm((p) => ({ ...p, region: e.target.value }))}
-                placeholder="Ex: Analamanga"
+                placeholder={t("settings.cities.placeholders.region", "Ex: Analamanga")}
               />
             </Field>
           </div>
@@ -1078,18 +961,23 @@ async function confirmDeletePaymentMethod() {
             onChange={(e) => setCityForm((p) => ({ ...p, is_active: e.target.checked }))}
           />
           <label className="form-check-label" htmlFor="city_active">
-            Actif
+            {t("settings.status.active", "Active")}
           </label>
         </div>
       </Modal>
 
-      {/* MODAL CITY DELETE */}
       <DeleteModal
         open={cityDeleteOpen}
-        item={cityDeleteItem}
+        itemName={cityDeleteItem?.name || t("settings.cities.defaultDeleteName", "this city")}
         loading={cityDeleteLoading}
         onClose={closeDeleteCity}
         onConfirm={confirmDeleteCity}
+        title={t("settings.delete.title", "Confirm deletion")}
+        message={t("settings.delete.cityMessage", "Are you sure you want to delete")}
+        warning={t("settings.delete.warning", "This action is irreversible.")}
+        cancelLabel={t("settings.actions.cancel", "Cancel")}
+        confirmLabel={t("settings.actions.delete", "Delete")}
+        deletingLabel={t("settings.delete.deleting", "Deleting...")}
       />
     </div>
   );

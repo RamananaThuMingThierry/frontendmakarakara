@@ -5,50 +5,53 @@
   "page": "Seite",
   "search": "Suchen (lokal)",
   "refresh": "Aktualisieren",
-  "refreshing": "Wird aktualisiert…",
-  "loading": "Wird geladen…",
+  "refreshing": "Wird aktualisiert...",
+  "loading": "Wird geladen...",
   "empty": "Keine Protokolle gefunden.",
-
   "errors": {
     "load": "Protokolle konnten nicht geladen werden."
   },
-
   "toast": {
     "deleted": "Gelöscht.",
     "deleteFailed": "Löschen fehlgeschlagen."
   },
-
   "actions": {
     "show": "Anzeigen",
     "delete": "Löschen"
   },
-
   "card": {
     "id": "Protokoll",
-    "entity": "Entität",
-    "user": "Benutzer",
     "date": "Datum"
   },
-
   "show": {
     "title": "Protokolldetails",
-    "action": "Aktion",
-    "entity": "Entität",
-    "user": "Benutzer",
-    "date": "Datum",
     "metadata": "Metadaten"
   },
-
   "delete": {
     "title": "Bestätigen",
     "message": "Dieses Protokoll löschen",
     "message2": "Dieses Protokoll löschen?",
-    "deleting": "Wird gelöscht…",
+    "deleting": "Wird gelöscht...",
     "btn": "Löschen"
   },
-
   "modal": {
     "close": "Schließen",
     "cancel": "Abbrechen"
+  },
+  "fields": {
+    "id": "ID",
+    "action": "Aktion",
+    "color": "Farbe",
+    "method": "Methode",
+    "httpStatus": "HTTP-Status",
+    "user": "Benutzer",
+    "userId": "Benutzer-ID",
+    "entity": "Entität",
+    "entityId": "Entitäts-ID",
+    "route": "Route",
+    "url": "URL",
+    "message": "Nachricht",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Geändert am"
   }
 }

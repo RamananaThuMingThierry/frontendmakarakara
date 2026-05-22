@@ -1,0 +1,73 @@
+﻿{
+  "title": "Gutscheine",
+  "subtitle": "Rabattgutscheine verwalten",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert...",
+  "new": "Neuer Gutschein",
+  "loading": "Wird geladen...",
+  "empty": "Keine Gutscheine gefunden.",
+  "currency": "DA",
+  "type": {
+    "fixed": "Fester Betrag",
+    "percent": "Prozentsatz"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "validity": {
+    "start": "Beginn",
+    "end": "Ende"
+  },
+  "table": {
+    "code": "Code",
+    "type": "Typ",
+    "value": "Wert",
+    "minSubtotal": "Minimum",
+    "validity": "Gültigkeit",
+    "usageLimit": "Limit",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "form": {
+    "code": "Code",
+    "type": "Typ",
+    "value": "Wert",
+    "minSubtotal": "Mindestzwischensumme",
+    "startsAt": "Gültig ab",
+    "endsAt": "Gültig bis",
+    "usageLimit": "Nutzungslimit",
+    "active": "Aktiver Gutschein",
+    "unlimited": "Unbegrenzt",
+    "unlimitedPlaceholder": "Leer lassen für unbegrenzt"
+  },
+  "modal": {
+    "createTitle": "Gutschein erstellen",
+    "editTitle": "Gutschein bearbeiten",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert..."
+  },
+  "show": {
+    "title": "Gutscheindetails",
+    "loading": "Details werden geladen...",
+    "usedCount": "Anzahl der Nutzungen",
+    "close": "Schließen"
+  },
+  "delete": {
+    "title": "Bestätigung",
+    "message": "Gutschein löschen",
+    "message2": "Diesen Gutschein löschen?",
+    "btn": "Löschen",
+    "deleting": "Wird gelöscht..."
+  },
+  "toast": {
+    "loadFailed": "Laden fehlgeschlagen.",
+    "detailsFailed": "Details konnten nicht geladen werden.",
+    "created": "Gutschein erstellt.",
+    "updated": "Gutschein aktualisiert.",
+    "deleted": "Gutschein gelöscht.",
+    "saveFailed": "Speichern fehlgeschlagen.",
+    "deleteFailed": "Löschen fehlgeschlagen."
+  }
+}

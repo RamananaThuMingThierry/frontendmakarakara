@@ -1,0 +1,53 @@
+﻿{
+  "title": "Galería",
+  "subtitle": "Gestiona las imágenes mostradas en la galería del sitio.",
+  "search": "Buscar...",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "new": "Agregar imagen",
+  "loading": "Cargando...",
+  "empty": "No se encontraron imágenes.",
+  "table": {
+    "image": "Imagen",
+    "name": "Nombre",
+    "likes": "Me gusta",
+    "createdAt": "Añadida el",
+    "actions": "Acciones"
+  },
+  "modal": {
+    "createTitle": "Agregar imagen",
+    "image": "Imagen",
+    "name": "Nombre",
+    "likes": "Me gusta",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "noImage": "Sin imagen"
+  },
+  "show": {
+    "title": "Detalle de la imagen",
+    "name": "Nombre",
+    "likes": "Me gusta",
+    "createdAt": "Fecha de alta"
+  },
+  "actions": {
+    "view": "Ver",
+    "delete": "Eliminar",
+    "close": "Cerrar"
+  },
+  "delete": {
+    "title": "Confirmación",
+    "message": "Eliminar la imagen",
+    "deleting": "Eliminando..."
+  },
+  "toast": {
+    "created": "Imagen agregada correctamente.",
+    "deleted": "Imagen eliminada.",
+    "saveFailed": "Error al guardar.",
+    "deleteFailed": "Error al eliminar."
+  },
+  "error": {
+    "load": "No se puede cargar la galería.",
+    "show": "No se puede cargar la imagen."
+  }
+}

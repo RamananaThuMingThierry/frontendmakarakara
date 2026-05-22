@@ -1,0 +1,73 @@
+﻿{
+  "title": "Cupones",
+  "subtitle": "Gestionar los cupones de descuento",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "new": "Nuevo cupón",
+  "loading": "Cargando...",
+  "empty": "No se encontraron cupones.",
+  "currency": "DA",
+  "type": {
+    "fixed": "Monto fijo",
+    "percent": "Porcentaje"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "validity": {
+    "start": "Inicio",
+    "end": "Fin"
+  },
+  "table": {
+    "code": "Código",
+    "type": "Tipo",
+    "value": "Valor",
+    "minSubtotal": "Mínimo",
+    "validity": "Vigencia",
+    "usageLimit": "Límite",
+    "status": "Estado",
+    "actions": "Acciones"
+  },
+  "form": {
+    "code": "Código",
+    "type": "Tipo",
+    "value": "Valor",
+    "minSubtotal": "Subtotal mínimo",
+    "startsAt": "Inicio de vigencia",
+    "endsAt": "Fin de vigencia",
+    "usageLimit": "Límite de uso",
+    "active": "Cupón activo",
+    "unlimited": "Ilimitado",
+    "unlimitedPlaceholder": "Déjalo vacío para ilimitado"
+  },
+  "modal": {
+    "createTitle": "Crear cupón",
+    "editTitle": "Editar cupón",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando..."
+  },
+  "show": {
+    "title": "Detalles del cupón",
+    "loading": "Cargando detalles...",
+    "usedCount": "Número de usos",
+    "close": "Cerrar"
+  },
+  "delete": {
+    "title": "Confirmación",
+    "message": "Eliminar el cupón",
+    "message2": "¿Eliminar este cupón?",
+    "btn": "Eliminar",
+    "deleting": "Eliminando..."
+  },
+  "toast": {
+    "loadFailed": "Error al cargar.",
+    "detailsFailed": "No se pudieron cargar los detalles.",
+    "created": "Cupón creado.",
+    "updated": "Cupón actualizado.",
+    "deleted": "Cupón eliminado.",
+    "saveFailed": "Error al guardar.",
+    "deleteFailed": "Error al eliminar."
+  }
+}

@@ -1,0 +1,49 @@
+﻿{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "categories": "Catégories",
+    "brands": "Marques",
+    "orders": "Commandes",
+    "coupons": "Coupons",
+    "testimonials": "Témoignages",
+    "gallery": "Galerie",
+    "reservations": "Réservations",
+    "sliders": "Bannières",
+    "users": "Utilisateurs",
+    "contacts": "Contacts",
+    "settings": "Paramètres",
+    "activityLogs": "Journal d'activité",
+    "account": "Mon compte",
+    "logout": "Déconnexion"
+  },
+  "header": {
+    "dashboard": "Tableau de bord",
+    "admin": "Admin",
+    "notifications": "Notifications",
+    "unread": "non lue(s)",
+    "markAllRead": "Tout marquer comme lu",
+    "loading": "Chargement...",
+    "empty": "Aucune notification.",
+    "viewMore": "Voir plus",
+    "language": "Langue",
+    "account": "Mon compte",
+    "new": "Nouveau"
+  },
+  "sidebar": {
+    "backToSite": "Retour site",
+    "expand": "Étendre le menu",
+    "collapse": "Réduire le menu"
+  },
+  "footer": {
+    "adminDashboard": "Admin Dashboard",
+    "secure": "Sécurisé",
+    "performance": "Performance"
+  },
+  "logout": {
+    "title": "Déconnexion",
+    "message": "Voulez-vous vraiment vous déconnecter ?",
+    "confirm": "Oui, se déconnecter",
+    "cancel": "Annuler",
+    "loading": "Déconnexion..."
+  }
+}

@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { activityLogsApi } from "../../../api/activity_logs";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
-function formatDate(dt) {
+function formatDate(dt, lang) {
   try {
-    return new Date(dt).toLocaleString();
+    return new Date(dt).toLocaleString(lang || "fr");
   } catch {
     return dt;
   }
@@ -97,60 +97,56 @@ function compactText(value, fallback = "—") {
   return text || fallback;
 }
 
-function buildSummaryFields(log) {
+function buildSummaryFields(log, t) {
   return [
-    { label: "Message", value: log?.message },
-    { label: "Utilisateur", value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
-    { label: "Entite", value: log?.entity_type ? `${log.entity_type}${log?.entity_id ? ` #${log.entity_id}` : ""}` : "" },
-    { label: "Route", value: log?.route },
-    { label: "URL", value: log?.url },
+    { label: t("activityLogs.fields.message", "Message"), value: log?.message },
+    { label: t("activityLogs.fields.user", "User"), value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
+    { label: t("activityLogs.fields.entity", "Entity"), value: log?.entity_type ? `${log.entity_type}${log?.entity_id ? ` #${log.entity_id}` : ""}` : "" },
+    { label: t("activityLogs.fields.route", "Route"), value: log?.route },
+    { label: t("activityLogs.fields.url", "URL"), value: log?.url },
   ].filter((item) => String(item.value ?? "").trim() !== "");
 }
 
-function buildDetailFields(log) {
+function buildDetailFields(log, t, lang) {
   return [
-    { label: "ID", value: log?.id },
-    { label: "Action", value: log?.action },
-    { label: "Couleur", value: log?.color },
-    { label: "Methode", value: log?.method },
-    { label: "Status HTTP", value: log?.status_code },
-    { label: "Utilisateur", value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
-    { label: "User ID", value: log?.user_id },
-    { label: "Entite", value: log?.entity_type },
-    { label: "Entity ID", value: log?.entity_id },
-    { label: "Route", value: log?.route },
-    { label: "URL", value: log?.url },
-    { label: "Message", value: log?.message },
-    { label: "Cree le", value: formatDate(log?.created_at) },
-    { label: "Modifie le", value: formatDate(log?.updated_at) },
+    { label: t("activityLogs.fields.id", "ID"), value: log?.id },
+    { label: t("activityLogs.fields.action", "Action"), value: log?.action },
+    { label: t("activityLogs.fields.color", "Color"), value: log?.color },
+    { label: t("activityLogs.fields.method", "Method"), value: log?.method },
+    { label: t("activityLogs.fields.httpStatus", "HTTP status"), value: log?.status_code },
+    { label: t("activityLogs.fields.user", "User"), value: log?.user?.name || log?.user?.email || (log?.user_id ? `#${log.user_id}` : "") },
+    { label: t("activityLogs.fields.userId", "User ID"), value: log?.user_id },
+    { label: t("activityLogs.fields.entity", "Entity"), value: log?.entity_type },
+    { label: t("activityLogs.fields.entityId", "Entity ID"), value: log?.entity_id },
+    { label: t("activityLogs.fields.route", "Route"), value: log?.route },
+    { label: t("activityLogs.fields.url", "URL"), value: log?.url },
+    { label: t("activityLogs.fields.message", "Message"), value: log?.message },
+    { label: t("activityLogs.fields.createdAt", "Created at"), value: formatDate(log?.created_at, lang) },
+    { label: t("activityLogs.fields.updatedAt", "Updated at"), value: formatDate(log?.updated_at, lang) },
   ].filter((item) => item.value !== null && item.value !== undefined && String(item.value).trim() !== "");
 }
 
 export default function ActivityLogPage() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
 
   const [pager, setPager] = useState(null);
   const [page, setPage] = useState(1);
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [err, setErr] = useState("");
-
   const [q, setQ] = useState("");
-
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
+  const [showOpen, setShowOpen] = useState(false);
+  const [showing, setShowing] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
   function showToast(type, message) {
     setToast({ open: true, type, message });
     window.clearTimeout(showToast._t);
     showToast._t = window.setTimeout(() => setToast((x) => ({ ...x, open: false })), 3500);
   }
-
-  const [showOpen, setShowOpen] = useState(false);
-  const [showing, setShowing] = useState(null);
-
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const getRowId = (row) => row?.encrypted_id ?? row?.id;
 
@@ -263,7 +259,7 @@ export default function ActivityLogPage() {
           <input
             className="form-control"
             style={{ width: 320 }}
-            placeholder={t("activityLogs.search", "Search in all visible fields")}
+            placeholder={t("activityLogs.search", "Search (local)")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             disabled={loading}
@@ -305,7 +301,7 @@ export default function ActivityLogPage() {
               <div className="row g-3">
                 {filtered.map((r) => {
                   const style = getActionStyle(r);
-                  const summaryFields = buildSummaryFields(r).slice(0, 3);
+                  const summaryFields = buildSummaryFields(r, t).slice(0, 3);
 
                   return (
                     <div className="col-12 col-md-6 col-xl-4" key={r.id}>
@@ -355,7 +351,7 @@ export default function ActivityLogPage() {
 
                           <div className="mt-auto pt-2 border-top">
                             <div className="text-muted small">{t("activityLogs.card.date", "Date")}</div>
-                            <div className="text-break">{formatDate(r.created_at)}</div>
+                            <div className="text-break">{formatDate(r.created_at, lang)}</div>
                           </div>
                         </div>
 
@@ -431,7 +427,7 @@ export default function ActivityLogPage() {
                           </div>
 
                           <div className="d-flex flex-column gap-3">
-                            {buildDetailFields(showing).map((item) => (
+                            {buildDetailFields(showing, t, lang).map((item) => (
                               <div key={item.label}>
                                 <div className="text-muted small mb-1">{item.label}</div>
                                 <div className="text-break">{compactText(item.value)}</div>

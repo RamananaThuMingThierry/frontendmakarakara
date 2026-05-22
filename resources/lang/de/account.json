@@ -1,0 +1,57 @@
+﻿{
+  "title": "Mein Konto",
+  "subtitle": "Sieh dir deine persönlichen Informationen an und aktualisiere sie.",
+  "loading": "Konto wird geladen...",
+  "errors": {
+    "load": "Das Konto konnte nicht geladen werden."
+  },
+  "summary": {
+    "adminFallback": "Administrator",
+    "emailUnavailable": "E-Mail nicht verfügbar",
+    "phone": "Telefon",
+    "notProvided": "Nicht angegeben",
+    "emailVerification": "E-Mail-Verifizierung"
+  },
+  "status": {
+    "verified": "Verifiziert",
+    "pending": "Ausstehend"
+  },
+  "verification": {
+    "title": "E-Mail nicht verifiziert",
+    "text": "Sende eine neue Bestätigungs-E-Mail, um diese Adresse zu validieren.",
+    "button": "E-Mail verifizieren",
+    "sending": "Wird gesendet...",
+    "notice": "Wenn du deine E-Mail-Adresse änderst, ist eine neue Verifizierung erforderlich."
+  },
+  "profile": {
+    "title": "Benutzerinformationen",
+    "subtitle": "Bearbeite dein Admin-Profil, ohne das Dashboard zu verlassen.",
+    "avatarAlt": "Avatar",
+    "avatar": "Profilbild",
+    "name": "Vollständiger Name",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefon"
+  },
+  "password": {
+    "title": "Passwort ändern",
+    "subtitle": "Aus Sicherheitsgründen wirst du nach der Änderung abgemeldet.",
+    "current": "Aktuelles Passwort",
+    "new": "Neues Passwort",
+    "confirmation": "Bestätigung"
+  },
+  "actions": {
+    "saving": "Speichern...",
+    "saveChanges": "Änderungen speichern",
+    "updating": "Aktualisierung...",
+    "changePassword": "Passwort ändern"
+  },
+  "toast": {
+    "profileUpdated": "Informationen aktualisiert.",
+    "profileUpdateFailed": "Aktualisierung fehlgeschlagen.",
+    "passwordUpdated": "Passwort geändert.",
+    "passwordReconnect": "Passwort geändert. Bitte melde dich erneut an.",
+    "passwordUpdateFailed": "Änderung nicht möglich.",
+    "verificationSent": "Bestätigungs-E-Mail gesendet.",
+    "verificationFailed": "Die Bestätigungs-E-Mail konnte nicht gesendet werden."
+  }
+}

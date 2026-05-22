@@ -1,0 +1,55 @@
+﻿{
+  "title": "Utilisateurs",
+  "subtitle": "Gérer les utilisateurs",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "new": "Nouvel utilisateur",
+  "loading": "Chargement...",
+  "empty": "Aucun utilisateur trouvé.",
+  "table": {
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "roles": "Rôles",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "modal": {
+    "createTitle": "Créer un utilisateur",
+    "editTitle": "Modifier l'utilisateur",
+    "avatar": "Avatar",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "status": "Statut",
+    "password": "Mot de passe",
+    "passwordOptional": "optionnel",
+    "passwordConfirm": "Confirmer le mot de passe",
+    "role": "Rôle",
+    "rolePlaceholder": "Sélectionner un rôle",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement..."
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Supprimer l'utilisateur",
+    "message2": "Supprimer cet utilisateur ?",
+    "deleting": "Suppression...",
+    "btn": "Supprimer"
+  },
+  "toast": {
+    "loadFailed": "Échec du chargement.",
+    "nameRequired": "Le nom est obligatoire",
+    "emailRequired": "L'email est obligatoire",
+    "created": "Utilisateur créé.",
+    "updated": "Utilisateur mis à jour.",
+    "deleted": "Utilisateur supprimé.",
+    "saveFailed": "Échec de l'enregistrement.",
+    "deleteFailed": "Échec de la suppression."
+  }
+}

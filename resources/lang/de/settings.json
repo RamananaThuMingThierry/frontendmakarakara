@@ -1,0 +1,113 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Verwalte den Über-uns-Bereich, Zahlungsmethoden und Städte.",
+  "loading": "Wird geladen...",
+  "tabs": {
+    "about": "Über uns",
+    "payments": "Zahlungsmethoden",
+    "cities": "Städte"
+  },
+  "actions": {
+    "close": "Schließen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "cancel": "Abbrechen",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "toggle": "Aktivieren/Deaktivieren"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "about": {
+    "title": "Über die Plattform",
+    "previewTitle": "Schnellvorschau",
+    "logoAlt": "Plattformlogo",
+    "fields": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "logo": "Logo",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "address": "Adresse"
+    },
+    "placeholders": {
+      "title": "Z. B.: MAHAKARAKARA",
+      "description": "Stelle deine Plattform vor...",
+      "address": "Adresse / Stadt",
+      "facebook": "Link zur Facebook-Seite",
+      "instagram": "Instagram-Link",
+      "whatsapp": "Z. B.: +261..."
+    },
+    "hints": {
+      "logo": "Wird in E-Mails und PDF-Rechnungen verwendet, die an Kunden gesendet werden."
+    }
+  },
+  "payments": {
+    "title": "Zahlungsmethoden",
+    "empty": "Keine Zahlungsmethoden.",
+    "noImage": "Kein Bild",
+    "code": "Code",
+    "defaultDeleteName": "diese Zahlungsmethode",
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "image": "Bild / Logo"
+    },
+    "placeholders": {
+      "name": "Z. B.: Zahlung bei Lieferung",
+      "code": "Z. B.: cod"
+    },
+    "hints": {
+      "code": "Z. B.: cod, mvola, orange_money..."
+    },
+    "modal": {
+      "createTitle": "Zahlungsmethode hinzufügen",
+      "editTitle": "Zahlungsmethode bearbeiten"
+    }
+  },
+  "cities": {
+    "title": "Städte",
+    "empty": "Keine Städte.",
+    "region": "Region",
+    "defaultDeleteName": "diese Stadt",
+    "fields": {
+      "name": "Name",
+      "region": "Region"
+    },
+    "placeholders": {
+      "name": "Z. B.: Antananarivo",
+      "region": "Z. B.: Analamanga"
+    },
+    "modal": {
+      "createTitle": "Stadt hinzufügen",
+      "editTitle": "Stadt bearbeiten"
+    }
+  },
+  "delete": {
+    "title": "Löschen bestätigen",
+    "paymentMessage": "Möchtest du wirklich löschen",
+    "cityMessage": "Möchtest du wirklich löschen",
+    "warning": "Diese Aktion ist unwiderruflich.",
+    "deleting": "Löschen..."
+  },
+  "alert": {
+    "aboutSaved": "Über-uns-Bereich erfolgreich aktualisiert.",
+    "saveError": "Fehler beim Speichern.",
+    "citiesLoadError": "Fehler beim Laden der Städte.",
+    "cityCreated": "Stadt erstellt.",
+    "cityUpdated": "Stadt aktualisiert.",
+    "citySaveError": "Fehler beim Speichern der Stadt.",
+    "toggleError": "Fehler beim Ändern des Status.",
+    "cityDeleted": "Stadt gelöscht.",
+    "deleteError": "Fehler beim Löschen.",
+    "paymentsLoadError": "Fehler beim Laden der Zahlungsmethoden.",
+    "paymentCreated": "Zahlungsmethode erstellt.",
+    "paymentUpdated": "Zahlungsmethode aktualisiert.",
+    "paymentSaveError": "Fehler beim Speichern der Zahlungsmethode.",
+    "paymentDeleted": "Zahlungsmethode gelöscht.",
+    "loadError": "Fehler beim Laden."
+  }
+}

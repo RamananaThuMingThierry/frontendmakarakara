@@ -1,0 +1,14 @@
+{
+  "back": "Retour",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "saving": "Enregistrement...",
+  "chooseFile": "Choisir un fichier",
+  "chooseFiles": "Choisir des fichiers",
+  "noFileChosen": "Aucun fichier choisi",
+  "noFilesChosen": "Aucun fichier choisi",
+  "view": "Voir",
+  "close": "Fermer",
+  "yes": "Oui",
+  "no": "Non"
+}

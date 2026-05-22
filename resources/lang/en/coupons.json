@@ -1,0 +1,73 @@
+﻿{
+  "title": "Coupons",
+  "subtitle": "Manage discount coupons",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "new": "New coupon",
+  "loading": "Loading...",
+  "empty": "No coupons found.",
+  "currency": "DA",
+  "type": {
+    "fixed": "Fixed amount",
+    "percent": "Percentage"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "validity": {
+    "start": "Start",
+    "end": "End"
+  },
+  "table": {
+    "code": "Code",
+    "type": "Type",
+    "value": "Value",
+    "minSubtotal": "Minimum",
+    "validity": "Validity",
+    "usageLimit": "Limit",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "form": {
+    "code": "Code",
+    "type": "Type",
+    "value": "Value",
+    "minSubtotal": "Minimum subtotal",
+    "startsAt": "Validity start",
+    "endsAt": "Validity end",
+    "usageLimit": "Usage limit",
+    "active": "Active coupon",
+    "unlimited": "Unlimited",
+    "unlimitedPlaceholder": "Leave empty for unlimited"
+  },
+  "modal": {
+    "createTitle": "Create coupon",
+    "editTitle": "Edit coupon",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "show": {
+    "title": "Coupon details",
+    "loading": "Loading details...",
+    "usedCount": "Usage count",
+    "close": "Close"
+  },
+  "delete": {
+    "title": "Confirmation",
+    "message": "Delete coupon",
+    "message2": "Delete this coupon?",
+    "btn": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toast": {
+    "loadFailed": "Load failed.",
+    "detailsFailed": "Unable to load details.",
+    "created": "Coupon created.",
+    "updated": "Coupon updated.",
+    "deleted": "Coupon deleted.",
+    "saveFailed": "Save failed.",
+    "deleteFailed": "Delete failed."
+  }
+}

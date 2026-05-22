@@ -1,0 +1,83 @@
+﻿{
+  "title": "Order management",
+  "subtitle": "Track customer orders and review order items.",
+  "total": "Total",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "loading": "Loading...",
+  "empty": "No orders found.",
+  "error": {
+    "load": "Unable to load orders.",
+    "details": "Unable to load order details.",
+    "action": "Action unavailable for this order."
+  },
+  "table": {
+    "order": "Order",
+    "customer": "Customer",
+    "items": "Items",
+    "quantity": "Quantity",
+    "status": "Status",
+    "orderStatus": "Order",
+    "paymentStatus": "Payment",
+    "total": "Total",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "processing": "Processing",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "paymentStatus": {
+    "unpaid": "Unpaid",
+    "pending_verification": "Verification",
+    "paid": "Paid",
+    "refunded": "Refunded"
+  },
+  "show": {
+    "title": "Order details",
+    "loading": "Loading details...",
+    "empty": "No details available.",
+    "order": "Order",
+    "customer": "Customer",
+    "address": "Address",
+    "openMaps": "Open in Google Maps",
+    "notes": "Notes",
+    "notesPlaceholder": "Add an internal note for this order...",
+    "orderStatus": "Order status",
+    "paymentStatus": "Payment status",
+    "paymentMethod": "Payment method",
+    "deliveryFee": "Delivery fee",
+    "deliveryFeeHelp": "This amount is set by the admin according to delivery distance. `0` means free delivery. The fee should be fixed before confirmation.",
+    "invoice": "Invoice",
+    "receipt": "Receipt",
+    "receiptSentAt": "Receipt sent at",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "totalHelp": "The total includes the delivery fee set for this order."
+  },
+  "items": {
+    "title": "Order items",
+    "empty": "No items available.",
+    "product": "Product",
+    "sku": "SKU",
+    "quantity": "Quantity",
+    "unitPrice": "Unit price",
+    "lineTotal": "Line total"
+  },
+  "actions": {
+    "view": "View",
+    "save": "Save",
+    "saveNote": "Save note",
+    "confirm": "Confirm",
+    "processing": "Start processing",
+    "markPaid": "Mark as paid",
+    "sendReceipt": "Send receipt",
+    "deliver": "Deliver",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}

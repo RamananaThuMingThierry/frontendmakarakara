@@ -1,26 +1,27 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { contactsApi } from "../../../api/contacts";
-
-function formatDate(value) {
-  try {
-    return new Date(value).toLocaleString();
-  } catch {
-    return value || "-";
-  }
-}
+import { useI18n } from "../../../hooks/website/I18nContext";
 
 export default function ContactUsPage() {
+  const { lang, t } = useI18n();
+
+  function formatDate(value) {
+    try {
+      return new Date(value).toLocaleString(lang === "en" ? "en-US" : lang);
+    } catch {
+      return value || "-";
+    }
+  }
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-
   const [toast, setToast] = useState({ open: false, type: "success", message: "" });
   const [showOpen, setShowOpen] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [selected, setSelected] = useState(null);
-
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -40,7 +41,7 @@ export default function ContactUsPage() {
       const data = await contactsApi.list();
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger les messages de contact.");
+      setError(e?.response?.data?.message || t("contacts.error.load", "Unable to load contact messages."));
     } finally {
       if (mode === "initial") setLoading(false);
       else setRefreshing(false);
@@ -71,7 +72,7 @@ export default function ContactUsPage() {
       const data = await contactsApi.show(item.encrypted_id ?? item.id);
       setSelected(data);
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Impossible de charger le message.");
+      showToast("danger", e?.response?.data?.message || t("contacts.error.show", "Unable to load the message."));
       setShowOpen(false);
     } finally {
       setShowLoading(false);
@@ -110,9 +111,9 @@ export default function ContactUsPage() {
         setSelected(null);
       }
 
-      showToast("success", result.message || "Message supprime avec succes.");
+      showToast("success", result.message || t("contacts.toast.deleted", "Message deleted successfully."));
     } catch (e) {
-      showToast("danger", e?.response?.data?.message || "Echec de la suppression.");
+      showToast("danger", e?.response?.data?.message || t("contacts.toast.deleteFailed", "Delete failed."));
     } finally {
       setDeleting(false);
     }
@@ -122,37 +123,23 @@ export default function ContactUsPage() {
     <div className="container-fluid">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
         <div>
-          <h4 className="mb-1">Messages de contact</h4>
-          <div className="text-muted small">Liste, consultation et suppression des demandes.</div>
-          <div className="text-muted small">Total: {items.length}</div>
+          <h4 className="mb-1">{t("contacts.title", "Contact messages")}</h4>
+          <div className="text-muted small">{t("contacts.subtitle", "List, review and delete requests.")}</div>
+          <div className="text-muted small">{t("contacts.total", "Total")}: {items.length}</div>
         </div>
 
         <div className="d-flex gap-2">
           <input
             className="form-control"
             style={{ width: 300 }}
-            placeholder="Rechercher..."
+            placeholder={t("contacts.search", "Search...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             disabled={loading}
           />
 
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => load({ mode: "refresh" })}
-            disabled={loading || refreshing}
-          >
-            {loading || refreshing ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                Actualisation...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-arrow-clockwise me-2" />
-                Actualiser
-              </>
-            )}
+          <button className="btn btn-outline-secondary" onClick={() => load({ mode: "refresh" })} disabled={loading || refreshing}>
+            {loading || refreshing ? <><span className="spinner-border spinner-border-sm me-2" />{t("contacts.refreshing", "Refreshing...")}</> : <><i className="bi bi-arrow-clockwise me-2" />{t("contacts.refresh", "Refresh")}</>}
           </button>
         </div>
       </div>
@@ -162,26 +149,21 @@ export default function ContactUsPage() {
           {error ? <div className="alert alert-danger">{error}</div> : null}
 
           {loading ? (
-            <div className="d-flex align-items-center gap-2 text-muted">
-              <span className="spinner-border spinner-border-sm" />
-              Chargement...
-            </div>
+            <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("contacts.loading", "Loading...")}</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center text-muted py-4">Aucun message trouve.</div>
+            <div className="text-center text-muted py-4">{t("contacts.empty", "No messages found.")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table align-middle mb-0">
                 <thead>
                   <tr className="text-muted small">
                     <th style={{ width: 70 }}>#</th>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Telephone</th>
-                    <th>Sujet</th>
-                    <th>Date</th>
-                    <th className="text-end" style={{ width: 200 }}>
-                      Actions
-                    </th>
+                    <th>{t("contacts.table.name", "Name")}</th>
+                    <th>{t("contacts.table.email", "Email")}</th>
+                    <th>{t("contacts.table.phone", "Phone")}</th>
+                    <th>{t("contacts.table.subject", "Subject")}</th>
+                    <th>{t("contacts.table.date", "Date")}</th>
+                    <th className="text-end" style={{ width: 200 }}>{t("contacts.table.actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,28 +173,12 @@ export default function ContactUsPage() {
                       <td className="fw-semibold">{item.name || "-"}</td>
                       <td>{item.email || "-"}</td>
                       <td>{item.phone || "-"}</td>
-                      <td>
-                        <div className="text-truncate" style={{ maxWidth: 220 }}>
-                          {item.subject || "-"}
-                        </div>
-                      </td>
+                      <td><div className="text-truncate" style={{ maxWidth: 220 }}>{item.subject || "-"}</div></td>
                       <td>{formatDate(item.created_at)}</td>
                       <td className="text-end">
                         <div className="d-inline-flex gap-2">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => openShow(item)}
-                          >
-                            <i className="bi bi-eye me-1" />
-                            Voir
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => askDelete(item)}
-                          >
-                            <i className="bi bi-trash3 me-1" />
-                            Supprimer
-                          </button>
+                          <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)}><i className="bi bi-eye me-1" />{t("contacts.actions.view", "View")}</button>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)}><i className="bi bi-trash3 me-1" />{t("contacts.actions.delete", "Delete")}</button>
                         </div>
                       </td>
                     </tr>
@@ -230,82 +196,52 @@ export default function ContactUsPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Detail du message</h5>
+                  <h5 className="modal-title">{t("contacts.show.title", "Message details")}</h5>
                   <button type="button" className="btn-close" onClick={closeShow} disabled={showLoading} />
                 </div>
 
                 <div className="modal-body">
                   {showLoading ? (
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <span className="spinner-border spinner-border-sm" />
-                      Chargement du detail...
-                    </div>
+                    <div className="d-flex align-items-center gap-2 text-muted"><span className="spinner-border spinner-border-sm" />{t("contacts.show.loading", "Loading details...")}</div>
                   ) : selected ? (
                     <div className="row g-3">
                       <div className="col-12 col-lg-5">
                         <div className="border rounded-3 p-3 h-100">
-                          <div className="text-muted small mb-1">Nom</div>
+                          <div className="text-muted small mb-1">{t("contacts.table.name", "Name")}</div>
                           <div className="fw-semibold">{selected.name || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Email</div>
+                          <div className="text-muted small mb-1">{t("contacts.table.email", "Email")}</div>
                           <div>{selected.email || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Telephone</div>
+                          <div className="text-muted small mb-1">{t("contacts.table.phone", "Phone")}</div>
                           <div>{selected.phone || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Sujet</div>
+                          <div className="text-muted small mb-1">{t("contacts.table.subject", "Subject")}</div>
                           <div>{selected.subject || "-"}</div>
-
                           <hr />
-
-                          <div className="text-muted small mb-1">Date</div>
+                          <div className="text-muted small mb-1">{t("contacts.table.date", "Date")}</div>
                           <div>{formatDate(selected.created_at)}</div>
                         </div>
                       </div>
-
                       <div className="col-12 col-lg-7">
                         <div className="border rounded-3 p-3 h-100">
-                          <div className="text-muted small mb-2">Message</div>
-                          <div className="bg-light rounded-3 p-3" style={{ whiteSpace: "pre-wrap" }}>
-                            {selected.message || "-"}
-                          </div>
+                          <div className="text-muted small mb-2">{t("contacts.show.message", "Message")}</div>
+                          <div className="bg-light rounded-3 p-3" style={{ whiteSpace: "pre-wrap" }}>{selected.message || "-"}</div>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-muted">Aucun detail disponible.</div>
+                    <div className="text-muted">{t("contacts.show.empty", "No details available.")}</div>
                   )}
                 </div>
 
                 <div className="modal-footer">
-                  {selected ? (
-                    <button
-                      type="button"
-                      className="btn btn-danger me-auto"
-                      onClick={() => {
-                        setShowOpen(false);
-                        askDelete(selected);
-                      }}
-                    >
-                      <i className="bi bi-trash3 me-2" />
-                      Supprimer
-                    </button>
-                  ) : null}
-
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>
-                    Fermer
-                  </button>
+                  {selected ? <button type="button" className="btn btn-danger me-auto" onClick={() => { setShowOpen(false); askDelete(selected); }}><i className="bi bi-trash3 me-2" />{t("contacts.actions.delete", "Delete")}</button> : null}
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeShow} disabled={showLoading}>{t("contacts.show.close", "Close")}</button>
                 </div>
               </div>
             </div>
           </div>
-
           <div className="modal-backdrop fade show" onClick={closeShow} />
         </>
       )}
@@ -316,39 +252,19 @@ export default function ContactUsPage() {
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Confirmation</h5>
+                  <h5 className="modal-title">{t("contacts.delete.title", "Confirmation")}</h5>
                   <button type="button" className="btn-close" onClick={closeDelete} disabled={deleting} />
                 </div>
-
                 <div className="modal-body">
-                  {deleteTarget ? (
-                    <p className="mb-0">
-                      Supprimer le message de <b>{deleteTarget.name}</b> ?
-                    </p>
-                  ) : (
-                    <p className="mb-0">Supprimer ce message ?</p>
-                  )}
+                  {deleteTarget ? <p className="mb-0">{t("contacts.delete.message", "Delete the message from")} <b>{deleteTarget.name}</b> ?</p> : <p className="mb-0">{t("contacts.delete.message2", "Delete this message?")}</p>}
                 </div>
-
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeDelete} disabled={deleting}>
-                    Annuler
-                  </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
-                    {deleting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        Suppression...
-                      </>
-                    ) : (
-                      "Supprimer"
-                    )}
-                  </button>
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeDelete} disabled={deleting}>{t("contacts.delete.cancel", "Cancel")}</button>
+                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>{deleting ? <><span className="spinner-border spinner-border-sm me-2" />{t("contacts.delete.deleting", "Deleting...")}</> : t("contacts.actions.delete", "Delete")}</button>
                 </div>
               </div>
             </div>
           </div>
-
           <div className="modal-backdrop fade show" onClick={closeDelete} />
         </>
       )}
@@ -358,11 +274,7 @@ export default function ContactUsPage() {
           <div className={`toast show text-bg-${toast.type} border-0`}>
             <div className="d-flex">
               <div className="toast-body">{toast.message}</div>
-              <button
-                type="button"
-                className="btn-close btn-close-white me-2 m-auto"
-                onClick={() => setToast((current) => ({ ...current, open: false }))}
-              />
+              <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setToast((current) => ({ ...current, open: false }))} />
             </div>
           </div>
         </div>
