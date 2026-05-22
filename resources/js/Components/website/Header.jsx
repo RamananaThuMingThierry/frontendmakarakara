@@ -5,6 +5,7 @@ import { useCart } from '../../hooks/website/CartContext';
 import { useFavorites } from "../../hooks/website/FavoritesContext";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../../hooks/website/AuthContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -12,8 +13,14 @@ export default function Header() {
   const { cartCount } = useCart();
   const { favCount } = useFavorites();
   const { isAuth, roles, user, logout } = useAuth();
+  const { lang, setLang } = useI18n();
   const safeRoles = Array.isArray(roles) ? roles : [];
   const accountLink = safeRoles.includes("admin") ? "/admin/account" : "/account/profile";
+  const languageOptions = [
+    { code: "fr", label: "FR", name: "Francais", icon: "/img/icon_fr.png" },
+    { code: "en", label: "EN", name: "English", icon: "/img/icon_en.png" },
+  ];
+  const currentLanguage = languageOptions.find((item) => item.code === lang) || languageOptions[0];
   const navItems = [
     { to: "/", label: "Accueil" },
     { to: "/shop", label: "Boutique" },
@@ -117,6 +124,37 @@ export default function Header() {
 
             {/* right icons */}
             <div className="d-flex align-items-center gap-3">
+              <div className="dropdown">
+                <button
+                  className="btn btn-link p-0 text-dark text-decoration-none language-trigger"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Choisir la langue"
+                  title="Choisir la langue"
+                >
+                  <img
+                    src={currentLanguage.icon}
+                    alt={currentLanguage.name}
+                    className="language-flag"
+                  />
+                  <span className="small fw-semibold">{currentLanguage.label}</span>
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end language-menu">
+                  {languageOptions.map((option) => (
+                    <li key={option.code}>
+                      <button
+                        type="button"
+                        className={`dropdown-item language-option ${lang === option.code ? "active" : ""}`}
+                        onClick={() => setLang(option.code)}
+                      >
+                        <img src={option.icon} alt={option.name} className="language-flag" />
+                        <span>{option.label}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <SearchBar />
 
@@ -189,6 +227,23 @@ export default function Header() {
           </ul>
 
           <hr />
+
+          <div className="mb-3">
+            <div className="small text-uppercase text-secondary fw-semibold mb-2">Langue</div>
+            <div className="d-flex gap-2">
+              {languageOptions.map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  className={`btn ${lang === option.code ? "btn-dark" : "btn-outline-dark"} d-inline-flex align-items-center gap-2`}
+                  onClick={() => setLang(option.code)}
+                >
+                  <img src={option.icon} alt={option.name} className="language-flag" />
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="d-flex gap-3">
             <Link
