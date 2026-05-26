@@ -1,0 +1,47 @@
+{
+  "title": "Boutique",
+  "subtitle": "Les produits affichés proviennent des inventaires disponibles, avec notes clients, favoris et badges.",
+  "loading": "Chargement des produits...",
+  "count": "{{count}} produit(s) - Page {{page}}/{{total}}",
+  "empty": "Aucun produit trouvé avec ces critères.",
+  "cityRule": "Une commande doit contenir les produits d'une seule ville. Si vous achetez à Antananarivo, choisissez uniquement les produits de Antananarivo. Pour une autre ville, faites une autre commande.",
+  "filters": {
+    "search": "Rechercher...",
+    "city": "Ville",
+    "category": "Catégorie",
+    "allCategories": "Toutes",
+    "allCities": "Toutes les villes"
+  },
+  "sort": {
+    "name": "Trier : nom",
+    "priceAsc": "Prix : croissant",
+    "priceDesc": "Prix : décroissant",
+    "rating": "Note : meilleure",
+    "city": "Ville : A à Z"
+  },
+  "labels": {
+    "category": "Catégorie",
+    "city": "Ville",
+    "product": "Produit",
+    "uncategorized": "Sans catégorie"
+  },
+  "badges": {
+    "promo": "Promo",
+    "new": "Nouveau",
+    "best": "Best"
+  },
+  "reviewCount": "{{rating}} ({{count}} avis)",
+  "noReview": "Pas encore d'avis",
+  "deliveryCity": "Livraison pour la ville",
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "actions": {
+    "leaveRating": "Laisser une note",
+    "giveRating": "Donner une note"
+  },
+  "errors": {
+    "load": "Impossible de charger les produits."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "title": "Contact",
+  "subtitle": "Une question ? Écrivez-nous, on répond rapidement.",
+  "messages": {
+    "success": "Message envoyé avec succès.",
+    "error": "Erreur lors de l'envoi du message. Veuillez réessayer."
+  },
+  "whatsapp": {
+    "prefill": "Bonjour MAKARAKARA, j'ai une question."
+  },
+  "info": {
+    "title": "Nos coordonnées",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "sendEmail": "Envoyer un email",
+    "hours": "Horaires : Lundi-Samedi - 08:00-18:00"
+  },
+  "form": {
+    "title": "Envoyer un message",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone (optionnel)",
+    "subject": "Sujet",
+    "message": "Message",
+    "footer": "* Champs obligatoires. Réponse sous 24h, souvent plus rapide."
+  },
+  "placeholders": {
+    "name": "Votre nom",
+    "phone": "Ex: 034...",
+    "subject": "Ex: Livraison, produit, paiement...",
+    "message": "Écrivez votre message..."
+  },
+  "actions": {
+    "send": "Envoyer",
+    "sending": "Envoi en cours...",
+    "reset": "Réinitialiser"
+  },
+  "mapTitle": "MAKARAKARA - Localisation",
+  "faq": {
+    "title": "Poser une question",
+    "subtitle": "Réponses rapides aux questions les plus fréquentes.",
+    "noAnswer": "Vous ne trouvez pas votre réponse ?",
+    "askWhatsapp": "Poser une question sur WhatsApp",
+    "delivery": {
+      "question": "Quel est le délai de livraison ?",
+      "answer": "La livraison prend généralement 24 à 72h selon la ville."
+    },
+    "payment": {
+      "question": "Quels moyens de paiement acceptez-vous ?",
+      "answer": "Paiement en espèce à la livraison ou mobile money."
+    },
+    "order": {
+      "question": "Puis-je modifier ma commande ?",
+      "answer": "Oui, contactez-nous rapidement avant l'expédition."
+    },
+    "guarantee": {
+      "question": "Les produits sont-ils garantis ?",
+      "answer": "Oui, nous garantissons la qualité de nos produits."
+    }
+  }
+}

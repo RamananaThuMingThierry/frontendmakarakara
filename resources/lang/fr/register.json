@@ -1,0 +1,32 @@
+{
+  "title": "Créer un compte",
+  "subtitle": "Rejoignez-nous en quelques secondes.",
+  "loginPrompt": "Déjà un compte ?",
+  "loginLink": "Se connecter",
+  "fields": {
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Contact",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe"
+  },
+  "placeholders": {
+    "name": "Votre nom",
+    "email": "email@gmail.com",
+    "phone": "+261 34 00 000 00",
+    "password": "........"
+  },
+  "actions": {
+    "submit": "Créer un compte",
+    "loading": "Création...",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
+  },
+  "errors": {
+    "nameRequired": "Veuillez entrer votre nom.",
+    "emailRequired": "Veuillez entrer votre email.",
+    "passwordMin": "Mot de passe : 8 caractères minimum.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "failed": "Création de compte échouée."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Favoris",
+  "count": "{{count}} produit(s)",
+  "loginRequired": "Connectez-vous avant d'acceder a vos favoris.",
+  "productFallback": "PRODUIT",
+  "empty": {
+    "alt": "Favoris vides",
+    "title": "Aucun favori pour l'instant",
+    "subtitle": "Ajoutez des produits en cliquant sur le coeur."
+  },
+  "actions": {
+    "goShop": "Aller a la boutique",
+    "clear": "Vider",
+    "remove": "Retirer"
+  }
+}

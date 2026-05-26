@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Reservation tracking",
   "subtitle": "History of reserved, released and consumed products.",
   "total": "Total",
@@ -57,5 +57,43 @@
   "actions": {
     "view": "View",
     "close": "Close"
+  },
+  "client": {
+    "title": "My reservations",
+    "subtitle": "View your reservations and linked items.",
+    "loading": "Loading reservations...",
+    "empty": "You do not have any reservations yet.",
+    "summary": {
+      "total": "Total reservations"
+    },
+    "messages": {
+      "cancelled": "Reservation cancelled successfully.",
+      "checkoutPreparing": "Reservation is being prepared for checkout..."
+    },
+    "errors": {
+      "load": "Unable to load reservations.",
+      "cancel": "Unable to cancel the reservation.",
+      "checkout": "Unable to prepare this reservation for checkout."
+    },
+    "card": {
+      "title": "Reservation",
+      "fallback": "Reservation",
+      "itemsCount": "{{count}} item(s)",
+      "totalQuantity": "Total quantity",
+      "cityUnavailable": "City not provided",
+      "qty": "Qty",
+      "expiration": "Expiration"
+    },
+    "source": {
+      "cart": "Reservation from cart",
+      "order": "Reservation converted to order",
+      "reservation": "Client reservation"
+    },
+    "actions": {
+      "preparing": "Preparing...",
+      "checkout": "Proceed to checkout",
+      "cancelling": "Cancelling...",
+      "cancel": "Cancel reservation"
+    }
   }
 }

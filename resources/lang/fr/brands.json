@@ -1,13 +1,13 @@
 {
   "title": "Marques",
-  "subtitle": "Gerer les marques",
+  "subtitle": "Gérer les marques",
   "loading": "Chargement...",
   "refresh": "Actualiser",
   "refreshing": "Actualisation...",
   "new": "Nouvelle marque",
   "active": "Active",
   "inactive": "Inactive",
-  "empty": "Aucune marque trouvee.",
+  "empty": "Aucune marque trouvée.",
   "table": {
     "index": "#",
     "logo": "Logo",
@@ -18,7 +18,7 @@
     "actions": "Actions"
   },
   "modal": {
-    "createTitle": "Creer une marque",
+    "createTitle": "Créer une marque",
     "editTitle": "Modifier la marque",
     "cancel": "Annuler",
     "close": "Fermer",
@@ -34,7 +34,7 @@
     "logoHelp": "Choisissez une image (PNG, JPG, SVG)."
   },
   "show": {
-    "title": "Details de la marque"
+    "title": "Détails de la marque"
   },
   "delete": {
     "title": "Confirmation",
@@ -44,12 +44,12 @@
     "deleting": "Suppression..."
   },
   "toast": {
-    "loadFailed": "Echec du chargement.",
+    "loadFailed": "Échec du chargement.",
     "nameRequired": "Le nom est obligatoire.",
-    "created": "Marque creee.",
-    "updated": "Marque modifiee.",
-    "deleted": "Marque supprimee.",
-    "saveFailed": "Echec de l'enregistrement.",
-    "deleteFailed": "Echec de la suppression."
+    "created": "Marque créée.",
+    "updated": "Marque modifiée.",
+    "deleted": "Marque supprimée.",
+    "saveFailed": "Échec de l'enregistrement.",
+    "deleteFailed": "Échec de la suppression."
   }
 }

@@ -1,0 +1,24 @@
+{
+  "description": "Produits capillaires naturels pour sublimer vos cheveux. Qualite professionnelle, livraison rapide, support humain.",
+  "shop": {
+    "title": "Boutique",
+    "cities": {
+      "antananarivo": "Antananarivo",
+      "antalaha": "Antalaha",
+      "diegoSuarez": "Diego Suarez"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "contact": "Contact",
+    "delivery": "Livraison",
+    "returns": "Retours",
+    "faq": "FAQ"
+  },
+  "contact": {
+    "title": "Contact",
+    "address": "VT 29 RAI Bis Ampahateza, Antananarivo, Madagascar"
+  },
+  "rights": "Tous droits reserves.",
+  "fastDelivery": "Livraison rapide"
+}

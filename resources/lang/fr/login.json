@@ -1,0 +1,26 @@
+{
+  "title": "Connexion",
+  "subtitle": "Accédez à votre compte.",
+  "loading": "Chargement...",
+  "rememberMe": "Se souvenir de moi",
+  "forgotPassword": "Mot de passe oublié ?",
+  "registerPrompt": "Pas de compte ?",
+  "registerLink": "Créer un compte",
+  "fields": {
+    "email": "Email",
+    "password": "Mot de passe"
+  },
+  "placeholders": {
+    "email": "email@gmail.com",
+    "password": "........"
+  },
+  "actions": {
+    "submit": "Se connecter",
+    "loading": "Connexion...",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
+  },
+  "errors": {
+    "failed": "Connexion échouée."
+  }
+}

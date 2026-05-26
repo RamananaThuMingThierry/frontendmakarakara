@@ -1,0 +1,24 @@
+{
+  "description": "Natural hair products to enhance your hair. Professional quality, fast delivery, and human support.",
+  "shop": {
+    "title": "Shop",
+    "cities": {
+      "antananarivo": "Antananarivo",
+      "antalaha": "Antalaha",
+      "diegoSuarez": "Diego Suarez"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "contact": "Contact",
+    "delivery": "Delivery",
+    "returns": "Returns",
+    "faq": "FAQ"
+  },
+  "contact": {
+    "title": "Contact",
+    "address": "VT 29 RAI Bis Ampahateza, Antananarivo, Madagascar"
+  },
+  "rights": "All rights reserved.",
+  "fastDelivery": "Fast delivery"
+}

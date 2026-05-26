@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "titlePrefix": "À propos de",
+    "text": "MAHAKARAKARA propose des produits capillaires naturels pensés pour sublimer tous les types de cheveux. Qualité professionnelle, ingrédients choisis, et une expérience d'achat simple et fiable.",
+    "imageAlt": "MAHAKARAKARA"
+  },
+  "actions": {
+    "shop": "Voir la boutique",
+    "contact": "Nous contacter"
+  },
+  "stats": {
+    "clients": "Clients satisfaits",
+    "deliveryTitle": "Livraison",
+    "deliveryText": "Rapide & sécurisée",
+    "supportTitle": "Support",
+    "supportText": "Humain & réactif"
+  },
+  "valuesTitle": "Nos engagements",
+  "valuesSubtitle": "Ce qui guide MAHAKARAKARA au quotidien.",
+  "values": {
+    "selectedIngredients": {
+      "title": "Ingrédients choisis",
+      "text": "Formules inspirées du naturel, adaptées à une routine simple et efficace."
+    },
+    "professionalQuality": {
+      "title": "Qualité professionnelle",
+      "text": "Des produits pensés pour la performance et le résultat, en toute confiance."
+    },
+    "reliableDelivery": {
+      "title": "Livraison fiable",
+      "text": "Expédition rapide et suivi. Objectif : recevoir votre commande sans stress."
+    },
+    "humanSupport": {
+      "title": "Support humain",
+      "text": "Une équipe disponible pour vous conseiller et répondre à vos questions."
+    }
+  },
+  "story": {
+    "title": "Notre histoire",
+    "text": "MAHAKARAKARA est né d'une idée simple : proposer des produits capillaires accessibles, efficaces et agréables à utiliser, tout en valorisant des ingrédients et des routines adaptées à notre quotidien."
+  },
+  "process": {
+    "title": "Comment ça marche ?",
+    "step1": {
+      "title": "Choisissez vos produits",
+      "text": "Par catégorie, best sellers ou nouveautés."
+    },
+    "step2": {
+      "title": "Renseignez la livraison",
+      "text": "Adresse + position GPS (optionnel)."
+    },
+    "step3": {
+      "title": "Payez facilement",
+      "text": "Espèce à la livraison ou mobile money."
+    }
+  },
+  "cta": {
+    "title": "Prêt(e) à découvrir MAHAKARAKARA ?",
+    "text": "Parcourez la boutique et trouvez la routine idéale.",
+    "shop": "Voir les produits",
+    "question": "Poser une question"
+  }
+}

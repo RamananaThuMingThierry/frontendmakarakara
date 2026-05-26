@@ -1,0 +1,25 @@
+{
+  "actions": {
+    "add": "Ajouter",
+    "adding": "Ajout...",
+    "remove": "Supprimer",
+    "decrease": "Diminuer",
+    "increase": "Augmenter"
+  },
+  "errors": {
+    "add": "Impossible d'ajouter ce produit au panier.",
+    "updateQty": "Impossible de mettre à jour la quantité.",
+    "increaseQty": "Impossible d'augmenter la quantité."
+  },
+  "cityRule": {
+    "title": "Commande par ville",
+    "warning": "Pour éviter les erreurs de livraison, une commande doit contenir les produits d'une seule ville.",
+    "currentCart": "Votre panier contient déjà des produits de",
+    "thisCity": "cette ville",
+    "thisProduct": "ce produit",
+    "otherCity": "cette autre ville",
+    "explanationPrefix": "Pour acheter",
+    "explanationMiddle": "à",
+    "explanationSuffix": "finalisez d'abord la commande actuelle ou videz le panier puis créez une nouvelle commande."
+  }
+}

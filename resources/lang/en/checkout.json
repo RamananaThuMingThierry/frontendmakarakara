@@ -1,0 +1,94 @@
+{
+  "title": "Delivery",
+  "subtitle": "Fill in your information and share your location to make delivery easier.",
+  "loginRequired": "Sign in before ordering.",
+  "fields": {
+    "fullName": "Full name",
+    "phone": "Phone",
+    "savedAddress": "Saved address",
+    "city": "City",
+    "address": "Address",
+    "address2": "Additional details (optional)",
+    "region": "Region (optional)",
+    "gps": "GPS position (optional)",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "notes": "Notes (optional)"
+  },
+  "placeholders": {
+    "fullName": "Ex: RAKOTO Jean",
+    "phone": "Ex: 034 12 345 67",
+    "city": "Ex: Antananarivo",
+    "address": "District, street, lot...",
+    "address2": "Ex: floor, building...",
+    "region": "Ex: Analamanga",
+    "notes": "Ex: Call before arriving, landmark, blue gate..."
+  },
+  "sections": {
+    "customerInfo": "Customer information",
+    "deliveryAddress": "Delivery address",
+    "payment": "Payment"
+  },
+  "address": {
+    "loading": "Loading addresses...",
+    "chooseSaved": "Choose a saved address",
+    "noneSaved": "No saved address",
+    "fallback": "Address",
+    "default": "Default",
+    "manageHint": "You can manage your addresses from your client space."
+  },
+  "geo": {
+    "notSupported": "Geolocation is not supported on this device.",
+    "secureRequired": "Browser geolocation requires a secure connection. Use HTTPS or localhost, or enter latitude and longitude manually.",
+    "secureRequiredShort": "Browser geolocation requires HTTPS or localhost. Use a secure connection, or enter latitude and longitude manually.",
+    "unablePosition": "Unable to retrieve your position ({{message}}).",
+    "savedPosition": "Saved position",
+    "accuracy": "accuracy about",
+    "capturedAt": "recorded at",
+    "help": "Allow geolocation to speed up delivery. If needed, you can also paste latitude and longitude manually. Automatic detection works on HTTPS or localhost. You can validate the order even without a GPS position."
+  },
+  "payment": {
+    "loading": "Loading payment methods...",
+    "pendingVerification": "(payment pending verification)",
+    "payOnDelivery": "(pay on delivery)",
+    "mobileMoneyHelp": "Choosing Mobile Money does not validate the payment. The order will be created with payment pending verification.",
+    "cashHelp": "Choosing cash creates an unpaid order. Payment will be confirmed later."
+  },
+  "summary": {
+    "title": "Summary",
+    "count": "{{count}} item(s)",
+    "coupon": "Coupon",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "delivery": "Delivery",
+    "deliveryPending": "To be confirmed by the administration",
+    "total": "Estimated total",
+    "products": "Products",
+    "footer": "By validating, you accept the terms of sale. The delivery fee will be set by the administration based on distance and may be free."
+  },
+  "actions": {
+    "goShop": "Go to shop",
+    "backToCart": "Back to cart",
+    "useMyPosition": "Use my position",
+    "locating": "Locating...",
+    "map": "Map",
+    "submit": "Validate order",
+    "validating": "Validating..."
+  },
+  "empty": {
+    "alt": "Empty cart",
+    "title": "Your cart is empty",
+    "subtitle": "Add products to place an order."
+  },
+  "errors": {
+    "loadPaymentMethods": "Unable to load payment methods.",
+    "nameRequired": "Please enter your name.",
+    "phoneRequired": "Please enter your phone number.",
+    "cityRequired": "Please enter the city.",
+    "addressRequired": "Please enter the address.",
+    "paymentRequired": "Please choose a payment method.",
+    "emptyCart": "Your cart is empty.",
+    "noPaymentMethods": "No active payment method is available at the moment.",
+    "createOrder": "Unable to create the order."
+  }
+}

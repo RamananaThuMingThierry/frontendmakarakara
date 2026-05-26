@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "titlePrefix": "About",
+    "text": "MAHAKARAKARA offers natural hair products designed to enhance every hair type. Professional quality, carefully chosen ingredients, and a simple, reliable shopping experience.",
+    "imageAlt": "MAHAKARAKARA"
+  },
+  "actions": {
+    "shop": "View shop",
+    "contact": "Contact us"
+  },
+  "stats": {
+    "clients": "Happy clients",
+    "deliveryTitle": "Delivery",
+    "deliveryText": "Fast & secure",
+    "supportTitle": "Support",
+    "supportText": "Human & responsive"
+  },
+  "valuesTitle": "Our commitments",
+  "valuesSubtitle": "What guides MAHAKARAKARA every day.",
+  "values": {
+    "selectedIngredients": {
+      "title": "Selected ingredients",
+      "text": "Naturally inspired formulas adapted to a simple and effective routine."
+    },
+    "professionalQuality": {
+      "title": "Professional quality",
+      "text": "Products designed for performance and results, with confidence."
+    },
+    "reliableDelivery": {
+      "title": "Reliable delivery",
+      "text": "Fast shipping and tracking. The goal: receive your order without stress."
+    },
+    "humanSupport": {
+      "title": "Human support",
+      "text": "A team available to guide you and answer your questions."
+    }
+  },
+  "story": {
+    "title": "Our story",
+    "text": "MAHAKARAKARA was born from a simple idea: offer hair products that are accessible, effective, and pleasant to use, while highlighting ingredients and routines adapted to everyday life."
+  },
+  "process": {
+    "title": "How does it work?",
+    "step1": {
+      "title": "Choose your products",
+      "text": "By category, best sellers, or new arrivals."
+    },
+    "step2": {
+      "title": "Enter delivery details",
+      "text": "Address + optional GPS position."
+    },
+    "step3": {
+      "title": "Pay easily",
+      "text": "Cash on delivery or mobile money."
+    }
+  },
+  "cta": {
+    "title": "Ready to discover MAHAKARAKARA?",
+    "text": "Browse the shop and find your ideal routine.",
+    "shop": "View products",
+    "question": "Ask a question"
+  }
+}

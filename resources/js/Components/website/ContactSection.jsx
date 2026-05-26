@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../api/axios";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 const initialForm = {
   name: "",
@@ -10,6 +11,7 @@ const initialForm = {
 };
 
 export default function ContactSection() {
+  const { t } = useI18n();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
@@ -52,7 +54,7 @@ export default function ContactSection() {
         message: form.message.trim(),
       });
 
-      setSuccessMessage(data?.message || "Message envoye avec succes.");
+      setSuccessMessage(data?.message || t("home.contact.messages.success", "Message envoye avec succes."));
       setForm(initialForm);
     } catch (error) {
       const response = error?.response;
@@ -63,7 +65,8 @@ export default function ContactSection() {
       }
 
       setServerError(
-        response?.data?.message || "Erreur lors de l'envoi du message. Veuillez reessayer."
+        response?.data?.message ||
+          t("home.contact.messages.error", "Erreur lors de l'envoi du message. Veuillez reessayer.")
       );
     } finally {
       setSending(false);
@@ -75,20 +78,25 @@ export default function ContactSection() {
       <div className="container">
         <div className="text-center mb-4">
           <h2 className="fw-bold" style={{ fontFamily: "cursive" }}>
-            Nous contactez
+            {t("home.contact.title", "Nous contactez")}
           </h2>
           <p className="text-secondary mb-0">
-            Une question sur un produit, une commande, ou une collaboration ? Ecrivez-nous.
+            {t(
+              "home.contact.subtitle",
+              "Une question sur un produit, une commande, ou une collaboration ? Ecrivez-nous."
+            )}
           </p>
         </div>
 
         <div className="row g-4 align-items-stretch">
           <div className="col-12 col-lg-5">
             <div className="p-4 rounded-4 bg-white shadow-sm h-100">
-              <h4 className="fw-bold mb-2">Contactez-nous</h4>
+              <h4 className="fw-bold mb-2">{t("home.contact.cardTitle", "Contactez-nous")}</h4>
               <p className="text-secondary">
-                Nous repondons generalement sous <strong>24h</strong>. Pour une commande, indiquez
-                votre numero de commande si possible.
+                {t(
+                  "home.contact.cardText",
+                  "Nous repondons generalement sous 24h. Pour une commande, indiquez votre numero de commande si possible."
+                )}
               </p>
 
               <div className="d-flex gap-3 align-items-start mb-3">
@@ -99,11 +107,13 @@ export default function ContactSection() {
                   <i className="bi bi-envelope text-warning fs-5"></i>
                 </div>
                 <div>
-                  <div className="fw-semibold">Email</div>
+                  <div className="fw-semibold">{t("home.contact.labels.email", "Email")}</div>
                   <a className="text-decoration-none text-dark" href="mailto:tiafinjaran@gmail.com">
                     tiafinjaran@gmail.com
                   </a>
-                  <div className="small text-secondary">Support & commandes</div>
+                  <div className="small text-secondary">
+                    {t("home.contact.labels.supportOrders", "Support & commandes")}
+                  </div>
                 </div>
               </div>
 
@@ -115,11 +125,11 @@ export default function ContactSection() {
                   <i className="bi bi-telephone text-warning fs-5"></i>
                 </div>
                 <div>
-                  <div className="fw-semibold">Telephone / WhatsApp</div>
+                  <div className="fw-semibold">{t("home.contact.labels.phoneWhatsapp", "Telephone / WhatsApp")}</div>
                   <a className="text-decoration-none text-dark" href="tel:+261327563770">
                     +261 32 97 905 36
                   </a>
-                  <div className="small text-secondary">Lun-Sam - 08:00-18:00</div>
+                  <div className="small text-secondary">{t("home.contact.labels.hoursShort", "Lun-Sam - 08:00-18:00")}</div>
                 </div>
               </div>
 
@@ -131,57 +141,56 @@ export default function ContactSection() {
                   <i className="bi bi-geo-alt text-warning fs-5"></i>
                 </div>
                 <div>
-                  <div className="fw-semibold">Localisation</div>
+                  <div className="fw-semibold">{t("home.contact.labels.location", "Localisation")}</div>
                   <div className="text-dark">VT 29 RAI Bis Ampahateza</div>
                   <div className="small text-secondary">Antananarivo, Madagascar</div>
                 </div>
               </div>
 
               <div className="d-flex flex-wrap gap-2">
-                <span className="badge text-bg-light border">Reponse sous 24h</span>
-                <span className="badge text-bg-light border">Paiement securise</span>
-                <span className="badge text-bg-light border">Retour 30 jours</span>
+                <span className="badge text-bg-light border">{t("home.contact.badges.reply", "Reponse sous 24h")}</span>
+                <span className="badge text-bg-light border">{t("home.contact.badges.payment", "Paiement securise")}</span>
+                <span className="badge text-bg-light border">{t("home.contact.badges.return", "Retour 30 jours")}</span>
               </div>
             </div>
           </div>
 
           <div className="col-12 col-lg-7">
             <div className="p-4 p-lg-5 rounded-4 shadow-sm h-100" style={{ background: "#1f1916" }}>
+              {serverError ? <div className="alert alert-danger">{serverError}</div> : null}
               {successMessage ? <div className="alert alert-success alert-dismissible fade show" role="alert">{successMessage}</div> : null}
 
               <form onSubmit={onSubmit} noValidate>
                 <div className="row g-3">
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-white">Nom complet</label>
+                    <label className="form-label text-white">{t("home.contact.form.fullName", "Nom complet")}</label>
                     <input
                       className={`form-control ${errors.name ? "is-invalid" : ""}`}
                       name="name"
                       value={form.name}
                       onChange={onChange}
-                      placeholder="Votre nom"
+                      placeholder={t("home.contact.placeholders.name", "Votre nom")}
                       disabled={sending}
                     />
                     {errors.name ? <div className="invalid-feedback">{errors.name[0]}</div> : null}
                   </div>
 
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-white">Email</label>
+                    <label className="form-label text-white">{t("home.contact.form.email", "Email")}</label>
                     <input
                       className={`form-control ${errors.email ? "is-invalid" : ""}`}
                       type="email"
                       name="email"
                       value={form.email}
                       onChange={onChange}
-                      placeholder="Votre email"
+                      placeholder={t("home.contact.placeholders.email", "Votre email")}
                       disabled={sending}
                     />
-                    {errors.email ? (
-                      <div className="invalid-feedback">{errors.email[0]}</div>
-                    ) : null}
+                    {errors.email ? <div className="invalid-feedback">{errors.email[0]}</div> : null}
                   </div>
 
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-white">Telephone (optionnel)</label>
+                    <label className="form-label text-white">{t("home.contact.form.phone", "Telephone (optionnel)")}</label>
                     <input
                       className={`form-control ${errors.phone ? "is-invalid" : ""}`}
                       name="phone"
@@ -190,13 +199,11 @@ export default function ContactSection() {
                       placeholder="+261 ..."
                       disabled={sending}
                     />
-                    {errors.phone ? (
-                      <div className="invalid-feedback">{errors.phone[0]}</div>
-                    ) : null}
+                    {errors.phone ? <div className="invalid-feedback">{errors.phone[0]}</div> : null}
                   </div>
 
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-white">Sujet</label>
+                    <label className="form-label text-white">{t("home.contact.form.subject", "Sujet")}</label>
                     <select
                       className={`form-select ${errors.subject ? "is-invalid" : ""}`}
                       name="subject"
@@ -204,32 +211,28 @@ export default function ContactSection() {
                       onChange={onChange}
                       disabled={sending}
                     >
-                      <option value="">Choisir...</option>
-                      <option value="commande">Question sur une commande</option>
-                      <option value="produit">Question sur un produit</option>
-                      <option value="retour">Retour / echange</option>
-                      <option value="collab">Collaboration</option>
-                      <option value="autre">Autre</option>
+                      <option value="">{t("home.contact.subjects.choose", "Choisir...")}</option>
+                      <option value="commande">{t("home.contact.subjects.order", "Question sur une commande")}</option>
+                      <option value="produit">{t("home.contact.subjects.product", "Question sur un produit")}</option>
+                      <option value="retour">{t("home.contact.subjects.return", "Retour / echange")}</option>
+                      <option value="collab">{t("home.contact.subjects.collab", "Collaboration")}</option>
+                      <option value="autre">{t("home.contact.subjects.other", "Autre")}</option>
                     </select>
-                    {errors.subject ? (
-                      <div className="invalid-feedback">{errors.subject[0]}</div>
-                    ) : null}
+                    {errors.subject ? <div className="invalid-feedback">{errors.subject[0]}</div> : null}
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label text-white">Message</label>
+                    <label className="form-label text-white">{t("home.contact.form.message", "Message")}</label>
                     <textarea
                       className={`form-control ${errors.message ? "is-invalid" : ""}`}
                       rows="5"
                       name="message"
                       value={form.message}
                       onChange={onChange}
-                      placeholder="Ecrivez votre message..."
+                      placeholder={t("home.contact.placeholders.message", "Ecrivez votre message...")}
                       disabled={sending}
                     />
-                    {errors.message ? (
-                      <div className="invalid-feedback">{errors.message[0]}</div>
-                    ) : null}
+                    {errors.message ? <div className="invalid-feedback">{errors.message[0]}</div> : null}
                   </div>
 
                   <div className="col-12 d-flex flex-column flex-sm-row gap-2">
@@ -239,7 +242,7 @@ export default function ContactSection() {
                       type="submit"
                       disabled={sending}
                     >
-                      {sending ? "Envoi en cours..." : "Envoyer"}
+                      {sending ? t("home.contact.actions.sending", "Envoi en cours...") : t("home.contact.actions.send", "Envoyer")}
                     </button>
 
                     <button
@@ -248,13 +251,16 @@ export default function ContactSection() {
                       onClick={resetForm}
                       disabled={sending}
                     >
-                      Reinitialiser
+                      {t("home.contact.actions.reset", "Reinitialiser")}
                     </button>
                   </div>
 
                   <div className="col-12">
                     <div className="small text-white-50">
-                      En envoyant, vous acceptez d'etre contacte(e) concernant votre demande.
+                      {t(
+                        "home.contact.footer",
+                        "En envoyant, vous acceptez d'etre contacte(e) concernant votre demande."
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,14 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useFavorites } from "../../hooks/website/FavoritesContext";
 import { useAuth } from "../../hooks/website/AuthContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
 }
 
 export default function Favorites() {
+  const { t } = useI18n();
   const { isAuth } = useAuth();
   const { favorites, favCount, removeFav, clearFav } = useFavorites();
   const location = useLocation();
@@ -18,7 +20,7 @@ export default function Favorites() {
         replace
         state={{
           from: location,
-          message: "Connectez-vous avant d'acceder a vos favoris.",
+          message: t("favorites.loginRequired", "Sign in before accessing your favorites."),
         }}
       />
     );
@@ -29,16 +31,14 @@ export default function Favorites() {
       <div className="container py-5 text-center">
         <img
           src="/images/empty-favorites.png"
-          alt="Favoris vides"
+          alt={t("favorites.empty.alt", "Empty favorites")}
           className="img-fluid mb-4"
           style={{ maxWidth: 260, opacity: 0.9 }}
         />
-        <h5 className="fw-semibold">Aucun favori pour l’instant</h5>
-        <p className="text-muted">
-          Ajoutez des produits en cliquant sur le cœur ❤️
-        </p>
+        <h5 className="fw-semibold">{t("favorites.empty.title", "No favorites yet")}</h5>
+        <p className="text-muted">{t("favorites.empty.subtitle", "Add products by clicking the heart.")}</p>
         <Link to="/shop" className="btn btn-dark">
-          Aller à la boutique
+          {t("favorites.actions.goShop", "Go to shop")}
         </Link>
       </div>
     );
@@ -49,13 +49,13 @@ export default function Favorites() {
       <div className="container">
         <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
           <div>
-            <h1 className="fw-bold mb-1">Favoris</h1>
-            <p className="text-secondary mb-0">{favCount} produit(s)</p>
+            <h1 className="fw-bold mb-1">{t("favorites.title", "Favorites")}</h1>
+            <p className="text-secondary mb-0">{t("favorites.count", "{{count}} product(s)").replace("{{count}}", favCount)}</p>
           </div>
 
           <button className="btn btn-outline-danger" onClick={clearFav} type="button">
             <i className="bi bi-trash me-2" />
-            Vider
+            {t("favorites.actions.clear", "Clear")}
           </button>
         </div>
 
@@ -71,7 +71,7 @@ export default function Favorites() {
                 />
 
                 <div className="card-body d-flex flex-column">
-                  <small className="text-uppercase text-secondary">{p.category || "PRODUIT"}</small>
+                  <small className="text-uppercase text-secondary">{p.category || t("favorites.productFallback", "PRODUCT")}</small>
 
                   <Link to={`/product/${p.id}`} className="text-decoration-none text-dark">
                     <h6 className="fw-semibold mt-1">{p.name}</h6>
@@ -84,10 +84,10 @@ export default function Favorites() {
                       className="btn btn-outline-danger btn-sm"
                       type="button"
                       onClick={() => removeFav(p.id)}
-                      title="Retirer"
+                      title={t("favorites.actions.remove", "Remove")}
                     >
                       <i className="bi bi-heartbreak me-2" />
-                      Retirer
+                      {t("favorites.actions.remove", "Remove")}
                     </button>
                   </div>
                 </div>

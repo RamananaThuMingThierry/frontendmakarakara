@@ -1,0 +1,62 @@
+{
+  "empty": {
+    "alt": "Order",
+    "title": "Order created",
+    "subtitle": "To view the details, sign in again or return to the shop."
+  },
+  "hero": {
+    "alt": "Confirmed order",
+    "title": "Your order has been created",
+    "subtitle": "Thank you. Your order has been registered successfully."
+  },
+  "labels": {
+    "reference": "Reference",
+    "order": "Order",
+    "payment": "Payment",
+    "quantity": "Quantity",
+    "coupon": "Applied coupon"
+  },
+  "sections": {
+    "items": "Items summary",
+    "deliveryAddress": "Delivery address",
+    "totals": "Totals"
+  },
+  "address": {
+    "name": "Name",
+    "phone": "Phone",
+    "city": "City",
+    "address": "Address",
+    "region": "Region",
+    "unavailable": "Address unavailable."
+  },
+  "totals": {
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "delivery": "Delivery",
+    "deliveryPending": "To be confirmed by administration",
+    "total": "Total"
+  },
+  "payment": {
+    "mobileMoney": "Mobile money",
+    "cash": "Cash",
+    "cashDescription": "The final amount to pay will be confirmed after the delivery fee is set by the administration.",
+    "cashWarning": "The order remains pending confirmation. The administration will set the delivery fee before final confirmation.",
+    "mobileMoneyDescription": "Pay via mobile money and keep the proof. Payment will only be valid after manual verification.",
+    "number": "Number",
+    "amount": "Amount",
+    "mobileMoneyHint": "After payment, our team will confirm the order and generate the receipt."
+  },
+  "status": {
+    "unpaid": "Unpaid",
+    "pendingVerification": "Pending verification",
+    "paid": "Paid",
+    "refunded": "Refunded"
+  },
+  "actions": {
+    "continueShopping": "Continue shopping",
+    "viewCart": "View cart",
+    "backToCart": "Back to cart",
+    "backToShop": "Back to shop",
+    "needHelp": "Need help?"
+  }
+}

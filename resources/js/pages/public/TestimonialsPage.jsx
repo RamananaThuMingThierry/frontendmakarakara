@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { inventoryApi } from "../../api/inventories";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
+import { useI18n } from "../../hooks/website/I18nContext";
 import "../../../css/website.css";
 
 const PAGE_SIZE = 5;
@@ -27,14 +28,13 @@ function buildImageUrl(path) {
 }
 
 export default function TestimonialsPage() {
+  const { t } = useI18n();
   const [testimonials, setTestimonials] = useState([]);
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-
   const [page, setPage] = useState(1);
-
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
@@ -56,7 +56,7 @@ export default function TestimonialsPage() {
       setTestimonials(Array.isArray(testimonialData) ? testimonialData : []);
       setInventories(Array.isArray(inventoryData) ? inventoryData : []);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger les avis.");
+      setError(e?.response?.data?.message || t("testimonialsPage.errors.load", "Impossible de charger les avis."));
     } finally {
       if (mode === "initial") setLoading(false);
       else setRefreshing(false);
@@ -65,7 +65,7 @@ export default function TestimonialsPage() {
 
   useEffect(() => {
     load({ mode: "initial" });
-  }, []);
+  }, [t]);
 
   const productOptions = useMemo(() => {
     const seen = new Map();
@@ -77,12 +77,12 @@ export default function TestimonialsPage() {
       seen.set(product.id, {
         id: String(product.id),
         encrypted_id: product.encrypted_id,
-        name: product.name || `Produit ${product.id}`,
+        name: product.name || t("testimonialsPage.labels.productFallback", "Produit"),
       });
     });
 
     return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [inventories]);
+  }, [inventories, t]);
 
   const totalPages = Math.max(1, Math.ceil(testimonials.length / PAGE_SIZE));
 
@@ -169,13 +169,13 @@ export default function TestimonialsPage() {
       setErrors({});
       setServerError("");
       setPhotoPreview("");
-      setSuccessMessage(message || "Votre avis a ete publie.");
+      setSuccessMessage(message || t("testimonialsPage.messages.success", "Votre avis a ete publie."));
     } catch (err) {
       const response = err?.response;
       if (response?.data?.errors) {
         setErrors(response.data.errors);
       }
-      setServerError(response?.data?.message || "Erreur lors de l'envoi de votre avis.");
+      setServerError(response?.data?.message || t("testimonialsPage.messages.error", "Erreur lors de l'envoi de votre avis."));
     } finally {
       setSending(false);
     }
@@ -187,10 +187,15 @@ export default function TestimonialsPage() {
         <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
           <div>
             <h2 className="fw-bold mb-1" style={{ fontFamily: "cursive" }}>
-              Tous les temoignages
+              {t("testimonialsPage.title", "Tous les temoignages")}
             </h2>
             <p className="text-secondary mb-0">
-              {loading ? "Chargement..." : `${testimonials.length} avis publies`} - Page {page}/{totalPages}
+              {loading
+                ? t("testimonialsPage.loading", "Chargement...")
+                : t("testimonialsPage.count", "{{count}} avis publies - Page {{page}}/{{total}}")
+                    .replace("{{count}}", testimonials.length)
+                    .replace("{{page}}", page)
+                    .replace("{{total}}", totalPages)}
             </p>
           </div>
 
@@ -200,10 +205,12 @@ export default function TestimonialsPage() {
               onClick={() => load({ mode: "refresh" })}
               disabled={loading || refreshing}
             >
-              {loading || refreshing ? "Actualisation..." : "Actualiser"}
+              {loading || refreshing
+                ? t("testimonialsPage.actions.refreshing", "Actualisation...")
+                : t("testimonialsPage.actions.refresh", "Actualiser")}
             </button>
             <Link to="/" className="btn btn-dark">
-              Retour
+              {t("testimonialsPage.actions.back", "Retour")}
             </Link>
           </div>
         </div>
@@ -213,8 +220,10 @@ export default function TestimonialsPage() {
             <div className="bg-white rounded-4 shadow-sm p-4 h-100">
               <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
                 <div>
-                  <h4 className="fw-bold mb-1">Avis clients</h4>
-                  <p className="text-secondary mb-0">Avis sur les produits et sur la plateforme.</p>
+                  <h4 className="fw-bold mb-1">{t("testimonialsPage.list.title", "Avis clients")}</h4>
+                  <p className="text-secondary mb-0">
+                    {t("testimonialsPage.list.subtitle", "Avis sur les produits et sur la plateforme.")}
+                  </p>
                 </div>
               </div>
 
@@ -223,20 +232,22 @@ export default function TestimonialsPage() {
               {loading ? (
                 <div className="d-flex align-items-center gap-2 text-muted">
                   <span className="spinner-border spinner-border-sm" />
-                  Chargement des avis...
+                  {t("testimonialsPage.list.loading", "Chargement des avis...")}
                 </div>
               ) : currentItems.length === 0 ? (
-                <div className="text-center text-muted py-5">Aucun avis publie pour le moment.</div>
+                <div className="text-center text-muted py-5">
+                  {t("testimonialsPage.list.empty", "Aucun avis publie pour le moment.")}
+                </div>
               ) : (
                 <>
                   <div className="row g-3">
-                    {currentItems.map((t) => (
-                      <div key={t.id} className="col-12">
+                    {currentItems.map((item) => (
+                      <div key={item.id} className="col-12">
                         <div className="p-4 rounded-4 shadow-sm h-100 testimonial-card bg-light">
                           <div className="d-flex align-items-center mb-3">
                             <img
-                              src={buildImageUrl(t.photo_url)}
-                              alt={t.name}
+                              src={buildImageUrl(item.photo_url)}
+                              alt={item.name}
                               className="rounded-circle me-3"
                               style={{
                                 width: 60,
@@ -247,11 +258,13 @@ export default function TestimonialsPage() {
                             />
 
                             <div>
-                              <div className="fw-bold">{t.name}</div>
+                              <div className="fw-bold">{item.name}</div>
                               <div className="text-secondary small d-flex flex-wrap gap-2">
-                                <span>{t.city || "Client"}</span>
-                                <span className={`badge ${t.target_type === "product" ? "text-bg-warning" : "text-bg-dark"}`}>
-                                  {t.target_type === "product" ? `Produit: ${t.product_used || "-"}` : "Plateforme"}
+                                <span>{item.city || t("testimonialsPage.labels.client", "Client")}</span>
+                                <span className={`badge ${item.target_type === "product" ? "text-bg-warning" : "text-bg-dark"}`}>
+                                  {item.target_type === "product"
+                                    ? t("testimonialsPage.labels.productTag", "Produit : {{product}}").replace("{{product}}", item.product_used || "-")
+                                    : t("testimonialsPage.labels.platform", "Plateforme")}
                                 </span>
                               </div>
                             </div>
@@ -261,12 +274,12 @@ export default function TestimonialsPage() {
                             {Array.from({ length: 5 }).map((_, idx) => (
                               <i
                                 key={idx}
-                                className={`bi ${idx < Number(t.rating || 0) ? "bi-star-fill" : "bi-star"}`}
+                                className={`bi ${idx < Number(item.rating || 0) ? "bi-star-fill" : "bi-star"}`}
                               />
                             ))}
                           </div>
 
-                          <p className="text-secondary mb-0">"{t.message}"</p>
+                          <p className="text-secondary mb-0">"{item.message}"</p>
                         </div>
                       </div>
                     ))}
@@ -276,7 +289,7 @@ export default function TestimonialsPage() {
                     <div className="d-flex justify-content-center mt-4">
                       <ul className="pagination mb-0">
                         <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-                          <button className="page-link" onClick={() => goTo(page - 1)}>
+                          <button className="page-link" onClick={() => goTo(page - 1)} aria-label={t("testimonialsPage.pagination.previous", "Precedent")}>
                             <i className="bi bi-chevron-double-left" />
                           </button>
                         </li>
@@ -290,7 +303,7 @@ export default function TestimonialsPage() {
                         ))}
 
                         <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
-                          <button className="page-link" onClick={() => goTo(page + 1)}>
+                          <button className="page-link" onClick={() => goTo(page + 1)} aria-label={t("testimonialsPage.pagination.next", "Suivant")}>
                             <i className="bi bi-chevron-double-right" />
                           </button>
                         </li>
@@ -304,15 +317,15 @@ export default function TestimonialsPage() {
 
           <div className="col-12 col-lg-5">
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h4 className="fw-bold mb-2">Laisser votre avis</h4>
+              <h4 className="fw-bold mb-2">{t("testimonialsPage.form.title", "Laisser votre avis")}</h4>
               <p className="text-secondary">
-                Vous pouvez noter un produit precis ou partager un avis global sur la plateforme.
+                {t("testimonialsPage.form.subtitle", "Vous pouvez noter un produit precis ou partager un avis global sur la plateforme.")}
               </p>
 
               {successMessage ? (
                 <div className="alert alert-success alert-dismissible fade show">
                   {successMessage}
-                  <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" />
+                  <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label={t("common.close", "Close")} />
                 </div>
               ) : null}
 
@@ -320,7 +333,7 @@ export default function TestimonialsPage() {
 
               <form onSubmit={submit} className="row g-3" noValidate>
                 <div className="col-12">
-                  <label className="form-label">Nom *</label>
+                  <label className="form-label">{t("testimonialsPage.form.name", "Nom")} *</label>
                   <input
                     className={`form-control ${errors.name ? "is-invalid" : ""}`}
                     value={form.name}
@@ -331,7 +344,7 @@ export default function TestimonialsPage() {
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Ville</label>
+                  <label className="form-label">{t("testimonialsPage.form.city", "Ville")}</label>
                   <input
                     className={`form-control ${errors.city ? "is-invalid" : ""}`}
                     value={form.city}
@@ -342,29 +355,29 @@ export default function TestimonialsPage() {
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Type d'avis</label>
+                  <label className="form-label">{t("testimonialsPage.form.type", "Type d'avis")}</label>
                   <select
                     className={`form-select ${errors.target_type ? "is-invalid" : ""}`}
                     value={form.target_type}
                     onChange={(e) => update("target_type", e.target.value)}
                     disabled={sending}
                   >
-                    <option value="platform">Plateforme</option>
-                    <option value="product">Produit</option>
+                    <option value="platform">{t("testimonialsPage.form.platform", "Plateforme")}</option>
+                    <option value="product">{t("testimonialsPage.form.product", "Produit")}</option>
                   </select>
                   {errors.target_type ? <div className="invalid-feedback">{errors.target_type[0]}</div> : null}
                 </div>
 
                 {form.target_type === "product" && (
                   <div className="col-12">
-                    <label className="form-label">Produit *</label>
+                    <label className="form-label">{t("testimonialsPage.form.product", "Produit")} *</label>
                     <select
                       className={`form-select ${errors.product_id ? "is-invalid" : ""}`}
                       value={form.product_id}
                       onChange={(e) => update("product_id", e.target.value)}
                       disabled={sending}
                     >
-                      <option value="">Choisir un produit</option>
+                      <option value="">{t("testimonialsPage.form.chooseProduct", "Choisir un produit")}</option>
                       {productOptions.map((product) => (
                         <option key={product.id} value={product.id}>
                           {product.name}
@@ -376,25 +389,25 @@ export default function TestimonialsPage() {
                 )}
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Note</label>
+                  <label className="form-label">{t("testimonialsPage.form.rating", "Note")}</label>
                   <select
                     className={`form-select ${errors.rating ? "is-invalid" : ""}`}
                     value={form.rating}
                     onChange={(e) => update("rating", e.target.value)}
                     disabled={sending}
                   >
-                    <option value="">Choisir</option>
-                    <option value="5">5 etoiles</option>
-                    <option value="4">4 etoiles</option>
-                    <option value="3">3 etoiles</option>
-                    <option value="2">2 etoiles</option>
-                    <option value="1">1 etoile</option>
+                    <option value="">{t("testimonialsPage.form.choose", "Choisir")}</option>
+                    <option value="5">{t("testimonialsPage.form.stars5", "5 etoiles")}</option>
+                    <option value="4">{t("testimonialsPage.form.stars4", "4 etoiles")}</option>
+                    <option value="3">{t("testimonialsPage.form.stars3", "3 etoiles")}</option>
+                    <option value="2">{t("testimonialsPage.form.stars2", "2 etoiles")}</option>
+                    <option value="1">{t("testimonialsPage.form.stars1", "1 etoile")}</option>
                   </select>
                   {errors.rating ? <div className="invalid-feedback">{errors.rating[0]}</div> : null}
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Votre avis *</label>
+                  <label className="form-label">{t("testimonialsPage.form.message", "Votre avis")} *</label>
                   <textarea
                     rows={5}
                     className={`form-control ${errors.message ? "is-invalid" : ""}`}
@@ -406,7 +419,7 @@ export default function TestimonialsPage() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Photo (optionnel)</label>
+                  <label className="form-label">{t("testimonialsPage.form.photo", "Photo (optionnel)")}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -425,7 +438,7 @@ export default function TestimonialsPage() {
                   <div className="col-12">
                     <img
                       src={photoPreview}
-                      alt="Apercu"
+                      alt={t("testimonialsPage.form.previewAlt", "Apercu")}
                       className="img-fluid rounded-3 border"
                       style={{ maxHeight: 180, objectFit: "cover" }}
                     />
@@ -434,22 +447,29 @@ export default function TestimonialsPage() {
 
                 <div className="col-12 d-flex flex-column flex-sm-row gap-2">
                   <button className="btn btn-warning fw-semibold" type="submit" disabled={sending}>
-                    {sending ? "Envoi en cours..." : "Envoyer mon avis"}
+                    {sending
+                      ? t("testimonialsPage.actions.sending", "Envoi en cours...")
+                      : t("testimonialsPage.actions.send", "Envoyer mon avis")}
                   </button>
                   <button className="btn btn-outline-dark" type="button" onClick={resetForm} disabled={sending}>
-                    Reinitialiser
+                    {t("testimonialsPage.actions.reset", "Reinitialiser")}
                   </button>
                 </div>
 
                 <small className="text-secondary">
-                  Les avis produit sont relies au produit choisi. Les avis plateforme restent globaux.
+                  {t(
+                    "testimonialsPage.form.footer",
+                    "Les avis produit sont relies au produit choisi. Les avis plateforme restent globaux."
+                  )}
                 </small>
               </form>
             </div>
           </div>
         </div>
 
-        <div className="text-center text-secondary small mt-4">Merci pour votre confiance.</div>
+        <div className="text-center text-secondary small mt-4">
+          {t("testimonialsPage.footer", "Merci pour votre confiance.")}
+        </div>
       </div>
     </div>
   );

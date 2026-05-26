@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Gestion des commandes",
   "subtitle": "Suivi des commandes clients et consultation des order items.",
   "total": "Total",
@@ -79,5 +79,34 @@
     "deliver": "Livrer",
     "cancel": "Annuler",
     "close": "Fermer"
+  },
+  "client": {
+    "title": "Mes commandes",
+    "subtitle": "Suivez vos achats, leur statut et vos documents.",
+    "loading": "Chargement des commandes...",
+    "empty": "Vous n'avez encore passé aucune commande.",
+    "summary": {
+      "total": "Total commandes"
+    },
+    "delivery": {
+      "title": "Livraison",
+      "clientFallback": "Client",
+      "phoneUnavailable": "Téléphone non renseigné"
+    },
+    "messages": {
+      "cancelled": "Commande annulée avec succès."
+    },
+    "errors": {
+      "load": "Impossible de charger les commandes.",
+      "cancel": "Impossible d'annuler cette commande.",
+      "invoice": "Impossible de télécharger la facture."
+    },
+    "actions": {
+      "goToShop": "Aller à la boutique",
+      "confirmCancel": "Annuler la commande {{order}} ?",
+      "cancelling": "Annulation...",
+      "downloading": "Téléchargement...",
+      "downloadInvoice": "Télécharger facture"
+    }
   }
 }

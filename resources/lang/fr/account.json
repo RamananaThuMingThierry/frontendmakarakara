@@ -1,9 +1,9 @@
-﻿{
+{
   "title": "Mon compte",
   "subtitle": "Consultez et mettez à jour vos informations personnelles.",
   "loading": "Chargement du compte...",
   "errors": {
-    "load": "Impossible de charger le compte."
+    "load": "Impossible de charger votre compte."
   },
   "summary": {
     "adminFallback": "Administrateur",
@@ -14,7 +14,7 @@
   },
   "status": {
     "verified": "Vérifié",
-    "pending": "En attente"
+    "pending": "Non vérifié"
   },
   "verification": {
     "title": "Email non vérifié",
@@ -25,7 +25,7 @@
   },
   "profile": {
     "title": "Informations utilisateur",
-    "subtitle": "Modifiez votre profil admin sans quitter le tableau de bord.",
+    "subtitle": "Modifiez votre profil sans quitter votre espace.",
     "avatarAlt": "Avatar",
     "avatar": "Photo de profil",
     "name": "Nom complet",
@@ -53,5 +53,63 @@
     "passwordUpdateFailed": "Modification impossible.",
     "verificationSent": "Email de vérification envoyé.",
     "verificationFailed": "Envoi de l'email de vérification impossible."
+  },
+  "menu": {
+    "title": "Espace client",
+    "backToSite": "Retour au site",
+    "profile": "Mon profil",
+    "reservations": "Mes réservations",
+    "orders": "Mes commandes",
+    "logout": "Déconnexion",
+    "loggedOut": "Vous êtes déconnecté.",
+    "clientFallback": "Client",
+    "emailUnavailable": "Email non disponible"
+  },
+  "dashboard": {
+    "title": "Tableau de bord client",
+    "subtitle": "Accédez à votre profil, vos réservations et vos commandes depuis cet espace."
+  },
+  "client": {
+    "title": "Mon profil",
+    "subtitle": "Mettez à jour vos informations personnelles."
+  },
+  "addresses": {
+    "title": "Adresses de livraison",
+    "subtitle": "Enregistrez vos informations pour pré-remplir la commande.",
+    "loading": "Chargement des adresses...",
+    "empty": "Aucune adresse enregistrée pour le moment.",
+    "messages": {
+      "saved": "Adresse enregistrée.",
+      "saveFailed": "Impossible d'enregistrer l'adresse.",
+      "deleteFailed": "Suppression impossible."
+    },
+    "card": {
+      "address": "Adresse",
+      "default": "Par défaut"
+    },
+    "form": {
+      "label": "Label",
+      "fullName": "Nom complet",
+      "phone": "Téléphone",
+      "address1": "Adresse",
+      "address2": "Complément",
+      "city": "Ville",
+      "region": "Région",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "default": "Définir comme adresse par défaut"
+    },
+    "placeholders": {
+      "label": "Ex. : Maison, Bureau"
+    },
+    "actions": {
+      "new": "Nouvelle adresse",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "add": "Ajouter l'adresse",
+      "update": "Mettre à jour",
+      "cancel": "Annuler",
+      "confirmDelete": "Supprimer cette adresse ?"
+    }
   }
 }

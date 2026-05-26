@@ -1,9 +1,9 @@
-﻿{
+{
   "title": "My account",
   "subtitle": "View and update your personal information.",
   "loading": "Loading account...",
   "errors": {
-    "load": "Unable to load the account."
+    "load": "Unable to load your account."
   },
   "summary": {
     "adminFallback": "Administrator",
@@ -14,7 +14,7 @@
   },
   "status": {
     "verified": "Verified",
-    "pending": "Pending"
+    "pending": "Not verified"
   },
   "verification": {
     "title": "Email not verified",
@@ -25,7 +25,7 @@
   },
   "profile": {
     "title": "User information",
-    "subtitle": "Edit your admin profile without leaving the dashboard.",
+    "subtitle": "Edit your profile without leaving your account area.",
     "avatarAlt": "Avatar",
     "avatar": "Profile picture",
     "name": "Full name",
@@ -53,5 +53,63 @@
     "passwordUpdateFailed": "Password update failed.",
     "verificationSent": "Verification email sent.",
     "verificationFailed": "Unable to send the verification email."
+  },
+  "menu": {
+    "title": "Client area",
+    "backToSite": "Back to website",
+    "profile": "My profile",
+    "reservations": "My reservations",
+    "orders": "My orders",
+    "logout": "Logout",
+    "loggedOut": "You have been signed out.",
+    "clientFallback": "Client",
+    "emailUnavailable": "Email unavailable"
+  },
+  "dashboard": {
+    "title": "Client dashboard",
+    "subtitle": "Access your profile, reservations, and orders from this area."
+  },
+  "client": {
+    "title": "My profile",
+    "subtitle": "Update your personal information."
+  },
+  "addresses": {
+    "title": "Delivery addresses",
+    "subtitle": "Save your details to prefill checkout.",
+    "loading": "Loading addresses...",
+    "empty": "No saved address yet.",
+    "messages": {
+      "saved": "Address saved.",
+      "saveFailed": "Unable to save the address.",
+      "deleteFailed": "Deletion failed."
+    },
+    "card": {
+      "address": "Address",
+      "default": "Default"
+    },
+    "form": {
+      "label": "Label",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "address1": "Address",
+      "address2": "Additional details",
+      "city": "City",
+      "region": "Region",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "default": "Set as default address"
+    },
+    "placeholders": {
+      "label": "Ex: Home, Office"
+    },
+    "actions": {
+      "new": "New address",
+      "edit": "Edit",
+      "delete": "Delete",
+      "add": "Add address",
+      "update": "Update",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete this address?"
+    }
   }
 }

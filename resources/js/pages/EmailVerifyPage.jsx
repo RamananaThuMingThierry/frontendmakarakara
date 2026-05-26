@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
+import { useI18n } from "../hooks/website/I18nContext";
 
 export default function EmailVerifyPage() {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("loading");
-  const [message, setMessage] = useState("Vérification en cours...");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setMessage(t("emailVerifyPage.messages.loading", "Verification en cours..."));
+  }, [t]);
 
   useEffect(() => {
     const verifyUrl = searchParams.get("verify_url");
 
     if (!verifyUrl) {
       setStatus("error");
-      setMessage("Lien de vérification manquant.");
+      setMessage(t("emailVerifyPage.messages.missingLink", "Lien de verification manquant."));
       return;
     }
 
@@ -20,31 +26,37 @@ export default function EmailVerifyPage() {
       .get(verifyUrl)
       .then((response) => {
         setStatus("success");
-        setMessage(response.data.message || "Votre email a bien été vérifié.");
+        setMessage(
+          response.data.message ||
+            t("emailVerifyPage.messages.success", "Votre email a bien ete verifie.")
+        );
       })
       .catch((error) => {
         setStatus("error");
         setMessage(
           error?.response?.data?.message ||
-            "Le lien est invalide, expiré ou la vérification a échoué."
+            t(
+              "emailVerifyPage.messages.error",
+              "Le lien est invalide, expire ou la verification a echoue."
+            )
         );
       });
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
         <h1>
-          {status === "loading" && "Vérification..."}
-          {status === "success" && "Email vérifié"}
-          {status === "error" && "Erreur de vérification"}
+          {status === "loading" && t("emailVerifyPage.title.loading", "Verification...")}
+          {status === "success" && t("emailVerifyPage.title.success", "Email verifie")}
+          {status === "error" && t("emailVerifyPage.title.error", "Erreur de verification")}
         </h1>
 
         <p>{message}</p>
 
         {status !== "loading" && (
           <Link to="/login" style={styles.button}>
-            Aller à la connexion
+            {t("emailVerifyPage.actions.goLogin", "Aller a la connexion")}
           </Link>
         )}
       </div>

@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Suivi des réservations",
   "subtitle": "Historique des produits réservés, libérés et consommés.",
   "total": "Total",
@@ -57,5 +57,43 @@
   "actions": {
     "view": "Voir",
     "close": "Fermer"
+  },
+  "client": {
+    "title": "Mes réservations",
+    "subtitle": "Consultez vos réservations et les articles associés.",
+    "loading": "Chargement des réservations...",
+    "empty": "Vous n'avez encore aucune réservation.",
+    "summary": {
+      "total": "Total réservations"
+    },
+    "messages": {
+      "cancelled": "Réservation annulée avec succès.",
+      "checkoutPreparing": "Réservation en cours de transformation en commande..."
+    },
+    "errors": {
+      "load": "Impossible de charger les réservations.",
+      "cancel": "Impossible d'annuler la réservation.",
+      "checkout": "Impossible de préparer cette réservation pour la commande."
+    },
+    "card": {
+      "title": "Réservation",
+      "fallback": "Réservation",
+      "itemsCount": "{{count}} article(s)",
+      "totalQuantity": "Quantité totale",
+      "cityUnavailable": "Ville non renseignée",
+      "qty": "Qté",
+      "expiration": "Expiration"
+    },
+    "source": {
+      "cart": "Réservation depuis le panier",
+      "order": "Réservation convertie en commande",
+      "reservation": "Réservation client"
+    },
+    "actions": {
+      "preparing": "Préparation...",
+      "checkout": "Passer à la commande",
+      "cancelling": "Annulation...",
+      "cancel": "Annuler la réservation"
+    }
   }
 }

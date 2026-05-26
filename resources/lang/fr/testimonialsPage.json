@@ -1,0 +1,58 @@
+{
+  "title": "Tous les témoignages",
+  "count": "{{count}} avis publiés - Page {{page}}/{{total}}",
+  "loading": "Chargement...",
+  "footer": "Merci pour votre confiance.",
+  "messages": {
+    "success": "Votre avis a été publié.",
+    "error": "Erreur lors de l'envoi de votre avis."
+  },
+  "labels": {
+    "client": "Client",
+    "platform": "Plateforme",
+    "productTag": "Produit : {{product}}",
+    "productFallback": "Produit"
+  },
+  "list": {
+    "title": "Avis clients",
+    "subtitle": "Avis sur les produits et sur la plateforme.",
+    "loading": "Chargement des avis...",
+    "empty": "Aucun avis publié pour le moment."
+  },
+  "form": {
+    "title": "Laisser votre avis",
+    "subtitle": "Vous pouvez noter un produit précis ou partager un avis global sur la plateforme.",
+    "name": "Nom",
+    "city": "Ville",
+    "type": "Type d'avis",
+    "platform": "Plateforme",
+    "product": "Produit",
+    "chooseProduct": "Choisir un produit",
+    "rating": "Note",
+    "choose": "Choisir",
+    "stars5": "5 étoiles",
+    "stars4": "4 étoiles",
+    "stars3": "3 étoiles",
+    "stars2": "2 étoiles",
+    "stars1": "1 étoile",
+    "message": "Votre avis",
+    "photo": "Photo (optionnel)",
+    "previewAlt": "Aperçu",
+    "footer": "Les avis produit sont reliés au produit choisi. Les avis plateforme restent globaux."
+  },
+  "actions": {
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation...",
+    "back": "Retour",
+    "sending": "Envoi en cours...",
+    "send": "Envoyer mon avis",
+    "reset": "Réinitialiser"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "errors": {
+    "load": "Impossible de charger les avis."
+  }
+}

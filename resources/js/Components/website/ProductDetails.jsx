@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import AddToCartToggle from "./AddToCartToggle";
 import { productsApi } from "../../api/products";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 const DEFAULT_IMAGE = "/images/box.png";
 const initialReviewForm = {
@@ -41,6 +42,7 @@ function Stars({ value }) {
 }
 
 export default function ProductDetails() {
+  const { t } = useI18n();
   const { encrypted_id } = useParams();
   const [product, setProduct] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
@@ -77,7 +79,7 @@ export default function ProductDetails() {
         setSelectedCityId(firstCityId ? String(firstCityId) : "");
       } catch (err) {
         if (cancelled) return;
-        setError(err?.response?.data?.message || "Impossible de charger ce produit.");
+        setError(err?.response?.data?.message || t("productDetails.errors.load", "Impossible de charger ce produit."));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -88,7 +90,7 @@ export default function ProductDetails() {
     return () => {
       cancelled = true;
     };
-  }, [encrypted_id]);
+  }, [encrypted_id, t]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -135,7 +137,7 @@ export default function ProductDetails() {
       encrypted_inventory_id: selectedInventory.encrypted_id || null,
       city_id: selectedInventory.city?.id ?? selectedInventory.city_id ?? null,
       city_name: selectedInventory.city?.name || "",
-      name: product.name || "Produit",
+      name: product.name || t("productDetails.labels.product", "Produit"),
       price: Number(selectedInventory.price ?? product.price ?? 0),
       image: getImageUrl(product.images?.[0]),
     };
@@ -201,22 +203,22 @@ export default function ProductDetails() {
         setTestimonials((current) => [data, ...current.filter((item) => item.id !== data.id)]);
       }
       resetReviewForm();
-      setReviewSuccess(message || "Votre avis a ete envoye.");
+      setReviewSuccess(message || t("productDetails.review.success", "Votre avis a ete envoye."));
     } catch (err) {
       const response = err?.response;
       if (response?.data?.errors) {
         setReviewErrors(response.data.errors);
       }
-      setReviewServerError(response?.data?.message || "Impossible d'envoyer votre avis.");
+      setReviewServerError(response?.data?.message || t("productDetails.review.error", "Impossible d'envoyer votre avis."));
     } finally {
       setReviewSending(false);
     }
   };
 
   if (loading) {
-    return (
+        return (
       <div className="container py-5">
-        <div className="alert alert-light mb-0">Chargement du produit...</div>
+        <div className="alert alert-light mb-0">{t("productDetails.loading", "Chargement du produit...")}</div>
       </div>
     );
   }
@@ -226,16 +228,16 @@ export default function ProductDetails() {
       <div className="container py-5 text-center">
         <img
           src="/images/rejected.png"
-          alt="Produit introuvable"
+          alt={t("productDetails.empty.alt", "Produit introuvable")}
           className="img-fluid mb-4"
           style={{ maxWidth: 250, opacity: 0.9 }}
         />
 
-        <h5 className="fw-semibold">Produit introuvable</h5>
-        <p className="text-muted">{error || "Ce produit n'est pas disponible actuellement."}</p>
+        <h5 className="fw-semibold">{t("productDetails.empty.title", "Produit introuvable")}</h5>
+        <p className="text-muted">{error || t("productDetails.empty.subtitle", "Ce produit n'est pas disponible actuellement.")}</p>
 
         <Link to="/shop" className="btn btn-primary mt-3">
-          Voir les autres produits
+          {t("productDetails.actions.otherProducts", "Voir les autres produits")}
         </Link>
       </div>
     );
@@ -262,7 +264,7 @@ export default function ProductDetails() {
                         }
                         onClick={() => setActiveIndex(idx)}
                         style={{ aspectRatio: "1 / 1", width: "88px" }}
-                        aria-label={`Voir image ${idx + 1}`}
+                        aria-label={t("productDetails.actions.viewImage", "Voir image {{index}}").replace("{{index}}", idx + 1)}
                       >
                         <img
                           src={src}
@@ -284,7 +286,7 @@ export default function ProductDetails() {
                 <div className="bg-white rounded-4 shadow-sm overflow-hidden p-2 p-md-4">
                   <img
                     src={getImageUrl(images[activeIndex])}
-                    alt={`${product.name} principale`}
+                    alt={t("productDetails.labels.mainImage", "{{name}} principale").replace("{{name}}", product.name)}
                     className="w-100"
                     style={{ height: "min(70vw, 500px)", minHeight: 280, objectFit: "cover" }}
                     loading="lazy"
@@ -302,17 +304,17 @@ export default function ProductDetails() {
               <h1 className="h3 fw-bold mb-2">{product.name}</h1>
 
               <div className="mb-3 d-flex flex-wrap gap-2">
-                <span className="badge text-bg-warning border">{product.category?.name || "Sans categorie"}</span>
-                <span className="badge text-bg-light border">{selectedInventory.city?.name || "Ville"}</span>
+                <span className="badge text-bg-warning border">{product.category?.name || t("productDetails.labels.uncategorized", "Sans categorie")}</span>
+                <span className="badge text-bg-light border">{selectedInventory.city?.name || t("productDetails.labels.city", "Ville")}</span>
               </div>
 
               <div className="mb-3">
-                <span className="text-secondary">Marque :</span>{" "}
+                <span className="text-secondary">{t("productDetails.labels.brand", "Marque")} :</span>{" "}
                 <span className="fw-semibold">{product.brand?.name || "-"}</span>
               </div>
 
               <div className="mb-3">
-                <label className="form-label text-secondary mb-1">Disponible dans :</label>
+                <label className="form-label text-secondary mb-1">{t("productDetails.labels.availableIn", "Disponible dans")} :</label>
                 <select
                   className="form-select"
                   value={String(selectedInventory.city?.id ?? selectedInventory.city_id ?? "")}
@@ -323,7 +325,7 @@ export default function ProductDetails() {
                       key={inventory.encrypted_id || inventory.id}
                       value={String(inventory.city?.id ?? inventory.city_id ?? "")}
                     >
-                      {inventory.city?.name || "Ville"}
+                      {inventory.city?.name || t("productDetails.labels.city", "Ville")}
                     </option>
                   ))}
                 </select>
@@ -340,8 +342,10 @@ export default function ProductDetails() {
               </div>
 
               <div className="alert alert-info py-2 mb-3">
-                Une commande doit contenir les produits d'une seule ville. Si vous choisissez{" "}
-                <strong>{selectedInventory.city?.name || "cette ville"}</strong>, achetez uniquement les produits de cette ville.
+                {t(
+                  "productDetails.cityRule",
+                  'Une commande doit contenir les produits d\'une seule ville. Si vous choisissez "{{city}}", achetez uniquement les produits de cette ville.'
+                ).replace("{{city}}", selectedInventory.city?.name || t("productDetails.labels.thisCity", "cette ville"))}
               </div>
 
               <div className="mb-3">
@@ -355,13 +359,13 @@ export default function ProductDetails() {
                 )}
               </div>
 
-              <p className="text-secondary mb-4">{product.description || "Aucune description disponible."}</p>
+              <p className="text-secondary mb-4">{product.description || t("productDetails.labels.noDescription", "Aucune description disponible.")}</p>
 
               <div className="d-grid gap-2">
                 <AddToCartToggle product={cartProduct} />
 
                 <Link to="/shop" className="btn btn-outline-dark">
-                  Retour a la boutique
+                  {t("productDetails.actions.backToShop", "Retour a la boutique")}
                 </Link>
               </div>
 
@@ -370,18 +374,18 @@ export default function ProductDetails() {
               <ul className="list-unstyled text-secondary small mb-0">
                 <li className="mb-1">
                   <i className="bi bi-geo-alt me-2 text-warning" />
-                  Ville selectionnee : <span className="fw-semibold">{selectedInventory.city?.name || "-"}</span>
+                  {t("productDetails.labels.selectedCity", "Ville selectionnee")} : <span className="fw-semibold">{selectedInventory.city?.name || "-"}</span>
                 </li>
                 <li className="mb-1">
                   <i className="bi bi-diagram-3 me-2 text-warning" />
-                  Villes disponibles :{" "}
+                  {t("productDetails.labels.availableCities", "Villes disponibles")} :{" "}
                   <span className="fw-semibold">
                     {availableCityNames.join(", ") || "-"}
                   </span>
                 </li>
                 <li className="mb-1">
                   <i className="bi bi-box-seam me-2 text-warning" />
-                  Disponibilite : <span className="fw-semibold">En stock</span>
+                  {t("productDetails.labels.availability", "Disponibilite")} : <span className="fw-semibold">{t("productDetails.labels.inStock", "En stock")}</span>
                 </li>
               </ul>
             </div>
@@ -393,26 +397,30 @@ export default function ProductDetails() {
             <div className="bg-white rounded-4 shadow-sm p-3 p-md-4 h-100">
               <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-3">
                 <div>
-                  <h4 className="fw-bold mb-1">Avis sur ce produit</h4>
+                  <h4 className="fw-bold mb-1">{t("productDetails.reviews.title", "Avis sur ce produit")}</h4>
                   <div className="text-secondary small">
                     {productTestimonials.length > 0 ? (
                       <>
                         <Stars value={Math.round(averageRating)} />{" "}
-                        <span className="ms-2">{averageRating.toFixed(1)}/5 sur {productTestimonials.length} avis</span>
+                        <span className="ms-2">
+                          {t("productDetails.reviews.summary", "{{rating}}/5 sur {{count}} avis")
+                            .replace("{{rating}}", averageRating.toFixed(1))
+                            .replace("{{count}}", productTestimonials.length)}
+                        </span>
                       </>
                     ) : (
-                      "Aucun avis publie pour le moment."
+                      t("productDetails.reviews.empty", "Aucun avis publie pour le moment.")
                     )}
                   </div>
                 </div>
 
                 <Link to="/testimonials" className="btn btn-outline-dark btn-sm">
-                  Voir tous les avis
+                  {t("productDetails.actions.viewAllReviews", "Voir tous les avis")}
                 </Link>
               </div>
 
               {productTestimonials.length === 0 ? (
-                <div className="alert alert-light mb-0">Soyez le premier a laisser un avis sur ce produit.</div>
+                <div className="alert alert-light mb-0">{t("productDetails.reviews.first", "Soyez le premier a laisser un avis sur ce produit.")}</div>
               ) : (
                 <div className="row g-3">
                   {productTestimonials.map((item) => (
@@ -421,13 +429,13 @@ export default function ProductDetails() {
                         <div className="d-flex align-items-center gap-3 mb-3">
                           <img
                             src={buildImageUrl(item.photo_url)}
-                            alt={item.name || "Client"}
+                            alt={item.name || t("productDetails.labels.client", "Client")}
                             className="rounded-circle border"
                             style={{ width: 52, height: 52, objectFit: "cover" }}
                           />
                           <div className="min-w-0">
-                            <div className="fw-semibold">{item.name || "Client"}</div>
-                            <div className="text-secondary small">{item.city || "Client"}</div>
+                            <div className="fw-semibold">{item.name || t("productDetails.labels.client", "Client")}</div>
+                            <div className="text-secondary small">{item.city || t("productDetails.labels.client", "Client")}</div>
                           </div>
                         </div>
 
@@ -446,9 +454,9 @@ export default function ProductDetails() {
 
           <div className="col-12 col-lg-5">
             <div className="bg-white rounded-4 shadow-sm p-3 p-md-4">
-              <h4 className="fw-bold mb-2">Ajouter votre avis</h4>
+              <h4 className="fw-bold mb-2">{t("productDetails.reviewForm.title", "Ajouter votre avis")}</h4>
               <p className="text-secondary mb-3">
-                Votre note sera associee directement a <strong>{product.name}</strong>.
+                {t("productDetails.reviewForm.subtitle", 'Votre note sera associee directement a "{{name}}".').replace("{{name}}", product.name)}
               </p>
 
               {reviewSuccess ? <div className="alert alert-success">{reviewSuccess}</div> : null}
@@ -456,7 +464,7 @@ export default function ProductDetails() {
 
               <form className="row g-3" onSubmit={submitReview} noValidate>
                 <div className="col-12">
-                  <label className="form-label">Nom *</label>
+                  <label className="form-label">{t("productDetails.reviewForm.name", "Nom")} *</label>
                   <input
                     className={`form-control ${reviewErrors.name ? "is-invalid" : ""}`}
                     value={reviewForm.name}
@@ -467,7 +475,7 @@ export default function ProductDetails() {
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Ville</label>
+                  <label className="form-label">{t("productDetails.reviewForm.city", "Ville")}</label>
                   <input
                     className={`form-control ${reviewErrors.city ? "is-invalid" : ""}`}
                     value={reviewForm.city}
@@ -478,25 +486,25 @@ export default function ProductDetails() {
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Note *</label>
+                  <label className="form-label">{t("productDetails.reviewForm.rating", "Note")} *</label>
                   <select
                     className={`form-select ${reviewErrors.rating ? "is-invalid" : ""}`}
                     value={reviewForm.rating}
                     onChange={(e) => updateReviewField("rating", e.target.value)}
                     disabled={reviewSending}
                   >
-                    <option value="">Choisir</option>
-                    <option value="5">5 etoiles</option>
-                    <option value="4">4 etoiles</option>
-                    <option value="3">3 etoiles</option>
-                    <option value="2">2 etoiles</option>
-                    <option value="1">1 etoile</option>
+                    <option value="">{t("productDetails.reviewForm.choose", "Choisir")}</option>
+                    <option value="5">{t("productDetails.reviewForm.stars5", "5 etoiles")}</option>
+                    <option value="4">{t("productDetails.reviewForm.stars4", "4 etoiles")}</option>
+                    <option value="3">{t("productDetails.reviewForm.stars3", "3 etoiles")}</option>
+                    <option value="2">{t("productDetails.reviewForm.stars2", "2 etoiles")}</option>
+                    <option value="1">{t("productDetails.reviewForm.stars1", "1 etoile")}</option>
                   </select>
                   {reviewErrors.rating ? <div className="invalid-feedback">{reviewErrors.rating[0]}</div> : null}
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Votre avis *</label>
+                  <label className="form-label">{t("productDetails.reviewForm.message", "Votre avis")} *</label>
                   <textarea
                     rows={4}
                     className={`form-control ${reviewErrors.message ? "is-invalid" : ""}`}
@@ -508,7 +516,7 @@ export default function ProductDetails() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Photo (optionnel)</label>
+                  <label className="form-label">{t("productDetails.reviewForm.photo", "Photo (optionnel)")}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -527,7 +535,7 @@ export default function ProductDetails() {
                   <div className="col-12">
                     <img
                       src={photoPreview}
-                      alt="Apercu"
+                      alt={t("productDetails.reviewForm.previewAlt", "Apercu")}
                       className="img-fluid rounded-3 border"
                       style={{ maxHeight: 180, objectFit: "cover" }}
                     />
@@ -536,10 +544,10 @@ export default function ProductDetails() {
 
                 <div className="col-12 d-flex flex-column flex-sm-row gap-2">
                   <button className="btn btn-warning fw-semibold" type="submit" disabled={reviewSending}>
-                    {reviewSending ? "Envoi en cours..." : "Envoyer mon avis"}
+                    {reviewSending ? t("productDetails.reviewForm.sending", "Envoi en cours...") : t("productDetails.reviewForm.send", "Envoyer mon avis")}
                   </button>
                   <button className="btn btn-outline-dark" type="button" onClick={resetReviewForm} disabled={reviewSending}>
-                    Reinitialiser
+                    {t("productDetails.reviewForm.reset", "Reinitialiser")}
                   </button>
                 </div>
               </form>

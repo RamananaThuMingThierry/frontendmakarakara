@@ -8,7 +8,7 @@
     "priceMga": "Prix (MGA)",
     "description": "Description",
     "images": "Images",
-    "imagesHelp": "Formats: jpg, jpeg, png, webp. Max 4MB / image.",
+    "imagesHelp": "Formats : jpg, jpeg, png, webp. Max 4MB / image.",
     "active": "Actif"
   },
   "placeholders": {
@@ -46,12 +46,12 @@
     "addAction": "Ajouter",
     "deleteAction": "Supprimer",
     "files": "Fichiers",
-    "filesHelp": "Sélectionne plusieurs images. Tu peux en retirer une avant l'envoi.",
+    "filesHelp": "Sélectionnez plusieurs images. Vous pouvez en retirer une avant l'envoi.",
     "selectedCount": "image(s) sélectionnée(s)",
     "clearAll": "Tout retirer",
     "noneSelected": "Aucune image sélectionnée.",
     "noneToDelete": "Aucune image à supprimer.",
-    "selectToDelete": "Sélectionne les images à supprimer.",
+    "selectToDelete": "Sélectionnez les images à supprimer.",
     "itemAlt": "Image produit",
     "view": "Voir image",
     "previous": "Précédent",
@@ -60,12 +60,12 @@
     "deleting": "Suppression...",
     "deleteTitle": "Supprimer des images",
     "errors": {
-      "generic": "Une erreur est survenue. Vérifie la taille ou le format de l'image puis réessaie."
+      "generic": "Une erreur est survenue. Vérifiez la taille ou le format de l'image puis réessayez."
     }
   },
   "summary": {
     "title": "Résumé",
-    "basePrice": "Prix base",
+    "basePrice": "Prix de base",
     "brand": "Marque",
     "totalStock": "Stock total",
     "reservedStock": "Réservé",

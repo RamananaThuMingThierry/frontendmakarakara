@@ -1,24 +1,40 @@
+import { useI18n } from "../../hooks/website/I18nContext";
+
 export default function Features() {
+  const { t } = useI18n();
+
   const items = [
     {
       icon: "bi-truck",
-      title: "Livraison GPS",
-      text: "Suivi en temps réel de votre commande avec géolocalisation précise",
+      title: t("home.features.gps.title", "Livraison GPS"),
+      text: t(
+        "home.features.gps.text",
+        "Suivi en temps reel de votre commande avec geolocalisation precise"
+      ),
     },
     {
       icon: "bi-shield-check",
-      title: "Qualité Garantie",
-      text: "Tous nos produits sont certifiés et de qualité professionnelle",
+      title: t("home.features.quality.title", "Qualite Garantie"),
+      text: t(
+        "home.features.quality.text",
+        "Tous nos produits sont certifies et de qualite professionnelle"
+      ),
     },
     {
       icon: "bi-arrow-counterclockwise",
-      title: "Retour Facile",
-      text: "30 jours pour retourner votre produit si vous n’êtes pas satisfait",
+      title: t("home.features.return.title", "Retour Facile"),
+      text: t(
+        "home.features.return.text",
+        "30 jours pour retourner votre produit si vous n'etes pas satisfait"
+      ),
     },
     {
       icon: "bi-headset",
-      title: "Support 24/7",
-      text: "Notre équipe est disponible pour vous accompagner à tout moment",
+      title: t("home.features.support.title", "Support 24/7"),
+      text: t(
+        "home.features.support.text",
+        "Notre equipe est disponible pour vous accompagner a tout moment"
+      ),
     },
   ];
 

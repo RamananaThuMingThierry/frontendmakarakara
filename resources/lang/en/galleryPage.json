@@ -1,0 +1,25 @@
+{
+  "title": "Client Gallery",
+  "subtitle": "All the results from our community",
+  "loading": "Loading...",
+  "empty": "No image available.",
+  "imageAlt": "Client",
+  "clientLabel": "Client",
+  "footer": "Gallery managed from the administration.",
+  "stats": {
+    "photos": "{{count}} photos",
+    "likes": "{{count}} likes"
+  },
+  "hints": {
+    "login": "Sign in to like an image.",
+    "likeRule": "A user can leave 1 like or remove it."
+  },
+  "actions": {
+    "back": "Back"
+  },
+  "errors": {
+    "load": "Unable to load the gallery.",
+    "loginToLike": "Sign in to like an image.",
+    "like": "Unable to update the like."
+  }
+}

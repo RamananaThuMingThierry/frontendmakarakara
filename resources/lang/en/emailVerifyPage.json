@@ -1,0 +1,16 @@
+{
+  "title": {
+    "loading": "Verifying...",
+    "success": "Email verified",
+    "error": "Verification error"
+  },
+  "messages": {
+    "loading": "Verification in progress...",
+    "missingLink": "Missing verification link.",
+    "success": "Your email has been verified successfully.",
+    "error": "The link is invalid, expired, or verification failed."
+  },
+  "actions": {
+    "goLogin": "Go to login"
+  }
+}

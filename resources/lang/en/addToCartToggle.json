@@ -1,0 +1,25 @@
+{
+  "actions": {
+    "add": "Add",
+    "adding": "Adding...",
+    "remove": "Remove",
+    "decrease": "Decrease",
+    "increase": "Increase"
+  },
+  "errors": {
+    "add": "Unable to add this product to the cart.",
+    "updateQty": "Unable to update the quantity.",
+    "increaseQty": "Unable to increase the quantity."
+  },
+  "cityRule": {
+    "title": "Order by city",
+    "warning": "To avoid delivery errors, one order must contain products from only one city.",
+    "currentCart": "Your cart already contains products from",
+    "thisCity": "this city",
+    "thisProduct": "this product",
+    "otherCity": "this other city",
+    "explanationPrefix": "To buy",
+    "explanationMiddle": "in",
+    "explanationSuffix": "finish the current order first or clear the cart and create a new order."
+  }
+}

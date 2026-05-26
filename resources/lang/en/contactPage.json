@@ -1,0 +1,62 @@
+{
+  "title": "Contact",
+  "subtitle": "A question? Write to us and we will reply quickly.",
+  "messages": {
+    "success": "Message sent successfully.",
+    "error": "Error while sending the message. Please try again."
+  },
+  "whatsapp": {
+    "prefill": "Hello MAKARAKARA, I have a question."
+  },
+  "info": {
+    "title": "Our contact details",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "sendEmail": "Send an email",
+    "hours": "Hours: Monday-Saturday - 08:00-18:00"
+  },
+  "form": {
+    "title": "Send a message",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "subject": "Subject",
+    "message": "Message",
+    "footer": "* Required fields. Reply within 24h, often faster."
+  },
+  "placeholders": {
+    "name": "Your name",
+    "phone": "Example: 034...",
+    "subject": "Example: Delivery, product, payment...",
+    "message": "Write your message..."
+  },
+  "actions": {
+    "send": "Send",
+    "sending": "Sending...",
+    "reset": "Reset"
+  },
+  "mapTitle": "MAKARAKARA - Location",
+  "faq": {
+    "title": "Ask a question",
+    "subtitle": "Quick answers to the most common questions.",
+    "noAnswer": "Cannot find your answer?",
+    "askWhatsapp": "Ask on WhatsApp",
+    "delivery": {
+      "question": "What is the delivery time?",
+      "answer": "Delivery usually takes 24 to 72 hours depending on the city."
+    },
+    "payment": {
+      "question": "Which payment methods do you accept?",
+      "answer": "Cash on delivery or mobile money."
+    },
+    "order": {
+      "question": "Can I modify my order?",
+      "answer": "Yes, contact us quickly before shipment."
+    },
+    "guarantee": {
+      "question": "Are the products guaranteed?",
+      "answer": "Yes, we guarantee the quality of our products."
+    }
+  }
+}

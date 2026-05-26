@@ -1,0 +1,16 @@
+{
+  "title": "Favorites",
+  "count": "{{count}} product(s)",
+  "loginRequired": "Sign in before accessing your favorites.",
+  "productFallback": "PRODUCT",
+  "empty": {
+    "alt": "Empty favorites",
+    "title": "No favorites yet",
+    "subtitle": "Add products by clicking the heart."
+  },
+  "actions": {
+    "goShop": "Go to shop",
+    "clear": "Clear",
+    "remove": "Remove"
+  }
+}

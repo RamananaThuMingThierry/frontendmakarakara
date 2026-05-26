@@ -1,0 +1,21 @@
+{
+  "title": "Recherche",
+  "query": "Resultats pour",
+  "loading": "Chargement des produits...",
+  "emptyQuery": "Entrez un mot-cle pour rechercher un produit.",
+  "count": "{{count}} resultat(s)",
+  "labels": {
+    "product": "Produit"
+  },
+  "actions": {
+    "goShop": "Aller a la boutique"
+  },
+  "empty": {
+    "alt": "Aucun resultat",
+    "title": "Aucun resultat",
+    "subtitle": "Essayez un autre mot-cle ou consultez la boutique."
+  },
+  "errors": {
+    "load": "Impossible de charger les produits."
+  }
+}

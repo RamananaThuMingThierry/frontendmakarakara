@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/website/AuthContext";
+import { useI18n } from "../hooks/website/I18nContext";
 
 function resolveRedirectTarget(roles, fromPath) {
   const safeRoles = Array.isArray(roles) ? roles : [];
@@ -30,6 +31,7 @@ function resolveRedirectTarget(roles, fromPath) {
 }
 
 export default function Login() {
+  const { t } = useI18n();
   const { isAuth, login, loading, hydrating, roles } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ export default function Login() {
   if (hydrating) {
     return (
       <div className="d-flex justify-content-center py-5">
-        <div className="spinner-border" role="status" />
+        <div className="spinner-border" role="status" aria-label={t("login.loading", "Loading...")} />
       </div>
     );
   }
@@ -65,7 +67,7 @@ export default function Login() {
     if (r.length === 0) {
       return (
         <div className="d-flex justify-content-center py-5">
-          <div className="spinner-border" role="status" />
+          <div className="spinner-border" role="status" aria-label={t("login.loading", "Loading...")} />
         </div>
       );
     }
@@ -84,7 +86,7 @@ export default function Login() {
 
     if (!res.ok) {
       if (res.errors) setErrors(res.errors);
-      else setGlobalError(res.message || "Connexion echouee");
+      else setGlobalError(res.message || t("login.errors.failed", "Login failed."));
       return;
     }
 
@@ -95,37 +97,42 @@ export default function Login() {
   return (
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
-        <h2 className="fw-bold mb-1">Connexion</h2>
-        <p className="text-secondary mb-3">Accédéz à votre compte.</p>
+        <h2 className="fw-bold mb-1">{t("login.title", "Login")}</h2>
+        <p className="text-secondary mb-3">{t("login.subtitle", "Access your account.")}</p>
 
         {flashMessage && <div className="alert alert-success py-2">{flashMessage}</div>}
         {globalError && <div className="alert alert-danger py-2">{globalError}</div>}
 
         <form onSubmit={submit} className="d-flex flex-column gap-3">
           <div>
-            <label className="form-label">Email</label>
+            <label className="form-label">{t("login.fields.email", "Email")}</label>
             <input
               className={`form-control ${errors.email ? "is-invalid" : ""}`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@gmail.com"
+              placeholder={t("login.placeholders.email", "email@gmail.com")}
             />
             {errors.email && <span className="text-danger small">{errors.email[0]}</span>}
           </div>
 
           <div>
-            <label className="form-label">Mot de passe</label>
+            <label className="form-label">{t("login.fields.password", "Password")}</label>
             <div style={{ position: "relative" }}>
               <input
                 type={showPassword ? "text" : "password"}
                 className={`form-control pe-5 ${errors.password ? "is-invalid" : ""}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="........"
+                placeholder={t("login.placeholders.password", "........")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={
+                  showPassword
+                    ? t("login.actions.hidePassword", "Hide password")
+                    : t("login.actions.showPassword", "Show password")
+                }
                 style={{
                   position: "absolute",
                   top: "50%",
@@ -152,20 +159,23 @@ export default function Login() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              Se souvenir de moi
+              {t("login.rememberMe", "Remember me")}
             </label>
 
             <Link className="small text-decoration-none" to="/forgot-password">
-              Mot de passe oublie ?
+              {t("login.forgotPassword", "Forgot password?")}
             </Link>
           </div>
 
           <button className="btn btn-dark fw-semibold" disabled={loading} type="submit">
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading ? t("login.actions.loading", "Logging in...") : t("login.actions.submit", "Sign in")}
           </button>
 
           <div className="text-secondary small">
-            Pas de compte ? <Link to="/register" className="text-decoration-none">Créer un compte</Link>
+            {t("login.registerPrompt", "Don't have an account?")}{" "}
+            <Link to="/register" className="text-decoration-none">
+              {t("login.registerLink", "Create an account")}
+            </Link>
           </div>
         </form>
       </div>

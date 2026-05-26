@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { inventoryApi } from "../../api/inventories";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 const DEFAULT_IMAGE = "/images/box.png";
 
@@ -22,6 +23,7 @@ function getProductImage(product) {
 }
 
 export default function SearchResults() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const q = (params.get("q") || "").trim();
   const [inventories, setInventories] = useState([]);
@@ -40,7 +42,7 @@ export default function SearchResults() {
         setInventories(Array.isArray(data) ? data : []);
       } catch (err) {
         if (cancelled) return;
-        setError(err?.response?.data?.message || "Impossible de charger les produits.");
+        setError(err?.response?.data?.message || t("searchResults.errors.load", "Impossible de charger les produits."));
         setInventories([]);
       } finally {
         if (!cancelled) setLoading(false);
@@ -52,7 +54,7 @@ export default function SearchResults() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const products = useMemo(() => {
     const grouped = new Map();
@@ -74,8 +76,8 @@ export default function SearchResults() {
       const mapped = {
         id: product.id,
         product_encrypted_id: product.encrypted_id || null,
-        name: product.name || "Produit",
-        category_name: product?.category?.name || "Produit",
+        name: product.name || t("searchResults.labels.product", "Produit"),
+        category_name: product?.category?.name || t("searchResults.labels.product", "Produit"),
         price: Number(inventory?.price ?? product?.price ?? 0),
         compare_price: Number(inventory?.compare_price ?? product?.compare_price ?? 0),
         image: getProductImage(product),
@@ -87,7 +89,7 @@ export default function SearchResults() {
     });
 
     return Array.from(grouped.values());
-  }, [inventories]);
+  }, [inventories, t]);
 
   const results = useMemo(() => {
     if (!q) return [];
@@ -101,35 +103,41 @@ export default function SearchResults() {
     <main className="py-5" style={{ background: "#fbf7ec" }}>
       <div className="container">
         <div className="mb-4">
-          <h1 className="fw-bold mb-1">Recherche</h1>
+          <h1 className="fw-bold mb-1">{t("searchResults.title", "Recherche")}</h1>
           <p className="text-secondary mb-0">
-            Resultats pour : <span className="fw-semibold">{q || "-"}</span>
+            {t("searchResults.query", "Resultats pour")} : <span className="fw-semibold">{q || "-"}</span>
           </p>
         </div>
 
         {error ? <div className="alert alert-danger">{error}</div> : null}
 
         {loading ? (
-          <div className="alert alert-light mb-0">Chargement des produits...</div>
+          <div className="alert alert-light mb-0">{t("searchResults.loading", "Chargement des produits...")}</div>
         ) : !q ? (
-          <div className="alert alert-warning mb-0">Entrez un mot-cle pour rechercher un produit.</div>
+          <div className="alert alert-warning mb-0">
+            {t("searchResults.emptyQuery", "Entrez un mot-cle pour rechercher un produit.")}
+          </div>
         ) : results.length === 0 ? (
           <div className="text-center py-5">
             <img
               src="/images/empty-search.png"
-              alt="Aucun resultat"
+              alt={t("searchResults.empty.alt", "Aucun resultat")}
               className="img-fluid mb-4"
               style={{ maxWidth: 260, opacity: 0.9 }}
             />
-            <h5 className="fw-semibold">Aucun resultat</h5>
-            <p className="text-muted">Essayez un autre mot-cle ou consultez la boutique.</p>
+            <h5 className="fw-semibold">{t("searchResults.empty.title", "Aucun resultat")}</h5>
+            <p className="text-muted">
+              {t("searchResults.empty.subtitle", "Essayez un autre mot-cle ou consultez la boutique.")}
+            </p>
             <Link to="/shop" className="btn btn-dark">
-              Aller a la boutique
+              {t("searchResults.actions.goShop", "Aller a la boutique")}
             </Link>
           </div>
         ) : (
           <>
-            <div className="text-secondary small mb-3">{results.length} resultat(s)</div>
+            <div className="text-secondary small mb-3">
+              {t("searchResults.count", "{{count}} resultat(s)").replace("{{count}}", results.length)}
+            </div>
 
             <div className="row g-4">
               {results.map((p) => (
@@ -156,7 +164,7 @@ export default function SearchResults() {
                       <div className="mt-auto d-flex justify-content-between align-items-center">
                         <div className="fw-bold text-danger">{formatPriceMGA(p.price)}</div>
                         <Link to={`/product/${p.product_encrypted_id}`} className="btn btn-dark btn-sm">
-                          Voir
+                          {t("common.view", "Voir")}
                         </Link>
                       </div>
                     </div>

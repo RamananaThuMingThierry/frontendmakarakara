@@ -5,6 +5,7 @@ import { useAuth } from "../../hooks/website/AuthContext";
 import { createOrder } from "../../api/client_orders";
 import { listClientAddresses } from "../../api/client_addresses";
 import { listActivePaymentMethods } from "../../api/public_payment_methods";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
@@ -30,6 +31,7 @@ function canUseGeolocation() {
 }
 
 export default function Checkout() {
+  const { t } = useI18n();
   const { cart, cartCount, total, clear } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -147,7 +149,7 @@ export default function Checkout() {
         if (!mounted) return;
         setPaymentMethods([]);
         setPaymentMethodsError(
-          error?.response?.data?.message || "Impossible de charger les moyens de paiement."
+          error?.response?.data?.message || t("checkout.errors.loadPaymentMethods", "Unable to load payment methods.")
         );
       } finally {
         if (mounted) {
@@ -161,7 +163,7 @@ export default function Checkout() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (paymentMethodsLoading) return;
@@ -214,13 +216,16 @@ export default function Checkout() {
 
   const getLocation = (options = {}) => {
     if (!navigator.geolocation) {
-      setGeoError("La geolocalisation n'est pas supportee sur cet appareil.");
+      setGeoError(t("checkout.geo.notSupported", "Geolocation is not supported on this device."));
       return;
     }
 
     if (!canUseGeolocation()) {
       setGeoError(
-        "La geolocalisation du navigateur exige une connexion securisee. Utilisez HTTPS ou localhost, ou saisissez manuellement la latitude et la longitude."
+        t(
+          "checkout.geo.secureRequired",
+          "Browser geolocation requires a secure connection. Use HTTPS or localhost, or enter latitude and longitude manually."
+        )
       );
       return;
     }
@@ -245,8 +250,11 @@ export default function Checkout() {
 
           setGeoError(
             secureContextError
-              ? "La geolocalisation du navigateur exige HTTPS ou localhost. Utilisez une connexion securisee, ou renseignez manuellement la latitude et la longitude."
-              : `Impossible de recuperer votre position (${message}).`
+              ? t(
+                  "checkout.geo.secureRequiredShort",
+                  "Browser geolocation requires HTTPS or localhost. Use a secure connection, or enter latitude and longitude manually."
+                )
+              : t("checkout.geo.unablePosition", "Unable to retrieve your position ({{message}}).").replace("{{message}}", message)
           );
         }
         setGeoLoading(false);
@@ -282,22 +290,22 @@ export default function Checkout() {
   const validate = () => {
     const nextErrors = {};
 
-    if (!form.full_name.trim()) nextErrors.full_name = "Veuillez saisir votre nom.";
-    if (!form.phone.trim()) nextErrors.phone = "Veuillez saisir votre telephone.";
-    if (!form.city_name.trim()) nextErrors.city_name = "Veuillez saisir la ville.";
-    if (!form.address_line1.trim()) nextErrors.address_line1 = "Veuillez saisir l'adresse.";
-    if (!form.payment_method) nextErrors.payment_method = "Veuillez choisir un moyen de paiement.";
+    if (!form.full_name.trim()) nextErrors.full_name = t("checkout.errors.nameRequired", "Please enter your name.");
+    if (!form.phone.trim()) nextErrors.phone = t("checkout.errors.phoneRequired", "Please enter your phone number.");
+    if (!form.city_name.trim()) nextErrors.city_name = t("checkout.errors.cityRequired", "Please enter the city.");
+    if (!form.address_line1.trim()) nextErrors.address_line1 = t("checkout.errors.addressRequired", "Please enter the address.");
+    if (!form.payment_method) nextErrors.payment_method = t("checkout.errors.paymentRequired", "Please choose a payment method.");
 
     if (!cartCount) {
       return {
-        form: "Votre panier est vide.",
+        form: t("checkout.errors.emptyCart", "Your cart is empty."),
         fields: nextErrors,
       };
     }
 
     if (!activePaymentMethods.length) {
       return {
-        form: "Aucun moyen de paiement actif n'est disponible pour le moment.",
+        form: t("checkout.errors.noPaymentMethods", "No active payment method is available at the moment."),
         fields: nextErrors,
       };
     }
@@ -386,37 +394,44 @@ export default function Checkout() {
         address_line1: apiErrors["address.address_line1"]?.[0] || current.address_line1,
         payment_method: apiErrors.payment_method_id?.[0] || current.payment_method,
       }));
-      setFormError(error?.response?.data?.message || "Impossible de creer la commande.");
+      setFormError(error?.response?.data?.message || t("checkout.errors.createOrder", "Unable to create the order."));
     } finally {
       setSubmitting(false);
     }
   };
 
   if (!isAuth) {
-    return <Navigate to="/login" replace state={{ from: location, message: "Connectez-vous avant de commander." }} />;
+    return <Navigate to="/login" replace state={{ from: location, message: t("checkout.loginRequired", "Sign in before ordering.") }} />;
   }
 
   const selectedPaymentMethod = activePaymentMethods.find(
     (method) => String(method.id) === String(form.payment_method)
   );
 
-  const paymentHelpText = inferPaymentKind(selectedPaymentMethod) === "mobile_money"
-    ? "Le choix Mobile Money ne valide pas le paiement. La commande sera creee avec un paiement en attente de verification."
-    : "Le choix espece cree une commande non payee. Le paiement sera confirme ulterieurement.";
+  const paymentHelpText =
+    inferPaymentKind(selectedPaymentMethod) === "mobile_money"
+      ? t(
+          "checkout.payment.mobileMoneyHelp",
+          "Choosing Mobile Money does not validate the payment. The order will be created with payment pending verification."
+        )
+      : t(
+          "checkout.payment.cashHelp",
+          "Choosing cash creates an unpaid order. Payment will be confirmed later."
+        );
 
   if (!cartCount) {
     return (
       <div className="container py-5 text-center">
         <img
           src="/images/shopping-cart.png"
-          alt="Panier vide"
+          alt={t("checkout.empty.alt", "Empty cart")}
           className="img-fluid mb-4"
           style={{ maxWidth: 260, opacity: 0.9 }}
         />
-        <h5 className="fw-semibold">Votre panier est vide</h5>
-        <p className="text-muted">Ajoutez des produits pour passer commande.</p>
+        <h5 className="fw-semibold">{t("checkout.empty.title", "Your cart is empty")}</h5>
+        <p className="text-muted">{t("checkout.empty.subtitle", "Add products to place an order.")}</p>
         <Link to="/shop" className="btn btn-dark">
-          Aller a la boutique
+          {t("checkout.actions.goShop", "Go to shop")}
         </Link>
       </div>
     );
@@ -427,45 +442,45 @@ export default function Checkout() {
       <div className="container">
         <div className="d-flex align-items-start justify-content-between gap-3 mb-4">
           <div>
-            <h1 className="fw-bold mb-1">Livraison</h1>
+            <h1 className="fw-bold mb-1">{t("checkout.title", "Delivery")}</h1>
             <p className="text-secondary mb-0">
-              Remplissez vos informations et partagez votre position pour faciliter la livraison.
+              {t("checkout.subtitle", "Fill in your information and share your location to make delivery easier.")}
             </p>
           </div>
 
           <Link to="/cart" className="btn btn-outline-dark">
-            Retour au panier
+            {t("checkout.actions.backToCart", "Back to cart")}
           </Link>
         </div>
 
         <div className="row g-4">
           <div className="col-12 col-lg-7">
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Informations client</h5>
+              <h5 className="fw-bold mb-3">{t("checkout.sections.customerInfo", "Customer information")}</h5>
 
               {formError ? <div className="alert alert-danger py-2">{formError}</div> : null}
 
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label">Nom complet *</label>
+                  <label className="form-label">{t("checkout.fields.fullName", "Full name")} *</label>
                   {fieldErrors.full_name ? <span className="text-danger small d-block mb-1">{fieldErrors.full_name}</span> : null}
                   <input
                     className={`form-control ${fieldErrors.full_name ? "is-invalid" : ""}`}
                     value={form.full_name}
                     onChange={(e) => update("full_name", e.target.value)}
-                    placeholder="Ex: RAKOTO Jean"
+                    placeholder={t("checkout.placeholders.fullName", "Ex: RAKOTO Jean")}
                     required
                   />
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Telephone *</label>
+                  <label className="form-label">{t("checkout.fields.phone", "Phone")} *</label>
                   {fieldErrors.phone ? <span className="text-danger small d-block mb-1">{fieldErrors.phone}</span> : null}
                   <input
                     className={`form-control ${fieldErrors.phone ? "is-invalid" : ""}`}
                     value={form.phone}
                     onChange={(e) => update("phone", e.target.value)}
-                    placeholder="Ex: 034 12 345 67"
+                    placeholder={t("checkout.placeholders.phone", "Ex: 034 12 345 67")}
                     required
                   />
                 </div>
@@ -473,10 +488,10 @@ export default function Checkout() {
 
               <hr className="my-4" />
 
-              <h5 className="fw-bold mb-3">Adresse de livraison</h5>
+              <h5 className="fw-bold mb-3">{t("checkout.sections.deliveryAddress", "Delivery address")}</h5>
 
               <div className="mb-3">
-                <label className="form-label">Adresse enregistree</label>
+                <label className="form-label">{t("checkout.fields.savedAddress", "Saved address")}</label>
                 <select
                   className="form-select"
                   value={selectedAddressId}
@@ -485,83 +500,83 @@ export default function Checkout() {
                 >
                   <option value="">
                     {savedAddressesLoading
-                      ? "Chargement des adresses..."
+                      ? t("checkout.address.loading", "Loading addresses...")
                       : savedAddresses.length
-                        ? "Choisir une adresse enregistree"
-                        : "Aucune adresse enregistree"}
+                        ? t("checkout.address.chooseSaved", "Choose a saved address")
+                        : t("checkout.address.noneSaved", "No saved address")}
                   </option>
                   {savedAddresses.map((address) => (
                     <option key={address.id} value={String(address.encrypted_id || address.id)}>
-                      {address.label || address.city_name || "Adresse"}
-                      {address.is_default ? " - Par defaut" : ""}
+                      {address.label || address.city_name || t("checkout.address.fallback", "Address")}
+                      {address.is_default ? ` - ${t("checkout.address.default", "Default")}` : ""}
                     </option>
                   ))}
                 </select>
                 {savedAddresses.length ? (
                   <small className="text-secondary d-block mt-2">
-                    Vous pouvez gerer vos adresses depuis votre espace client.
+                    {t("checkout.address.manageHint", "You can manage your addresses from your client space.")}
                   </small>
                 ) : null}
               </div>
 
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label">Ville *</label>
+                  <label className="form-label">{t("checkout.fields.city", "City")} *</label>
                   {fieldErrors.city_name ? <span className="text-danger small d-block mb-1">{fieldErrors.city_name}</span> : null}
                   <input
                     className={`form-control ${fieldErrors.city_name ? "is-invalid" : ""}`}
                     value={form.city_name}
                     onChange={(e) => update("city_name", e.target.value)}
-                    placeholder="Ex: Antananarivo"
+                    placeholder={t("checkout.placeholders.city", "Ex: Antananarivo")}
                   />
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Adresse *</label>
+                  <label className="form-label">{t("checkout.fields.address", "Address")} *</label>
                   {fieldErrors.address_line1 ? <span className="text-danger small d-block mb-1">{fieldErrors.address_line1}</span> : null}
                   <input
                     className={`form-control ${fieldErrors.address_line1 ? "is-invalid" : ""}`}
                     value={form.address_line1}
                     onChange={(e) => update("address_line1", e.target.value)}
-                    placeholder="Quartier, rue, lot..."
+                    placeholder={t("checkout.placeholders.address", "District, street, lot...")}
                     required
                   />
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Complement (optionnel)</label>
+                  <label className="form-label">{t("checkout.fields.address2", "Additional details (optional)")}</label>
                   <input
                     className="form-control"
                     value={form.address_line2}
                     onChange={(e) => update("address_line2", e.target.value)}
-                    placeholder="Ex: etage, batiment..."
+                    placeholder={t("checkout.placeholders.address2", "Ex: floor, building...")}
                   />
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <label className="form-label">Region (optionnel)</label>
+                  <label className="form-label">{t("checkout.fields.region", "Region (optional)")}</label>
                   <input
                     className="form-control"
                     value={form.region}
                     onChange={(e) => update("region", e.target.value)}
-                    placeholder="Ex: Analamanga"
+                    placeholder={t("checkout.placeholders.region", "Ex: Analamanga")}
                   />
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Position GPS (optionnel)</label>
+                  <label className="form-label">{t("checkout.fields.gps", "GPS position (optional)")}</label>
 
                   <div className="d-flex flex-column flex-md-row gap-2">
                     <input
                       className="form-control"
-                      placeholder="Latitude"
+                      placeholder={t("checkout.fields.latitude", "Latitude")}
                       value={form.latitude}
                       onChange={(e) => update("latitude", e.target.value)}
                     />
 
                     <input
                       className="form-control"
-                      placeholder="Longitude"
+                      placeholder={t("checkout.fields.longitude", "Longitude")}
                       value={form.longitude}
                       onChange={(e) => update("longitude", e.target.value)}
                     />
@@ -573,19 +588,21 @@ export default function Checkout() {
                       disabled={geoLoading}
                     >
                       <i className="bi bi-geo-alt me-2" />
-                      {geoLoading ? "Localisation..." : "Utiliser ma position"}
+                      {geoLoading ? t("checkout.actions.locating", "Locating...") : t("checkout.actions.useMyPosition", "Use my position")}
                     </button>
 
                     <a
                       className="btn btn-outline-secondary"
                       target="_blank"
                       rel="noreferrer"
-                      href={form.latitude && form.longitude
-                        ? `https://www.google.com/maps?q=${form.latitude},${form.longitude}`
-                        : "https://www.google.com/maps"}
+                      href={
+                        form.latitude && form.longitude
+                          ? `https://www.google.com/maps?q=${form.latitude},${form.longitude}`
+                          : "https://www.google.com/maps"
+                      }
                     >
                       <i className="bi bi-map me-2" />
-                      Carte
+                      {t("checkout.actions.map", "Map")}
                     </a>
                   </div>
 
@@ -593,37 +610,38 @@ export default function Checkout() {
 
                   {form.latitude && form.longitude ? (
                     <div className="alert alert-success mt-3 mb-0 py-2">
-                      Position enregistree : {form.latitude}, {form.longitude}
-                      {geoMeta?.accuracy ? ` - precision env. ${geoMeta.accuracy} m` : ""}
-                      {geoMeta?.capturedAt ? ` - relevee a ${geoMeta.capturedAt}` : ""}
+                      {t("checkout.geo.savedPosition", "Saved position")} : {form.latitude}, {form.longitude}
+                      {geoMeta?.accuracy ? ` - ${t("checkout.geo.accuracy", "accuracy about")} ${geoMeta.accuracy} m` : ""}
+                      {geoMeta?.capturedAt ? ` - ${t("checkout.geo.capturedAt", "recorded at")} ${geoMeta.capturedAt}` : ""}
                     </div>
                   ) : (
                     <small className="text-secondary d-block mt-2">
-                      Autorisez la geolocalisation pour accelerer la livraison. Si besoin, vous pouvez aussi coller
-                      manuellement la latitude et la longitude. La detection automatique fonctionne sur HTTPS ou
-                      localhost. Vous pouvez valider la commande meme sans position GPS.
+                      {t(
+                        "checkout.geo.help",
+                        "Allow geolocation to speed up delivery. If needed, you can also paste latitude and longitude manually. Automatic detection works on HTTPS or localhost. You can validate the order even without a GPS position."
+                      )}
                     </small>
                   )}
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label">Notes (optionnel)</label>
+                  <label className="form-label">{t("checkout.fields.notes", "Notes (optional)")}</label>
                   <textarea
                     className="form-control"
                     rows={3}
                     value={form.notes}
                     onChange={(e) => update("notes", e.target.value)}
-                    placeholder="Ex: Appeler avant d'arriver, repere, portail bleu..."
+                    placeholder={t("checkout.placeholders.notes", "Ex: Call before arriving, landmark, blue gate...")}
                   />
                 </div>
               </div>
 
               <hr className="my-4" />
 
-              <h5 className="fw-bold mb-3">Paiement</h5>
+              <h5 className="fw-bold mb-3">{t("checkout.sections.payment", "Payment")}</h5>
 
               {paymentMethodsLoading ? (
-                <div className="text-secondary small">Chargement des moyens de paiement...</div>
+                <div className="text-secondary small">{t("checkout.payment.loading", "Loading payment methods...")}</div>
               ) : activePaymentMethods.length ? (
                 <>
                   {fieldErrors.payment_method ? (
@@ -654,7 +672,9 @@ export default function Checkout() {
                             <span>
                               <span className="fw-semibold">{method.name}</span>{" "}
                               <span className="text-secondary">
-                                {isMobileMoney ? "(paiement en attente de verification)" : "(payer a la livraison)"}
+                                {isMobileMoney
+                                  ? t("checkout.payment.pendingVerification", "(payment pending verification)")
+                                  : t("checkout.payment.payOnDelivery", "(pay on delivery)")}
                               </span>
                             </span>
                           </span>
@@ -667,7 +687,7 @@ export default function Checkout() {
                 </>
               ) : (
                 <div className="alert alert-warning mb-0">
-                  {paymentMethodsError || "Aucun moyen de paiement actif n'est disponible pour le moment."}
+                  {paymentMethodsError || t("checkout.errors.noPaymentMethods", "No active payment method is available at the moment.")}
                 </div>
               )}
 
@@ -677,50 +697,51 @@ export default function Checkout() {
                 onClick={submitOrder}
                 disabled={submitting || geoLoading || paymentMethodsLoading || !activePaymentMethods.length}
               >
-                {submitting ? "Validation..." : "Valider la commande"}
+                {submitting ? t("checkout.actions.validating", "Validating...") : t("checkout.actions.submit", "Validate order")}
               </button>
             </div>
           </div>
 
           <div className="col-12 col-lg-5">
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Recapitulatif</h5>
+              <h5 className="fw-bold mb-3">{t("checkout.summary.title", "Summary")}</h5>
 
               <div className="text-secondary small mb-3">
-                {cartCount} article(s)
-                {couponCode ? <> - Coupon: <span className="fw-semibold">{couponCode}</span></> : null}
+                {t("checkout.summary.count", "{{count}} item(s)").replace("{{count}}", cartCount)}
+                {couponCode ? (
+                  <>
+                    {" "}
+                    - {t("checkout.summary.coupon", "Coupon")}: <span className="fw-semibold">{couponCode}</span>
+                  </>
+                ) : null}
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Sous-total</span>
+                <span>{t("checkout.summary.subtotal", "Subtotal")}</span>
                 <span className="fw-semibold">{formatPriceMGA(subtotal)}</span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Remise</span>
-                <span className="fw-semibold">
-                  {discountTotal > 0 ? `- ${formatPriceMGA(discountTotal)}` : "-"}
-                </span>
+                <span>{t("checkout.summary.discount", "Discount")}</span>
+                <span className="fw-semibold">{discountTotal > 0 ? `- ${formatPriceMGA(discountTotal)}` : "-"}</span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Livraison</span>
-                <span className="fw-semibold">
-                  A confirmer par l'administration
-                </span>
+                <span>{t("checkout.summary.delivery", "Delivery")}</span>
+                <span className="fw-semibold">{t("checkout.summary.deliveryPending", "To be confirmed by the administration")}</span>
               </div>
 
               <hr />
 
               <div className="d-flex justify-content-between">
-                <span className="fw-bold">Total provisoire</span>
+                <span className="fw-bold">{t("checkout.summary.total", "Estimated total")}</span>
                 <span className="fw-bold text-danger">{formatPriceMGA(grandTotal)}</span>
               </div>
 
               <hr className="my-3" />
 
               <div className="small text-secondary">
-                <div className="fw-semibold text-dark mb-2">Produits</div>
+                <div className="fw-semibold text-dark mb-2">{t("checkout.summary.products", "Products")}</div>
                 {cart.map((i) => (
                   <div key={i.id} className="d-flex justify-content-between mb-2">
                     <span className="text-truncate" style={{ maxWidth: 250 }}>
@@ -732,7 +753,10 @@ export default function Checkout() {
               </div>
 
               <small className="text-secondary d-block mt-3">
-                En validant, vous acceptez les conditions de vente. Le frais de livraison sera fixe par l'administration selon la distance et peut etre gratuit.
+                {t(
+                  "checkout.summary.footer",
+                  "By validating, you accept the terms of sale. The delivery fee will be set by the administration based on distance and may be free."
+                )}
               </small>
             </div>
           </div>

@@ -1,0 +1,32 @@
+{
+  "title": "Create an account",
+  "subtitle": "Join us in just a few seconds.",
+  "loginPrompt": "Already have an account?",
+  "loginLink": "Sign in",
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Contact",
+    "password": "Password",
+    "confirmPassword": "Confirm password"
+  },
+  "placeholders": {
+    "name": "Your name",
+    "email": "email@gmail.com",
+    "phone": "+261 34 00 000 00",
+    "password": "........"
+  },
+  "actions": {
+    "submit": "Create an account",
+    "loading": "Creating...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "errors": {
+    "nameRequired": "Please enter your name.",
+    "emailRequired": "Please enter your email.",
+    "passwordMin": "Password: minimum 8 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "failed": "Account creation failed."
+  }
+}

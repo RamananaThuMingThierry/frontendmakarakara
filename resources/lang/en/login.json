@@ -1,0 +1,26 @@
+{
+  "title": "Login",
+  "subtitle": "Access your account.",
+  "loading": "Loading...",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot password?",
+  "registerPrompt": "Don't have an account?",
+  "registerLink": "Create an account",
+  "fields": {
+    "email": "Email",
+    "password": "Password"
+  },
+  "placeholders": {
+    "email": "email@gmail.com",
+    "password": "........"
+  },
+  "actions": {
+    "submit": "Sign in",
+    "loading": "Logging in...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "errors": {
+    "failed": "Login failed."
+  }
+}

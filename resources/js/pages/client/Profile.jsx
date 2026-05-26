@@ -13,6 +13,7 @@ import {
   updateClientAddress,
 } from "../../api/client_addresses";
 import { useAuth } from "../../hooks/website/AuthContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function buildAvatarUrl(path) {
   if (!path) return null;
@@ -26,6 +27,7 @@ function buildAvatarUrl(path) {
 export default function Profile() {
   const navigate = useNavigate();
   const { user, replaceAuthUser, logout } = useAuth();
+  const { t } = useI18n();
   const [account, setAccount] = useState(user || null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -81,7 +83,9 @@ export default function Profile() {
         setAccount(nextUser);
         replaceAuthUser(nextUser);
       } catch (error) {
-        if (!cancelled) setLoadError(error?.response?.data?.message || "Impossible de charger votre compte.");
+        if (!cancelled) {
+          setLoadError(error?.response?.data?.message || t("account.errors.load", "Impossible de charger votre compte."));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -91,7 +95,7 @@ export default function Profile() {
     return () => {
       cancelled = true;
     };
-  }, [replaceAuthUser]);
+  }, [replaceAuthUser, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,11 +155,11 @@ export default function Profile() {
       setAccount(nextUser);
       replaceAuthUser(nextUser);
       setProfileForm((prev) => ({ ...prev, avatar: null }));
-      setProfileMessage(data?.message || "Informations mises à jour.");
+      setProfileMessage(data?.message || t("account.toast.profileUpdated", "Informations mises a jour."));
     } catch (error) {
       setProfileStatus("danger");
       setProfileErrors(error?.response?.data?.errors || {});
-      setProfileMessage(error?.response?.data?.message || "Mise à jour impossible.");
+      setProfileMessage(error?.response?.data?.message || t("account.toast.profileUpdateFailed", "Mise a jour impossible."));
     } finally {
       setProfileLoading(false);
     }
@@ -171,16 +175,16 @@ export default function Profile() {
     try {
       const data = await changeClientPassword(passwordForm);
       setPasswordForm({ current_password: "", password: "", password_confirmation: "" });
-      setPasswordMessage(data?.message || "Mot de passe modifié.");
+      setPasswordMessage(data?.message || t("account.toast.passwordUpdated", "Mot de passe modifie."));
       await logout();
       navigate("/login", {
         replace: true,
-        state: { message: data?.message || "Mot de passe modifié. Veuillez vous reconnecter." },
+        state: { message: data?.message || t("account.toast.passwordReconnect", "Mot de passe modifie. Veuillez vous reconnecter.") },
       });
     } catch (error) {
       setPasswordStatus("danger");
       setPasswordErrors(error?.response?.data?.errors || {});
-      setPasswordMessage(error?.response?.data?.message || "Modification impossible.");
+      setPasswordMessage(error?.response?.data?.message || t("account.toast.passwordUpdateFailed", "Modification impossible."));
     } finally {
       setPasswordLoading(false);
     }
@@ -194,11 +198,11 @@ export default function Profile() {
     try {
       const data = await resendClientVerificationEmail();
       setVerificationStatus(data?.verified ? "success" : "info");
-      setVerificationMessage(data?.message || "Email de verification envoye.");
+      setVerificationMessage(data?.message || t("account.toast.verificationSent", "Email de verification envoye."));
     } catch (error) {
       setVerificationStatus("danger");
       setVerificationMessage(
-        error?.response?.data?.message || "Envoi de l'email de verification impossible."
+        error?.response?.data?.message || t("account.toast.verificationFailed", "Envoi de l'email de verification impossible.")
       );
     } finally {
       setVerificationLoading(false);
@@ -264,12 +268,14 @@ export default function Profile() {
         : await createClientAddress(payload);
 
       await reloadAddresses();
-      setAddressMessage(response?.message || "Adresse enregistree.");
+      setAddressMessage(response?.message || t("account.addresses.messages.saved", "Adresse enregistree."));
       resetAddressForm();
     } catch (error) {
       setAddressStatus("danger");
       setAddressErrors(error?.response?.data?.errors || {});
-      setAddressMessage(error?.response?.data?.message || "Impossible d'enregistrer l'adresse.");
+      setAddressMessage(
+        error?.response?.data?.message || t("account.addresses.messages.saveFailed", "Impossible d'enregistrer l'adresse.")
+      );
     } finally {
       setAddressLoading(false);
     }
@@ -294,7 +300,7 @@ export default function Profile() {
   }
 
   async function handleAddressDelete(address) {
-    if (!window.confirm("Supprimer cette adresse ?")) return;
+    if (!window.confirm(t("account.addresses.actions.confirmDelete", "Supprimer cette adresse ?"))) return;
 
     try {
       await deleteClientAddress(address.encrypted_id || address.id);
@@ -304,7 +310,7 @@ export default function Profile() {
       }
     } catch (error) {
       setAddressStatus("danger");
-      setAddressMessage(error?.response?.data?.message || "Suppression impossible.");
+      setAddressMessage(error?.response?.data?.message || t("account.addresses.messages.deleteFailed", "Suppression impossible."));
     }
   }
 
@@ -312,7 +318,7 @@ export default function Profile() {
     return (
       <div className="bg-white rounded-4 shadow-sm p-5 text-center">
         <div className="spinner-border spinner-border-sm me-2" />
-        Chargement du profil...
+        {t("account.loading", "Chargement du compte...")}
       </div>
     );
   }
@@ -329,7 +335,7 @@ export default function Profile() {
               style={{ width: 96, height: 96, fontSize: 32 }}
             >
               {avatarPreview ? (
-                <img src={avatarPreview} alt={account?.name || "Avatar"} className="w-100 h-100 object-fit-cover" />
+                <img src={avatarPreview} alt={account?.name || t("account.profile.avatarAlt", "Avatar")} className="w-100 h-100 object-fit-cover" />
               ) : (
                 (account?.name || "C").charAt(0).toUpperCase()
               )}
@@ -337,24 +343,27 @@ export default function Profile() {
           </div>
 
           <div className="flex-grow-1">
-            <h1 className="h4 fw-bold mb-1">Mon profil</h1>
-            <p className="text-secondary mb-3">Mettez à jour vos informations personnelles.</p>
+            <h1 className="h4 fw-bold mb-1">{t("account.client.title", "Mon profil")}</h1>
+            <p className="text-secondary mb-3">{t("account.client.subtitle", "Mettez a jour vos informations personnelles.")}</p>
             <div className="d-flex flex-wrap gap-3 small">
-              <span><strong>Téléphone:</strong> {account?.phone || "Non renseigné"}</span>
               <span>
-                <strong>Email:</strong>{" "}
+                <strong>{t("account.summary.phone", "Telephone")}:</strong> {account?.phone || t("account.summary.notProvided", "Non renseigne")}
+              </span>
+              <span>
+                <strong>{t("account.summary.emailVerification", "Verification email")}:</strong>{" "}
                 <span className={account?.email_verified_at ? "text-success" : "text-warning"}>
-                  {account?.email_verified_at ? "Vérifié" : "Non vérifié"}
+                  {account?.email_verified_at ? t("account.status.verified", "Verifie") : t("account.status.pending", "Non verifie")}
                 </span>
               </span>
             </div>
 
             {!account?.email_verified_at ? (
               <div className="alert alert-warning mt-3 mb-0">
-                <div className="fw-semibold mb-2">Validation de l'email recommandée</div>
+                <div className="fw-semibold mb-2">{t("account.verification.title", "Email non verifie")}</div>
+                <div className="small mb-2">{t("account.verification.text", "Envoyez un nouvel email de verification pour valider cette adresse.")}</div>
                 {verificationMessage ? <div className={`alert alert-${verificationStatus} py-2`}>{verificationMessage}</div> : null}
                 <button className="btn btn-sm btn-dark" type="button" onClick={handleResendVerification} disabled={verificationLoading}>
-                  {verificationLoading ? "Envoi..." : "Renvoyer l'email"}
+                  {verificationLoading ? t("account.verification.sending", "Envoi...") : t("account.verification.button", "Verifier l'email")}
                 </button>
               </div>
             ) : null}
@@ -363,11 +372,11 @@ export default function Profile() {
       </div>
 
       <div className="bg-white rounded-4 shadow-sm p-4">
-        <h2 className="h5 fw-bold mb-3">Informations personnelles</h2>
+        <h2 className="h5 fw-bold mb-3">{t("account.profile.title", "Informations utilisateur")}</h2>
         {profileMessage ? <div className={`alert alert-${profileStatus} py-2`}>{profileMessage}</div> : null}
         <form onSubmit={handleProfileSubmit} className="row g-3">
           <div className="col-12">
-            <label className="form-label">Photo de profil</label>
+            <label className="form-label">{t("account.profile.avatar", "Photo de profil")}</label>
             <input
               type="file"
               className={`form-control ${profileErrors.avatar ? "is-invalid" : ""}`}
@@ -377,7 +386,7 @@ export default function Profile() {
             {profileErrors.avatar ? <div className="invalid-feedback">{profileErrors.avatar[0]}</div> : null}
           </div>
           <div className="col-md-6">
-            <label className="form-label">Nom complet</label>
+            <label className="form-label">{t("account.profile.name", "Nom complet")}</label>
             <input
               className={`form-control ${profileErrors.name ? "is-invalid" : ""}`}
               value={profileForm.name}
@@ -386,7 +395,7 @@ export default function Profile() {
             {profileErrors.name ? <div className="invalid-feedback">{profileErrors.name[0]}</div> : null}
           </div>
           <div className="col-md-6">
-            <label className="form-label">Email</label>
+            <label className="form-label">{t("account.profile.email", "Adresse email")}</label>
             <input
               type="email"
               className={`form-control ${profileErrors.email ? "is-invalid" : ""}`}
@@ -396,7 +405,7 @@ export default function Profile() {
             {profileErrors.email ? <div className="invalid-feedback">{profileErrors.email[0]}</div> : null}
           </div>
           <div className="col-12">
-            <label className="form-label">Téléphone</label>
+            <label className="form-label">{t("account.profile.phone", "Telephone")}</label>
             <input
               className={`form-control ${profileErrors.phone ? "is-invalid" : ""}`}
               value={profileForm.phone}
@@ -406,18 +415,18 @@ export default function Profile() {
           </div>
           <div className="col-12">
             <button className="btn btn-dark" type="submit" disabled={profileLoading}>
-              {profileLoading ? "Enregistrement..." : "Enregistrer les modifications"}
+              {profileLoading ? t("account.actions.saving", "Enregistrement...") : t("account.actions.saveChanges", "Enregistrer les modifications")}
             </button>
           </div>
         </form>
       </div>
 
       <div className="bg-white rounded-4 shadow-sm p-4">
-        <h2 className="h5 fw-bold mb-3">Mot de passe</h2>
+        <h2 className="h5 fw-bold mb-3">{t("account.password.title", "Changer le mot de passe")}</h2>
         {passwordMessage ? <div className={`alert alert-${passwordStatus} py-2`}>{passwordMessage}</div> : null}
         <form onSubmit={handlePasswordSubmit} className="row g-3">
           <div className="col-12">
-            <label className="form-label">Mot de passe actuel</label>
+            <label className="form-label">{t("account.password.current", "Mot de passe actuel")}</label>
             <input
               type="password"
               className={`form-control ${passwordErrors.current_password ? "is-invalid" : ""}`}
@@ -427,7 +436,7 @@ export default function Profile() {
             {passwordErrors.current_password ? <div className="invalid-feedback">{passwordErrors.current_password[0]}</div> : null}
           </div>
           <div className="col-md-6">
-            <label className="form-label">Nouveau mot de passe</label>
+            <label className="form-label">{t("account.password.new", "Nouveau mot de passe")}</label>
             <input
               type="password"
               className={`form-control ${passwordErrors.password ? "is-invalid" : ""}`}
@@ -437,7 +446,7 @@ export default function Profile() {
             {passwordErrors.password ? <div className="invalid-feedback">{passwordErrors.password[0]}</div> : null}
           </div>
           <div className="col-md-6">
-            <label className="form-label">Confirmation</label>
+            <label className="form-label">{t("account.password.confirmation", "Confirmation")}</label>
             <input
               type="password"
               className="form-control"
@@ -447,7 +456,7 @@ export default function Profile() {
           </div>
           <div className="col-12">
             <button className="btn btn-outline-dark" type="submit" disabled={passwordLoading}>
-              {passwordLoading ? "Modification..." : "Changer le mot de passe"}
+              {passwordLoading ? t("account.actions.updating", "Modification...") : t("account.actions.changePassword", "Changer le mot de passe")}
             </button>
           </div>
         </form>
@@ -456,11 +465,13 @@ export default function Profile() {
       <div className="bg-white rounded-4 shadow-sm p-4">
         <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
           <div>
-            <h2 className="h5 fw-bold mb-1">Adresses de livraison</h2>
-            <div className="text-secondary small">Enregistrez vos informations pour pre-remplir la commande.</div>
+            <h2 className="h5 fw-bold mb-1">{t("account.addresses.title", "Adresses de livraison")}</h2>
+            <div className="text-secondary small">
+              {t("account.addresses.subtitle", "Enregistrez vos informations pour pre-remplir la commande.")}
+            </div>
           </div>
           <button className="btn btn-outline-dark btn-sm" type="button" onClick={resetAddressForm}>
-            Nouvelle adresse
+            {t("account.addresses.actions.new", "Nouvelle adresse")}
           </button>
         </div>
 
@@ -469,7 +480,7 @@ export default function Profile() {
         <div className="row g-4">
           <div className="col-12 col-xl-7">
             {addressesLoading ? (
-              <div className="text-secondary">Chargement des adresses...</div>
+              <div className="text-secondary">{t("account.addresses.loading", "Chargement des adresses...")}</div>
             ) : addresses.length ? (
               <div className="d-flex flex-column gap-3">
                 {addresses.map((address) => (
@@ -477,8 +488,8 @@ export default function Profile() {
                     <div className="d-flex flex-column flex-md-row justify-content-between gap-3">
                       <div>
                         <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
-                          <span className="fw-semibold">{address.label || address.city_name || "Adresse"}</span>
-                          {address.is_default ? <span className="badge text-bg-warning">Par defaut</span> : null}
+                          <span className="fw-semibold">{address.label || address.city_name || t("account.addresses.card.address", "Adresse")}</span>
+                          {address.is_default ? <span className="badge text-bg-warning">{t("account.addresses.card.default", "Par defaut")}</span> : null}
                         </div>
                         <div>{address.full_name || "-"}</div>
                         <div className="text-secondary small">{address.phone || "-"}</div>
@@ -486,10 +497,10 @@ export default function Profile() {
                       </div>
                       <div className="d-flex flex-wrap gap-2">
                         <button className="btn btn-sm btn-outline-dark" type="button" onClick={() => handleAddressEdit(address)}>
-                          Modifier
+                          {t("account.addresses.actions.edit", "Modifier")}
                         </button>
                         <button className="btn btn-sm btn-outline-danger" type="button" onClick={() => handleAddressDelete(address)}>
-                          Supprimer
+                          {t("account.addresses.actions.delete", "Supprimer")}
                         </button>
                       </div>
                     </div>
@@ -498,7 +509,7 @@ export default function Profile() {
               </div>
             ) : (
               <div className="border rounded-4 p-4 text-secondary">
-                Aucune adresse enregistree pour le moment.
+                {t("account.addresses.empty", "Aucune adresse enregistree pour le moment.")}
               </div>
             )}
           </div>
@@ -506,17 +517,17 @@ export default function Profile() {
           <div className="col-12 col-xl-5">
             <form onSubmit={handleAddressSubmit} className="row g-3">
               <div className="col-12">
-                <label className="form-label">Label</label>
+                <label className="form-label">{t("account.addresses.form.label", "Label")}</label>
                 <input
                   className={`form-control ${addressErrors.label ? "is-invalid" : ""}`}
                   value={addressForm.label}
                   onChange={(e) => setAddressForm((prev) => ({ ...prev, label: e.target.value }))}
-                  placeholder="Ex: Maison, Bureau"
+                  placeholder={t("account.addresses.placeholders.label", "Ex: Maison, Bureau")}
                 />
                 {addressErrors.label ? <div className="invalid-feedback">{addressErrors.label[0]}</div> : null}
               </div>
               <div className="col-12">
-                <label className="form-label">Nom complet</label>
+                <label className="form-label">{t("account.addresses.form.fullName", "Nom complet")}</label>
                 <input
                   className={`form-control ${addressErrors.full_name ? "is-invalid" : ""}`}
                   value={addressForm.full_name}
@@ -525,7 +536,7 @@ export default function Profile() {
                 {addressErrors.full_name ? <div className="invalid-feedback">{addressErrors.full_name[0]}</div> : null}
               </div>
               <div className="col-12">
-                <label className="form-label">Telephone</label>
+                <label className="form-label">{t("account.addresses.form.phone", "Telephone")}</label>
                 <input
                   className={`form-control ${addressErrors.phone ? "is-invalid" : ""}`}
                   value={addressForm.phone}
@@ -534,7 +545,7 @@ export default function Profile() {
                 {addressErrors.phone ? <div className="invalid-feedback">{addressErrors.phone[0]}</div> : null}
               </div>
               <div className="col-12">
-                <label className="form-label">Adresse</label>
+                <label className="form-label">{t("account.addresses.form.address1", "Adresse")}</label>
                 <input
                   className={`form-control ${addressErrors.address_line1 ? "is-invalid" : ""}`}
                   value={addressForm.address_line1}
@@ -543,7 +554,7 @@ export default function Profile() {
                 {addressErrors.address_line1 ? <div className="invalid-feedback">{addressErrors.address_line1[0]}</div> : null}
               </div>
               <div className="col-12">
-                <label className="form-label">Complement</label>
+                <label className="form-label">{t("account.addresses.form.address2", "Complement")}</label>
                 <input
                   className={`form-control ${addressErrors.address_line2 ? "is-invalid" : ""}`}
                   value={addressForm.address_line2}
@@ -552,7 +563,7 @@ export default function Profile() {
                 {addressErrors.address_line2 ? <div className="invalid-feedback">{addressErrors.address_line2[0]}</div> : null}
               </div>
               <div className="col-md-6">
-                <label className="form-label">Ville</label>
+                <label className="form-label">{t("account.addresses.form.city", "Ville")}</label>
                 <input
                   className={`form-control ${addressErrors.city_name ? "is-invalid" : ""}`}
                   value={addressForm.city_name}
@@ -561,7 +572,7 @@ export default function Profile() {
                 {addressErrors.city_name ? <div className="invalid-feedback">{addressErrors.city_name[0]}</div> : null}
               </div>
               <div className="col-md-6">
-                <label className="form-label">Region</label>
+                <label className="form-label">{t("account.addresses.form.region", "Region")}</label>
                 <input
                   className={`form-control ${addressErrors.region ? "is-invalid" : ""}`}
                   value={addressForm.region}
@@ -570,7 +581,7 @@ export default function Profile() {
                 {addressErrors.region ? <div className="invalid-feedback">{addressErrors.region[0]}</div> : null}
               </div>
               <div className="col-md-6">
-                <label className="form-label">Latitude</label>
+                <label className="form-label">{t("account.addresses.form.latitude", "Latitude")}</label>
                 <input
                   className={`form-control ${addressErrors.latitude ? "is-invalid" : ""}`}
                   value={addressForm.latitude}
@@ -579,7 +590,7 @@ export default function Profile() {
                 {addressErrors.latitude ? <div className="invalid-feedback">{addressErrors.latitude[0]}</div> : null}
               </div>
               <div className="col-md-6">
-                <label className="form-label">Longitude</label>
+                <label className="form-label">{t("account.addresses.form.longitude", "Longitude")}</label>
                 <input
                   className={`form-control ${addressErrors.longitude ? "is-invalid" : ""}`}
                   value={addressForm.longitude}
@@ -594,16 +605,20 @@ export default function Profile() {
                     checked={Boolean(addressForm.is_default)}
                     onChange={(e) => setAddressForm((prev) => ({ ...prev, is_default: e.target.checked }))}
                   />
-                  <span>Definir comme adresse par defaut</span>
+                  <span>{t("account.addresses.form.default", "Definir comme adresse par defaut")}</span>
                 </label>
               </div>
               <div className="col-12 d-flex flex-wrap gap-2">
                 <button className="btn btn-dark" type="submit" disabled={addressLoading}>
-                  {addressLoading ? "Enregistrement..." : addressForm.id ? "Mettre a jour" : "Ajouter l'adresse"}
+                  {addressLoading
+                    ? t("account.actions.saving", "Enregistrement...")
+                    : addressForm.id
+                      ? t("account.addresses.actions.update", "Mettre a jour")
+                      : t("account.addresses.actions.add", "Ajouter l'adresse")}
                 </button>
                 {addressForm.id ? (
                   <button className="btn btn-outline-secondary" type="button" onClick={resetAddressForm}>
-                    Annuler
+                    {t("account.addresses.actions.cancel", "Annuler")}
                   </button>
                 ) : null}
               </div>

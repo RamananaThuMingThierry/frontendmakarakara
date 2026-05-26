@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { publicGalleryApi } from "../../api/public_gallery";
 import { useAuth } from "../../hooks/website/AuthContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 import { imageUrl } from "../../utils/Url";
 
 export default function GalleryClients() {
   const nav = useNavigate();
   const { isAuth, hydrating } = useAuth();
+  const { t } = useI18n();
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ export default function GalleryClients() {
       const data = await publicGalleryApi.list();
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
-      setError(e?.response?.data?.message || "Impossible de charger la galerie.");
+      setError(e?.response?.data?.message || t("galleryPage.errors.load", "Impossible de charger la galerie."));
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ export default function GalleryClients() {
     if (pendingId || hydrating) return;
 
     if (!isAuth) {
-      showToast("warning", "Connectez-vous pour aimer une image.");
+      showToast("warning", t("galleryPage.errors.loginToLike", "Connectez-vous pour aimer une image."));
       nav("/login");
       return;
     }
@@ -84,7 +86,7 @@ export default function GalleryClients() {
       );
     } catch (e) {
       setItems(previousItems);
-      showToast("danger", e?.response?.data?.message || "Impossible de mettre a jour le like.");
+      showToast("danger", e?.response?.data?.message || t("galleryPage.errors.like", "Impossible de mettre a jour le like."));
     } finally {
       setPendingId(null);
     }
@@ -96,25 +98,31 @@ export default function GalleryClients() {
         <div className="d-flex align-items-center justify-content-between mb-4">
           <div>
             <h2 className="fw-bold mb-1" style={{ fontFamily: "cursive" }}>
-              Galerie Clients
+              {t("galleryPage.title", "Galerie Clients")}
             </h2>
             <p className="text-secondary mb-0">
-              Tous les resultats de notre communaute
+              {t("galleryPage.subtitle", "Tous les resultats de notre communaute")}
             </p>
           </div>
 
           <Link to="/" className="btn btn-outline-dark btn-sm">
-            Retour
+            {t("galleryPage.actions.back", "Retour")}
           </Link>
         </div>
 
         <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
-          <span className="badge text-bg-dark rounded-pill px-3 py-2">{items.length} photos</span>
-          <span className="badge text-bg-light border rounded-pill px-3 py-2">{totalLikes} likes</span>
+          <span className="badge text-bg-dark rounded-pill px-3 py-2">
+            {t("galleryPage.stats.photos", "{{count}} photos").replace("{{count}}", items.length)}
+          </span>
+          <span className="badge text-bg-light border rounded-pill px-3 py-2">
+            {t("galleryPage.stats.likes", "{{count}} likes").replace("{{count}}", totalLikes)}
+          </span>
           {!isAuth ? (
-            <span className="text-muted small">Connectez-vous pour aimer une image.</span>
+            <span className="text-muted small">{t("galleryPage.hints.login", "Connectez-vous pour aimer une image.")}</span>
           ) : (
-            <span className="text-muted small">Un utilisateur peut laisser 1 like ou le retirer.</span>
+            <span className="text-muted small">
+              {t("galleryPage.hints.likeRule", "Un utilisateur peut laisser 1 like ou le retirer.")}
+            </span>
           )}
         </div>
 
@@ -123,10 +131,10 @@ export default function GalleryClients() {
         {loading ? (
           <div className="d-flex align-items-center gap-2 text-muted py-5">
             <span className="spinner-border spinner-border-sm" />
-            Chargement...
+            {t("galleryPage.loading", "Chargement...")}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center text-muted py-5">Aucune image disponible.</div>
+          <div className="text-center text-muted py-5">{t("galleryPage.empty", "Aucune image disponible.")}</div>
         ) : (
           <div className="row g-3">
             {items.map((image) => {
@@ -138,7 +146,7 @@ export default function GalleryClients() {
                   <div className="client-card position-relative overflow-hidden rounded-4 bg-white border shadow-sm">
                     <img
                       src={imageUrl(image.image_url)}
-                      alt={image.name || `Client ${image.id}`}
+                      alt={image.name || t("galleryPage.imageAlt", "Client")}
                       className="w-100 h-100 object-fit-cover"
                       style={{ height: 260 }}
                       loading="lazy"
@@ -146,7 +154,7 @@ export default function GalleryClients() {
 
                     <div className="position-absolute top-0 start-0 end-0 p-3 d-flex justify-content-between align-items-start">
                       <span className="badge bg-dark bg-opacity-75 rounded-pill">
-                        {image.name || "Client"}
+                        {image.name || t("galleryPage.clientLabel", "Client")}
                       </span>
 
                       <button
@@ -175,7 +183,7 @@ export default function GalleryClients() {
         )}
 
         <div className="text-center text-secondary small mt-4">
-          Galerie alimentee depuis l'administration.
+          {t("galleryPage.footer", "Galerie alimentee depuis l'administration.")}
         </div>
       </div>
 

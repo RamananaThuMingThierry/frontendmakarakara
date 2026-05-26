@@ -1,0 +1,24 @@
+{
+  "logoAlt": "Logo",
+  "menu": "Menu",
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "cart": "Cart",
+    "about": "About",
+    "contact": "Contact",
+    "favorites": "Favorites"
+  },
+  "actions": {
+    "openNavigation": "Open navigation"
+  },
+  "language": {
+    "choose": "Choose language",
+    "label": "Language"
+  },
+  "account": {
+    "label": "Account",
+    "mySpace": "My space",
+    "logout": "Logout"
+  }
+}

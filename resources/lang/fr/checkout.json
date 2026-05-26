@@ -1,0 +1,94 @@
+{
+  "title": "Livraison",
+  "subtitle": "Remplissez vos informations et partagez votre position pour faciliter la livraison.",
+  "loginRequired": "Connectez-vous avant de commander.",
+  "fields": {
+    "fullName": "Nom complet",
+    "phone": "Téléphone",
+    "savedAddress": "Adresse enregistrée",
+    "city": "Ville",
+    "address": "Adresse",
+    "address2": "Complément (optionnel)",
+    "region": "Région (optionnel)",
+    "gps": "Position GPS (optionnel)",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "notes": "Notes (optionnel)"
+  },
+  "placeholders": {
+    "fullName": "Ex. : RAKOTO Jean",
+    "phone": "Ex: 034 12 345 67",
+    "city": "Ex: Antananarivo",
+    "address": "Quartier, rue, lot...",
+    "address2": "Ex. : étage, bâtiment...",
+    "region": "Ex. : Analamanga",
+    "notes": "Ex. : Appeler avant d'arriver, repère, portail bleu..."
+  },
+  "sections": {
+    "customerInfo": "Informations client",
+    "deliveryAddress": "Adresse de livraison",
+    "payment": "Paiement"
+  },
+  "address": {
+    "loading": "Chargement des adresses...",
+    "chooseSaved": "Choisir une adresse enregistrée",
+    "noneSaved": "Aucune adresse enregistrée",
+    "fallback": "Adresse",
+    "default": "Par défaut",
+    "manageHint": "Vous pouvez gérer vos adresses depuis votre espace client."
+  },
+  "geo": {
+    "notSupported": "La géolocalisation n'est pas supportée sur cet appareil.",
+    "secureRequired": "La géolocalisation du navigateur exige une connexion sécurisée. Utilisez HTTPS ou localhost, ou saisissez manuellement la latitude et la longitude.",
+    "secureRequiredShort": "La géolocalisation du navigateur exige HTTPS ou localhost. Utilisez une connexion sécurisée, ou renseignez manuellement la latitude et la longitude.",
+    "unablePosition": "Impossible de récupérer votre position ({{message}}).",
+    "savedPosition": "Position enregistrée",
+    "accuracy": "précision env.",
+    "capturedAt": "relevée à",
+    "help": "Autorisez la géolocalisation pour accélérer la livraison. Si besoin, vous pouvez aussi coller manuellement la latitude et la longitude. La détection automatique fonctionne sur HTTPS ou localhost. Vous pouvez valider la commande même sans position GPS."
+  },
+  "payment": {
+    "loading": "Chargement des moyens de paiement...",
+    "pendingVerification": "(paiement en attente de vérification)",
+    "payOnDelivery": "(payer à la livraison)",
+    "mobileMoneyHelp": "Le choix Mobile Money ne valide pas le paiement. La commande sera créée avec un paiement en attente de vérification.",
+    "cashHelp": "Le choix espèce crée une commande non payée. Le paiement sera confirmé ultérieurement."
+  },
+  "summary": {
+    "title": "Récapitulatif",
+    "count": "{{count}} article(s)",
+    "coupon": "Coupon",
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "delivery": "Livraison",
+    "deliveryPending": "À confirmer par l'administration",
+    "total": "Total provisoire",
+    "products": "Produits",
+    "footer": "En validant, vous acceptez les conditions de vente. Le frais de livraison sera fixé par l'administration selon la distance et peut être gratuit."
+  },
+  "actions": {
+    "goShop": "Aller à la boutique",
+    "backToCart": "Retour au panier",
+    "useMyPosition": "Utiliser ma position",
+    "locating": "Localisation...",
+    "map": "Carte",
+    "submit": "Valider la commande",
+    "validating": "Validation..."
+  },
+  "empty": {
+    "alt": "Panier vide",
+    "title": "Votre panier est vide",
+    "subtitle": "Ajoutez des produits pour passer commande."
+  },
+  "errors": {
+    "loadPaymentMethods": "Impossible de charger les moyens de paiement.",
+    "nameRequired": "Veuillez saisir votre nom.",
+    "phoneRequired": "Veuillez saisir votre téléphone.",
+    "cityRequired": "Veuillez saisir la ville.",
+    "addressRequired": "Veuillez saisir l'adresse.",
+    "paymentRequired": "Veuillez choisir un moyen de paiement.",
+    "emptyCart": "Votre panier est vide.",
+    "noPaymentMethods": "Aucun moyen de paiement actif n'est disponible pour le moment.",
+    "createOrder": "Impossible de créer la commande."
+  }
+}

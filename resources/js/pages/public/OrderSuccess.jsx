@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
 }
 
 export default function OrderSuccess() {
+  const { t } = useI18n();
   const { orderNumber } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -25,20 +27,20 @@ export default function OrderSuccess() {
 
   const paymentTitle = useMemo(() => {
     if (paymentMethodName) return paymentMethodName;
-    if (paymentMethod === "mobile_money") return "Mobile money";
-    return "Espece";
-  }, [paymentMethod, paymentMethodName]);
+    if (paymentMethod === "mobile_money") return t("orderSuccess.payment.mobileMoney", "Mobile money");
+    return t("orderSuccess.payment.cash", "Espece");
+  }, [paymentMethod, paymentMethodName, t]);
 
   const paymentStatusLabel = useMemo(() => {
     const labels = {
-      unpaid: "Non paye",
-      pending_verification: "En attente de verification",
-      paid: "Paye",
-      refunded: "Rembourse",
+      unpaid: t("orderSuccess.status.unpaid", "Non paye"),
+      pending_verification: t("orderSuccess.status.pendingVerification", "En attente de verification"),
+      paid: t("orderSuccess.status.paid", "Paye"),
+      refunded: t("orderSuccess.status.refunded", "Rembourse"),
     };
 
     return labels[paymentStatus] || paymentStatus;
-  }, [paymentStatus]);
+  }, [paymentStatus, t]);
 
   const mobileMoneyNumber = "+261329790536";
   const mobileMoneyName = "MAHAKARAKARA";
@@ -48,24 +50,28 @@ export default function OrderSuccess() {
       <div className="container py-5 text-center">
         <img
           src="/images/checked.png"
-          alt="Commande"
+          alt={t("orderSuccess.empty.alt", "Commande")}
           className="img-fluid mb-4"
           style={{ maxWidth: 260, opacity: 0.9 }}
         />
-        <h5 className="fw-semibold">Commande créée</h5>
+        <h5 className="fw-semibold">{t("orderSuccess.empty.title", "Commande creee")}</h5>
         <p className="text-muted">
-          Référence : <span className="fw-semibold">{orderNumber}</span>
+          {t("orderSuccess.labels.reference", "Reference")} :{" "}
+          <span className="fw-semibold">{orderNumber}</span>
         </p>
         <p className="text-muted">
-          Pour voir le détail, reconnecte-toi ou retourne à la boutique.
+          {t(
+            "orderSuccess.empty.subtitle",
+            "Pour voir le detail, reconnectez-vous ou retournez a la boutique."
+          )}
         </p>
 
         <div className="d-flex justify-content-center gap-2">
           <Link to="/shop" className="btn btn-dark">
-            Continuer vos achats
+            {t("orderSuccess.actions.continueShopping", "Continuer vos achats")}
           </Link>
           <button className="btn btn-outline-dark" onClick={() => navigate("/cart")}>
-            Voir panier
+            {t("orderSuccess.actions.viewCart", "Voir panier")}
           </button>
         </div>
       </div>
@@ -78,26 +84,36 @@ export default function OrderSuccess() {
         <div className="text-center mb-4">
           <img
             src="/images/checked.png"
-            alt="Commande validee"
+            alt={t("orderSuccess.hero.alt", "Commande validee")}
             className="img-fluid mb-3"
             style={{ maxWidth: 140 }}
           />
 
-          <h1 className="fw-bold mb-1">Votre commande est créée</h1>
+          <h1 className="fw-bold mb-1">{t("orderSuccess.hero.title", "Votre commande est creee")}</h1>
           <p className="text-secondary mb-0">
-            Merci. Votre commande a bien été enregistrée.
+            {t("orderSuccess.hero.subtitle", "Merci. Votre commande a bien ete enregistree.")}
           </p>
 
           <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-            <span className="badge bg-dark">Commande : {orderStatus}</span>
-            <span className={`badge bg-${paymentStatus === "paid" ? "success" : paymentStatus === "pending_verification" ? "warning" : "secondary"}`}>
-              Paiement : {paymentStatusLabel}
+            <span className="badge bg-dark">
+              {t("orderSuccess.labels.order", "Commande")} : {orderStatus}
+            </span>
+            <span
+              className={`badge bg-${
+                paymentStatus === "paid"
+                  ? "success"
+                  : paymentStatus === "pending_verification"
+                    ? "warning"
+                    : "secondary"
+              }`}
+            >
+              {t("orderSuccess.labels.payment", "Paiement")} : {paymentStatusLabel}
             </span>
           </div>
 
           <div className="mt-3">
             <span className="badge bg-dark fs-6">
-              Référence : {data.order_number || orderNumber}
+              {t("orderSuccess.labels.reference", "Reference")} : {data.order_number || orderNumber}
             </span>
           </div>
         </div>
@@ -105,7 +121,9 @@ export default function OrderSuccess() {
         <div className="row g-4">
           <div className="col-12 col-lg-7">
             <div className="bg-white rounded-4 shadow-sm p-4 mb-4">
-              <h5 className="fw-bold mb-3">Récapitulatif des articles</h5>
+              <h5 className="fw-bold mb-3">
+                {t("orderSuccess.sections.items", "Recapitulatif des articles")}
+              </h5>
 
               {items.map((i) => (
                 <div key={i.id} className="d-flex gap-3 py-3 border-bottom">
@@ -117,7 +135,9 @@ export default function OrderSuccess() {
                   />
                   <div className="flex-grow-1">
                     <div className="fw-semibold">{i.name}</div>
-                    <div className="text-secondary small">Quantité : {i.qty}</div>
+                    <div className="text-secondary small">
+                      {t("orderSuccess.labels.quantity", "Quantite")} : {i.qty}
+                    </div>
                   </div>
                   <div className="fw-semibold text-danger">
                     {formatPriceMGA((i.price || 0) * (i.qty || 0))}
@@ -127,33 +147,35 @@ export default function OrderSuccess() {
 
               <div className="pt-3 d-flex justify-content-between">
                 <Link to="/shop" className="btn btn-outline-dark">
-                  Continuer vos achats
+                  {t("orderSuccess.actions.continueShopping", "Continuer vos achats")}
                 </Link>
                 <Link to="/cart" className="btn btn-dark">
-                  Retour au panier
+                  {t("orderSuccess.actions.backToCart", "Retour au panier")}
                 </Link>
               </div>
             </div>
 
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Adresse de livraison</h5>
+              <h5 className="fw-bold mb-3">
+                {t("orderSuccess.sections.deliveryAddress", "Adresse de livraison")}
+              </h5>
 
               {address ? (
                 <>
                   <div className="mb-2">
-                    <span className="text-secondary">Nom :</span>{" "}
+                    <span className="text-secondary">{t("orderSuccess.address.name", "Nom")} :</span>{" "}
                     <span className="fw-semibold">{address.full_name}</span>
                   </div>
                   <div className="mb-2">
-                    <span className="text-secondary">Téléphone :</span>{" "}
+                    <span className="text-secondary">{t("orderSuccess.address.phone", "Telephone")} :</span>{" "}
                     <span className="fw-semibold">{address.phone}</span>
                   </div>
                   <div className="mb-2">
-                    <span className="text-secondary">Ville :</span>{" "}
+                    <span className="text-secondary">{t("orderSuccess.address.city", "Ville")} :</span>{" "}
                     <span className="fw-semibold">{address.city_name}</span>
                   </div>
                   <div className="mb-2">
-                    <span className="text-secondary">Adresse :</span>{" "}
+                    <span className="text-secondary">{t("orderSuccess.address.address", "Adresse")} :</span>{" "}
                     <span className="fw-semibold">{address.address_line1}</span>
                     {address.address_line2 ? (
                       <span className="text-secondary"> - {address.address_line2}</span>
@@ -161,14 +183,14 @@ export default function OrderSuccess() {
                   </div>
                   {address.region ? (
                     <div className="mb-2">
-                      <span className="text-secondary">Région :</span>{" "}
+                      <span className="text-secondary">{t("orderSuccess.address.region", "Region")} :</span>{" "}
                       <span className="fw-semibold">{address.region}</span>
                     </div>
                   ) : null}
                 </>
               ) : (
                 <div className="text-secondary">
-                  Adresse non disponible.
+                  {t("orderSuccess.address.unavailable", "Adresse non disponible.")}
                 </div>
               )}
             </div>
@@ -176,84 +198,104 @@ export default function OrderSuccess() {
 
           <div className="col-12 col-lg-5">
             <div className="bg-white rounded-4 shadow-sm p-4 mb-4">
-              <h5 className="fw-bold mb-3">Totaux</h5>
+              <h5 className="fw-bold mb-3">{t("orderSuccess.sections.totals", "Totaux")}</h5>
 
               {couponCode ? (
                 <div className="text-secondary small mb-3">
-                  Coupon applique : <span className="fw-semibold">{couponCode}</span>
+                  {t("orderSuccess.labels.coupon", "Coupon applique")} :{" "}
+                  <span className="fw-semibold">{couponCode}</span>
                 </div>
               ) : null}
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Sous-total</span>
+                <span>{t("orderSuccess.totals.subtotal", "Sous-total")}</span>
                 <span className="fw-semibold">{formatPriceMGA(subtotal)}</span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Remise</span>
+                <span>{t("orderSuccess.totals.discount", "Remise")}</span>
                 <span className="fw-semibold">
                   {discountTotal > 0 ? `- ${formatPriceMGA(discountTotal)}` : "-"}
                 </span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Livraison</span>
+                <span>{t("orderSuccess.totals.delivery", "Livraison")}</span>
                 <span className="fw-semibold">
-                  {deliveryFee > 0 ? formatPriceMGA(deliveryFee) : "A confirmer par l'administration"}
+                  {deliveryFee > 0
+                    ? formatPriceMGA(deliveryFee)
+                    : t("orderSuccess.totals.deliveryPending", "A confirmer par l'administration")}
                 </span>
               </div>
 
               <hr />
 
               <div className="d-flex justify-content-between">
-                <span className="fw-bold">Total</span>
+                <span className="fw-bold">{t("orderSuccess.totals.total", "Total")}</span>
                 <span className="fw-bold text-danger">{formatPriceMGA(total)}</span>
               </div>
             </div>
 
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-2">Paiement : {paymentTitle}</h5>
+              <h5 className="fw-bold mb-2">
+                {t("orderSuccess.labels.payment", "Paiement")} : {paymentTitle}
+              </h5>
 
               {paymentMethod === "cash" ? (
                 <div className="text-secondary">
                   <p className="mb-2">
-                    Le total final à payer sera confirmé après définition du frais de livraison par l'administration.
+                    {t(
+                      "orderSuccess.payment.cashDescription",
+                      "Le total final a payer sera confirme apres definition du frais de livraison par l'administration."
+                    )}
                   </p>
                   <div className="alert alert-warning mb-0">
-                    La commande reste en attente de confirmation. L'administration fixera le frais de livraison avant confirmation finale.
+                    {t(
+                      "orderSuccess.payment.cashWarning",
+                      "La commande reste en attente de confirmation. L'administration fixera le frais de livraison avant confirmation finale."
+                    )}
                   </div>
                 </div>
               ) : (
                 <div className="text-secondary">
                   <p className="mb-2">
-                    Effectuez le paiement via mobile money, puis gardez la preuve. Le paiement ne sera valide qu'après vérification manuelle.
+                    {t(
+                      "orderSuccess.payment.mobileMoneyDescription",
+                      "Effectuez le paiement via mobile money, puis gardez la preuve. Le paiement ne sera valide qu'apres verification manuelle."
+                    )}
                   </p>
 
                   <div className="border rounded-3 p-3 bg-light">
                     <div className="fw-semibold text-dark">{mobileMoneyName}</div>
                     <div className="mt-1">
-                      Numéro : <span className="fw-semibold">{mobileMoneyNumber}</span>
+                      {t("orderSuccess.payment.number", "Numero")} :{" "}
+                      <span className="fw-semibold">{mobileMoneyNumber}</span>
                     </div>
                     <div className="mt-1">
-                      Montant : <span className="fw-semibold">{formatPriceMGA(total)}</span>
+                      {t("orderSuccess.payment.amount", "Montant")} :{" "}
+                      <span className="fw-semibold">{formatPriceMGA(total)}</span>
                     </div>
                     <div className="mt-1">
-                      Référence : <span className="fw-semibold">{data.order_number || orderNumber}</span>
+                      {t("orderSuccess.labels.reference", "Reference")} :{" "}
+                      <span className="fw-semibold">{data.order_number || orderNumber}</span>
                     </div>
                   </div>
 
                   <small className="d-block mt-2">
-                    Après paiement, notre équipe confirmera la commande puis générera le reçu.
+                    {t(
+                      "orderSuccess.payment.mobileMoneyHint",
+                      "Apres paiement, notre equipe confirmera la commande puis generera le recu."
+                    )}
                   </small>
                 </div>
               )}
 
               <div className="d-grid gap-2 mt-4">
                 <Link to="/shop" className="btn btn-dark">
-                  Retour à la boutique
+                  {t("orderSuccess.actions.backToShop", "Retour a la boutique")}
                 </Link>
                 <Link to="/contact" className="btn btn-outline-dark">
-                  Besoin d'aide ?
+                  {t("orderSuccess.actions.needHelp", "Besoin d'aide ?")}
                 </Link>
               </div>
             </div>

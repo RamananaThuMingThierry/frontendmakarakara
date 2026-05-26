@@ -1,0 +1,30 @@
+{
+  "title": "Vérification du code",
+  "subtitle": "Entrez le code reçu par email. Il reste valable",
+  "minutes": "minutes",
+  "fields": {
+    "email": "Email",
+    "code": "Code"
+  },
+  "placeholders": {
+    "email": "email@gmail.com",
+    "code": "123456"
+  },
+  "actions": {
+    "submit": "Vérifier le code",
+    "loading": "Vérification...",
+    "resend": "Renvoyer le code",
+    "changeEmail": "Changer email",
+    "login": "Connexion"
+  },
+  "success": {
+    "resent": "Un nouveau code a été envoyé."
+  },
+  "errors": {
+    "emailRequired": "Veuillez entrer votre email.",
+    "codeLength": "Veuillez entrer le code à 6 chiffres.",
+    "invalid": "Code invalide.",
+    "emailBeforeResend": "Entrez votre email avant de renvoyer le code.",
+    "resendFailed": "Impossible de renvoyer le code."
+  }
+}

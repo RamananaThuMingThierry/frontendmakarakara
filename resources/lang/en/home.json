@@ -1,0 +1,159 @@
+{
+  "hero": {
+    "fallback1": {
+      "title": "Enhance your hair",
+      "subtitle": "Discover our exclusive range of hair care and accessories with professional quality."
+    },
+    "fallback2": {
+      "title": "New arrivals and best sellers",
+      "subtitle": "Find our customers' favorite products and current offers in the shop."
+    },
+    "actions": {
+      "review": "Leave a review",
+      "shop": "View shop"
+    },
+    "slide": "Slide",
+    "slideAlt": "Slide",
+    "defaultTitle": "Welcome",
+    "defaultSubtitle": "Discover our products and services.",
+    "highlights": {
+      "clients": "+5000 happy clients",
+      "clientsText": "They trust us every day",
+      "delivery": "Fast delivery",
+      "deliveryText": "Accurate GPS tracking",
+      "reviews": "Verified reviews",
+      "reviewsText": "Reliable products"
+    },
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "features": {
+    "gps": {
+      "title": "GPS delivery",
+      "text": "Real-time tracking of your order with precise geolocation"
+    },
+    "quality": {
+      "title": "Guaranteed quality",
+      "text": "All our products are certified and professionally made"
+    },
+    "return": {
+      "title": "Easy return",
+      "text": "30 days to return your product if you are not satisfied"
+    },
+    "support": {
+      "title": "24/7 support",
+      "text": "Our team is available to assist you at any time"
+    }
+  },
+  "clients": {
+    "title": "Happy Clients",
+    "subtitle": "Discover real results from our community",
+    "loading": "Loading...",
+    "empty": "No image available.",
+    "imageAlt": "Happy client",
+    "clientLabel": "Client",
+    "actions": {
+      "morePhotos": "See more photos"
+    },
+    "errors": {
+      "load": "Unable to load the gallery.",
+      "loginToLike": "Sign in to like an image.",
+      "like": "Unable to update the like."
+    }
+  },
+  "testimonials": {
+    "title": "Testimonials",
+    "subtitle": "What our clients say about us",
+    "loading": "Loading...",
+    "empty": "No review published yet.",
+    "clientLabel": "Client",
+    "actions": {
+      "more": "See more",
+      "leaveReview": "Leave a review"
+    }
+  },
+  "products": {
+    "title": "Our products",
+    "subtitle": "Real products, favorites, customer reviews, and statuses updated from the shop.",
+    "loading": "Loading products...",
+    "count": "{{count}} product(s) displayed",
+    "cityRule": "An order must contain products from a single city. If you buy in Antananarivo, only choose products from Antananarivo. For another city, place a separate order.",
+    "cityCount": "{{count}} city(ies)",
+    "availableCities": "Available cities",
+    "reviewCount": "{{rating}} ({{count}} review(s))",
+    "noReview": "No review yet",
+    "empty": "No products match your search.",
+    "filters": {
+      "best": "Best sellers",
+      "new": "New arrivals",
+      "allCities": "All cities",
+      "search": "Search for a product..."
+    },
+    "badges": {
+      "promo": "Promo",
+      "new": "New",
+      "best": "Best"
+    },
+    "labels": {
+      "product": "Product",
+      "uncategorized": "Uncategorized",
+      "city": "City"
+    },
+    "actions": {
+      "chooseCity": "Choose a city",
+      "allProducts": "View all products",
+      "leaveRating": "Leave a rating"
+    },
+    "errors": {
+      "load": "Unable to load products."
+    }
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "A question about a product, an order, or a collaboration? Write to us.",
+    "cardTitle": "Get in touch",
+    "cardText": "We usually reply within 24 hours. For an order, include your order number if possible.",
+    "footer": "By sending this form, you agree to be contacted regarding your request.",
+    "messages": {
+      "success": "Message sent successfully.",
+      "error": "An error occurred while sending the message. Please try again."
+    },
+    "labels": {
+      "email": "Email",
+      "supportOrders": "Support & orders",
+      "phoneWhatsapp": "Phone / WhatsApp",
+      "hoursShort": "Mon-Sat - 08:00-18:00",
+      "location": "Location"
+    },
+    "badges": {
+      "reply": "Reply within 24h",
+      "payment": "Secure payment",
+      "return": "30-day return"
+    },
+    "form": {
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "subject": "Subject",
+      "message": "Message"
+    },
+    "placeholders": {
+      "name": "Your name",
+      "email": "Your email",
+      "message": "Write your message..."
+    },
+    "subjects": {
+      "choose": "Choose...",
+      "order": "Question about an order",
+      "product": "Question about a product",
+      "return": "Return / exchange",
+      "collab": "Collaboration",
+      "other": "Other"
+    },
+    "actions": {
+      "sending": "Sending...",
+      "send": "Send",
+      "reset": "Reset"
+    }
+  }
+}

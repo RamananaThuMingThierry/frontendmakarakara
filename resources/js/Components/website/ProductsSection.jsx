@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { inventoryApi } from "../../api/inventories";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
+import { useI18n } from "../../hooks/website/I18nContext";
 import AddToCartToggle from "./AddToCartToggle";
 import FavoriteButton from "./FavoriteButton";
 
@@ -59,6 +60,7 @@ function Stars({ value }) {
 }
 
 export default function ProductsSection() {
+  const { t } = useI18n();
   const [active, setActive] = useState("best");
   const [city, setCity] = useState("all");
   const [q, setQ] = useState("");
@@ -86,7 +88,7 @@ export default function ProductsSection() {
         setTestimonials(Array.isArray(testimonialData) ? testimonialData : []);
       } catch (err) {
         if (cancelled) return;
-        setError(err?.response?.data?.message || "Impossible de charger les produits.");
+        setError(err?.response?.data?.message || t("home.products.errors.load", "Impossible de charger les produits."));
         setInventories([]);
         setTestimonials([]);
       } finally {
@@ -99,7 +101,7 @@ export default function ProductsSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const testimonialStats = useMemo(() => {
     const stats = new Map();
@@ -124,13 +126,13 @@ export default function ProductsSection() {
 
     inventories.forEach((inventory) => {
       const product = inventory?.product;
-      const city = inventory?.city;
+      const currentCity = inventory?.city;
 
       if (
         !product?.id ||
         inventory?.is_available !== true ||
         product?.is_active !== true ||
-        city?.is_active !== true
+        currentCity?.is_active !== true
       ) {
         return;
       }
@@ -149,12 +151,12 @@ export default function ProductsSection() {
         product_encrypted_id: product.encrypted_id || null,
         inventory_id: inventory.id ?? null,
         encrypted_inventory_id: inventory.encrypted_id || null,
-        city_id: city?.id ?? inventory?.city_id ?? null,
-        city_name: city?.name || "",
-        name: product.name || "Produit",
+        city_id: currentCity?.id ?? inventory?.city_id ?? null,
+        city_name: currentCity?.name || "",
+        name: product.name || t("home.products.labels.product", "Produit"),
         description: product.description || "",
         category_key: product?.category?.id ? String(product.category.id) : "other",
-        category_name: product?.category?.name || "Sans categorie",
+        category_name: product?.category?.name || t("home.products.labels.uncategorized", "Sans categorie"),
         brand_name: product?.brand?.name || "",
         price: currentPrice,
         compare_price: comparePrice,
@@ -169,9 +171,9 @@ export default function ProductsSection() {
       if (!existing) {
         grouped.set(product.id, {
           ...mapped,
-          city_ids: city?.id ? [String(city.id)] : [],
-          city_names: city?.name ? [city.name] : [],
-          city_count: city?.name ? 1 : 0,
+          city_ids: currentCity?.id ? [String(currentCity.id)] : [],
+          city_names: currentCity?.name ? [currentCity.name] : [],
+          city_count: currentCity?.name ? 1 : 0,
         });
         return;
       }
@@ -182,8 +184,12 @@ export default function ProductsSection() {
         nextDiscount > existingDiscount ||
         (nextDiscount === existingDiscount && mapped.price < existing.price);
 
-      const mergedCityIds = Array.from(new Set([...existing.city_ids, ...(city?.id ? [String(city.id)] : [])]));
-      const mergedCityNames = Array.from(new Set([...existing.city_names, ...(city?.name ? [city.name] : [])]));
+      const mergedCityIds = Array.from(
+        new Set([...existing.city_ids, ...(currentCity?.id ? [String(currentCity.id)] : [])])
+      );
+      const mergedCityNames = Array.from(
+        new Set([...existing.city_names, ...(currentCity?.name ? [currentCity.name] : [])])
+      );
 
       grouped.set(product.id, {
         ...(shouldReplaceCard ? mapped : existing),
@@ -194,7 +200,7 @@ export default function ProductsSection() {
     });
 
     return Array.from(grouped.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [inventories, testimonialStats]);
+  }, [inventories, t, testimonialStats]);
 
   const bestProductIds = useMemo(() => {
     return new Set(
@@ -220,11 +226,11 @@ export default function ProductsSection() {
     ).sort((a, b) => a.label.localeCompare(b.label));
 
     return [
-      { key: "best", label: "Best sellers" },
-      { key: "new", label: "Nouveautes" },
+      { key: "best", label: t("home.products.filters.best", "Best sellers") },
+      { key: "new", label: t("home.products.filters.new", "Nouveautes") },
       ...dynamic,
     ];
-  }, [products]);
+  }, [products, t]);
 
   const cities = useMemo(() => {
     const seen = new Map();
@@ -244,15 +250,15 @@ export default function ProductsSection() {
 
       seen.set(currentCity.id, {
         key: String(currentCity.id),
-        label: currentCity.name || `Ville ${currentCity.id}`,
+        label: currentCity.name || `${t("home.products.labels.city", "Ville")} ${currentCity.id}`,
       });
     });
 
     return [
-      { key: "all", label: "Toutes les villes" },
+      { key: "all", label: t("home.products.filters.allCities", "Toutes les villes") },
       ...Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label)),
     ];
-  }, [inventories]);
+  }, [inventories, t]);
 
   const filtered = useMemo(() => {
     let list = [...products];
@@ -290,43 +296,51 @@ export default function ProductsSection() {
         : false;
 
       const badges = [];
-      if (discount > 0) badges.push({ key: "promo", label: `Promo -${discount}%`, tone: getBadgeTone("promo") });
-      if (isNew) badges.push({ key: "new", label: "Nouveau", tone: getBadgeTone("new") });
-      if (bestProductIds.has(item.id)) badges.push({ key: "best", label: "Best", tone: getBadgeTone("best") });
+      if (discount > 0) {
+        badges.push({
+          key: "promo",
+          label: `${t("home.products.badges.promo", "Promo")} -${discount}%`,
+          tone: getBadgeTone("promo"),
+        });
+      }
+      if (isNew) badges.push({ key: "new", label: t("home.products.badges.new", "Nouveau"), tone: getBadgeTone("new") });
+      if (bestProductIds.has(item.id)) {
+        badges.push({ key: "best", label: t("home.products.badges.best", "Best"), tone: getBadgeTone("best") });
+      }
 
       return { ...item, badges };
     });
-  }, [active, bestProductIds, city, products, q]);
+  }, [active, bestProductIds, city, products, q, t]);
 
   return (
     <section className="py-5" style={{ background: "#fbf7ec" }}>
       <div className="container">
         <div className="text-center mb-4">
           <h2 className="fw-bold mb-2" style={{ fontFamily: "cursive" }}>
-            Nos Produits
+            {t("home.products.title", "Nos Produits")}
           </h2>
           <p className="text-secondary mb-0">
-            Produits reels, favoris, avis clients et statuts mis a jour depuis la boutique.
+            {t(
+              "home.products.subtitle",
+              "Produits reels, favoris, avis clients et statuts mis a jour depuis la boutique."
+            )}
           </p>
         </div>
 
         <div className="d-flex flex-column gap-3 mb-4">
-<ul className="nav nav-pills gap-2 flex-wrap justify-content-center">
-  {categories.map((c) => (
-    <li className="nav-item" key={c.key}>
-      <button
-        className={
-          "nav-link text-dark" +
-          (active === c.key ? " active bg-dark text-white" : "")
-        }
-        onClick={() => setActive(c.key)}
-        type="button"
-      >
-        {c.label}
-      </button>
-    </li>
-  ))}
-</ul>
+          <ul className="nav nav-pills gap-2 flex-wrap justify-content-center">
+            {categories.map((c) => (
+              <li className="nav-item" key={c.key}>
+                <button
+                  className={"nav-link text-dark" + (active === c.key ? " active bg-dark text-white" : "")}
+                  onClick={() => setActive(c.key)}
+                  type="button"
+                >
+                  {c.label}
+                </button>
+              </li>
+            ))}
+          </ul>
 
           <div className="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
             <div className="w-100" style={{ maxWidth: 260 }}>
@@ -349,7 +363,7 @@ export default function ProductsSection() {
               </span>
               <input
                 className="form-control"
-                placeholder="Rechercher un produit..."
+                placeholder={t("home.products.filters.search", "Rechercher un produit...")}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
@@ -360,25 +374,28 @@ export default function ProductsSection() {
         {error ? <div className="alert alert-danger mb-4">{error}</div> : null}
 
         <div className="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, prenez uniquement
-        les produits de Antananarivo. Pour une autre ville, faites une commande separee.
-
-        <button 
-            type="button" 
-            className="btn-close" 
-            data-bs-dismiss="alert" 
-            aria-label="Close"
-        ></button>
+          {t(
+            "home.products.cityRule",
+            "Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, prenez uniquement les produits de Antananarivo. Pour une autre ville, faites une commande separee."
+          )}
+          <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="alert"
+            aria-label={t("common.close", "Close")}
+          ></button>
         </div>
 
         <div className="text-secondary small mb-3">
-          {loading ? "Chargement des produits..." : `${filtered.length} produit(s) affiché(s)`}
+          {loading
+            ? t("home.products.loading", "Chargement des produits...")
+            : t("home.products.count", "{{count}} produit(s) affiches").replace("{{count}}", filtered.length)}
         </div>
 
         <div className="row g-4">
           {loading && (
             <div className="col-12">
-              <div className="alert alert-light mb-0">Chargement des produits...</div>
+              <div className="alert alert-light mb-0">{t("home.products.loading", "Chargement des produits...")}</div>
             </div>
           )}
 
@@ -406,16 +423,17 @@ export default function ProductsSection() {
                       ))}
                     </div>
 
-                    <FavoriteButton
-                      product={p}
-                      className="position-absolute top-0 end-0 m-2"
-                    />
+                    <FavoriteButton product={p} className="position-absolute top-0 end-0 m-2" />
                   </div>
 
                   <div className="card-body d-flex flex-column">
                     <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
                       <small className="text-uppercase text-secondary">{p.category_name}</small>
-                      {p.city_count > 0 && <span className="badge text-bg-light">{p.city_count} ville(s)</span>}
+                      {p.city_count > 0 && (
+                        <span className="badge text-bg-light">
+                          {t("home.products.cityCount", "{{count}} ville(s)").replace("{{count}}", p.city_count)}
+                        </span>
+                      )}
                     </div>
 
                     <Link to={`/product/${p.product_encrypted_id}`} className="text-decoration-none text-dark">
@@ -430,7 +448,9 @@ export default function ProductsSection() {
 
                     {p.city_names.length > 0 ? (
                       <div className="mb-3">
-                        <div className="small text-secondary mb-1">Villes disponibles</div>
+                        <div className="small text-secondary mb-1">
+                          {t("home.products.availableCities", "Villes disponibles")}
+                        </div>
                         <div className="d-flex flex-wrap gap-1">
                           {p.city_names.slice(0, 3).map((cityName) => (
                             <span key={cityName} className="badge rounded-pill text-bg-light border">
@@ -449,7 +469,11 @@ export default function ProductsSection() {
                     <div className="d-flex align-items-center gap-2 mb-2">
                       <Stars value={p.rating} />
                       <small className="text-secondary">
-                        {p.testimonial_count > 0 ? `${p.rating.toFixed(1)} (${p.testimonial_count} avis)` : "Pas encore d'avis"}
+                        {p.testimonial_count > 0
+                          ? t("home.products.reviewCount", "{{rating}} ({{count}} avis)")
+                              .replace("{{rating}}", p.rating.toFixed(1))
+                              .replace("{{count}}", p.testimonial_count)
+                          : t("home.products.noReview", "Pas encore d'avis")}
                       </small>
                     </div>
 
@@ -465,7 +489,7 @@ export default function ProductsSection() {
                     <div className="mt-auto pt-2">
                       {p.city_count > 1 ? (
                         <Link to={`/product/${p.product_encrypted_id}`} className="btn btn-outline-dark btn-sm w-100">
-                          Choisir une ville
+                          {t("home.products.actions.chooseCity", "Choisir une ville")}
                         </Link>
                       ) : (
                         <AddToCartToggle product={p} variant="compact" />
@@ -478,17 +502,19 @@ export default function ProductsSection() {
 
           {!loading && filtered.length === 0 && (
             <div className="col-12">
-              <div className="alert alert-warning mb-0">Aucun produit ne correspond a la recherche.</div>
+              <div className="alert alert-warning mb-0">
+                {t("home.products.empty", "Aucun produit ne correspond a la recherche.")}
+              </div>
             </div>
           )}
         </div>
 
         <div className="text-center mt-4 d-flex justify-content-center flex-wrap gap-2">
           <Link className="btn btn-outline-dark btn-sm px-4" to="/shop">
-            Voir tous les produits
+            {t("home.products.actions.allProducts", "Voir tous les produits")}
           </Link>
           <Link className="btn btn-dark btn-sm px-4" to="/testimonials">
-            Laisser une note
+            {t("home.products.actions.leaveRating", "Laisser une note")}
           </Link>
         </div>
       </div>

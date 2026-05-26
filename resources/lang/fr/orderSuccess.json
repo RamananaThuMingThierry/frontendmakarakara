@@ -1,0 +1,62 @@
+{
+  "empty": {
+    "alt": "Commande",
+    "title": "Commande créée",
+    "subtitle": "Pour voir le détail, reconnectez-vous ou retournez à la boutique."
+  },
+  "hero": {
+    "alt": "Commande validée",
+    "title": "Votre commande est créée",
+    "subtitle": "Merci. Votre commande a bien été enregistrée."
+  },
+  "labels": {
+    "reference": "Référence",
+    "order": "Commande",
+    "payment": "Paiement",
+    "quantity": "Quantité",
+    "coupon": "Coupon appliqué"
+  },
+  "sections": {
+    "items": "Récapitulatif des articles",
+    "deliveryAddress": "Adresse de livraison",
+    "totals": "Totaux"
+  },
+  "address": {
+    "name": "Nom",
+    "phone": "Téléphone",
+    "city": "Ville",
+    "address": "Adresse",
+    "region": "Région",
+    "unavailable": "Adresse non disponible."
+  },
+  "totals": {
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "delivery": "Livraison",
+    "deliveryPending": "À confirmer par l'administration",
+    "total": "Total"
+  },
+  "payment": {
+    "mobileMoney": "Mobile money",
+    "cash": "Espèce",
+    "cashDescription": "Le total final à payer sera confirmé après définition du frais de livraison par l'administration.",
+    "cashWarning": "La commande reste en attente de confirmation. L'administration fixera le frais de livraison avant confirmation finale.",
+    "mobileMoneyDescription": "Effectuez le paiement via mobile money, puis gardez la preuve. Le paiement ne sera validé qu'après vérification manuelle.",
+    "number": "Numéro",
+    "amount": "Montant",
+    "mobileMoneyHint": "Après paiement, notre équipe confirmera la commande puis générera le reçu."
+  },
+  "status": {
+    "unpaid": "Non payé",
+    "pendingVerification": "En attente de vérification",
+    "paid": "Payé",
+    "refunded": "Remboursé"
+  },
+  "actions": {
+    "continueShopping": "Continuer vos achats",
+    "viewCart": "Voir panier",
+    "backToCart": "Retour au panier",
+    "backToShop": "Retour à la boutique",
+    "needHelp": "Besoin d'aide ?"
+  }
+}

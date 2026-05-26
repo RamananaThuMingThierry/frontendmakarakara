@@ -1,0 +1,62 @@
+{
+  "loading": "Loading product...",
+  "cityRule": "An order must contain products from a single city. If you choose \"{{city}}\", only buy products from that city.",
+  "actions": {
+    "otherProducts": "View other products",
+    "viewImage": "View image {{index}}",
+    "backToShop": "Back to shop",
+    "viewAllReviews": "View all reviews"
+  },
+  "labels": {
+    "product": "Product",
+    "mainImage": "{{name}} main image",
+    "uncategorized": "Uncategorized",
+    "city": "City",
+    "thisCity": "this city",
+    "brand": "Brand",
+    "availableIn": "Available in",
+    "noDescription": "No description available.",
+    "selectedCity": "Selected city",
+    "availableCities": "Available cities",
+    "availability": "Availability",
+    "inStock": "In stock",
+    "client": "Client"
+  },
+  "empty": {
+    "alt": "Product not found",
+    "title": "Product not found",
+    "subtitle": "This product is not currently available."
+  },
+  "reviews": {
+    "title": "Reviews for this product",
+    "summary": "{{rating}}/5 from {{count}} review(s)",
+    "empty": "No review published yet.",
+    "first": "Be the first to leave a review for this product."
+  },
+  "review": {
+    "success": "Your review has been sent.",
+    "error": "Unable to send your review."
+  },
+  "reviewForm": {
+    "title": "Add your review",
+    "subtitle": "Your rating will be linked directly to \"{{name}}\".",
+    "name": "Name",
+    "city": "City",
+    "rating": "Rating",
+    "choose": "Choose",
+    "stars5": "5 stars",
+    "stars4": "4 stars",
+    "stars3": "3 stars",
+    "stars2": "2 stars",
+    "stars1": "1 star",
+    "message": "Your review",
+    "photo": "Photo (optional)",
+    "previewAlt": "Preview",
+    "sending": "Sending...",
+    "send": "Send my review",
+    "reset": "Reset"
+  },
+  "errors": {
+    "load": "Unable to load this product."
+  }
+}

@@ -3,27 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/website/CartContext";
 import { useAuth } from "../../hooks/website/AuthContext";
 import { createMyReservation, listMyReservations } from "../../api/client_reservations";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function formatPriceMGA(value) {
   return `${Number(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} MGA`;
 }
 
-/**
- * ✅ Coupon demo (front-only). Plus tard: on remplace par API Laravel.
- * - FIX10 = -10 000 MGA
- * - SAVE15 = -15%
- */
 function computeDiscount(subtotal, code) {
   const c = (code || "").trim().toUpperCase();
   if (!c) return { discount: 0, label: null };
 
-  if (c === "FIX10") return { discount: Math.min(10000, subtotal), label: "Coupon FIX10 (−10 000 MGA)" };
-  if (c === "SAVE15") return { discount: Math.round(subtotal * 0.15), label: "Coupon SAVE15 (−15%)" };
+  if (c === "FIX10") return { discount: Math.min(10000, subtotal), labelKey: "cart.coupon.labels.fix10" };
+  if (c === "SAVE15") return { discount: Math.round(subtotal * 0.15), labelKey: "cart.coupon.labels.save15" };
 
-  return { discount: 0, label: null };
+  return { discount: 0, labelKey: null };
 }
 
 export default function Cart() {
+  const { t } = useI18n();
   const { cart, cartCount, total, inc, dec, remove, setQty, clear, clearLocal } = useCart();
   const navigate = useNavigate();
   const { isAuth } = useAuth();
@@ -32,17 +29,12 @@ export default function Cart() {
   const [reservationMessage, setReservationMessage] = useState("");
   const [reservationError, setReservationError] = useState("");
 
-  // Coupon state
   const [couponInput, setCouponInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, label, discount }
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
 
-  // Subtotal = total du context (sans livraison / sans remise)
   const subtotal = total;
-
-  // Le frais de livraison est maintenant defini par l'admin au cas par cas.
   const deliveryFee = useMemo(() => 0, []);
-
   const discountTotal = appliedCoupon?.discount || 0;
 
   const grandTotal = useMemo(() => {
@@ -69,7 +61,7 @@ export default function Cart() {
         });
 
         if (!cancelled) setHasActiveReservation(hasActiveCartReservation);
-      } catch (error) {
+      } catch {
         if (!cancelled) setHasActiveReservation(false);
       }
     }
@@ -82,21 +74,21 @@ export default function Cart() {
 
   const applyCoupon = () => {
     setCouponError("");
-    const { discount, label } = computeDiscount(subtotal, couponInput);
+    const { discount, labelKey } = computeDiscount(subtotal, couponInput);
 
     if (!couponInput.trim()) {
-      setCouponError("Entrez un code coupon.");
+      setCouponError(t("cart.coupon.enterCode", "Enter a coupon code."));
       return;
     }
-    if (!label || discount <= 0) {
+    if (!labelKey || discount <= 0) {
       setAppliedCoupon(null);
-      setCouponError("Coupon invalide ou non applicable.");
+      setCouponError(t("cart.coupon.invalid", "Invalid or not applicable coupon."));
       return;
     }
 
     setAppliedCoupon({
       code: couponInput.trim().toUpperCase(),
-      label,
+      label: t(labelKey, labelKey === "cart.coupon.labels.fix10" ? "Coupon FIX10 (-10 000 MGA)" : "Coupon SAVE15 (-15%)"),
       discount,
     });
   };
@@ -112,13 +104,12 @@ export default function Cart() {
       navigate("/login", {
         state: {
           from: { pathname: "/checkout" },
-          message: "Créez un compte ou connectez-vous avant de passer commande.",
+          message: t("cart.messages.loginBeforeCheckout", "Create an account or sign in before ordering."),
         },
       });
       return;
     }
 
-    // On passe le coupon vers /checkout (state router)
     navigate("/checkout", {
       state: {
         coupon_code: appliedCoupon?.code || null,
@@ -136,7 +127,7 @@ export default function Cart() {
       navigate("/login", {
         state: {
           from: { pathname: "/cart" },
-          message: "Connectez-vous pour reserver votre panier pendant 24 heures.",
+          message: t("cart.messages.loginBeforeReserve", "Sign in to reserve your cart for 24 hours."),
         },
       });
       return;
@@ -152,13 +143,13 @@ export default function Cart() {
 
       setReservationMessage(
         expiresAt
-          ? `Reservation enregistree. Elle expirera le ${expiresAt} si vous ne passez pas commande.`
-          : "Reservation enregistree pour 24 heures."
+          ? t("cart.messages.reservedUntil", "Reservation saved. It will expire on {{date}} if you do not order.").replace("{{date}}", expiresAt)
+          : t("cart.messages.reserved24h", "Reservation saved for 24 hours.")
       );
       setHasActiveReservation(true);
       clearLocal();
     } catch (error) {
-      setReservationError(error?.response?.data?.message || "Impossible de reserver ce panier.");
+      setReservationError(error?.response?.data?.message || t("cart.messages.reserveFailed", "Unable to reserve this cart."));
     } finally {
       setReserving(false);
     }
@@ -171,14 +162,14 @@ export default function Cart() {
         {reservationError && <div className="alert alert-danger py-2 mb-4">{reservationError}</div>}
         <img
           src="/images/shopping-cart.png"
-          alt="Panier vide"
+          alt={t("cart.empty.alt", "Empty cart")}
           className="img-fluid mb-4"
           style={{ maxWidth: 260, opacity: 0.9 }}
         />
-        <h5 className="fw-semibold">Votre panier est vide</h5>
-        <p className="text-muted">Ajoutez des produits pour les retrouver ici.</p>
+        <h5 className="fw-semibold">{t("cart.empty.title", "Your cart is empty")}</h5>
+        <p className="text-muted">{t("cart.empty.subtitle", "Add products to find them here.")}</p>
         <Link to="/shop" className="btn btn-dark">
-          Aller à la boutique
+          {t("cart.actions.goShop", "Go to shop")}
         </Link>
       </div>
     );
@@ -189,18 +180,17 @@ export default function Cart() {
       <div className="container">
         <div className="d-flex align-items-start justify-content-between gap-3 mb-4">
           <div>
-            <h1 className="fw-bold mb-1">Panier</h1>
-            <p className="text-secondary mb-0">{cartCount} article(s)</p>
+            <h1 className="fw-bold mb-1">{t("cart.title", "Cart")}</h1>
+            <p className="text-secondary mb-0">{t("cart.count", "{{count}} item(s)").replace("{{count}}", cartCount)}</p>
           </div>
 
           <button className="btn btn-outline-danger" type="button" onClick={clear}>
             <i className="bi bi-trash me-2" />
-            Vider le panier
+            {t("cart.actions.clear", "Clear cart")}
           </button>
         </div>
 
         <div className="row g-4">
-          {/* LISTE */}
           <div className="col-12 col-lg-8">
             <div className="bg-white rounded-4 shadow-sm p-3 p-md-4">
               {cart.map((item) => (
@@ -218,7 +208,7 @@ export default function Cart() {
                         <div>
                           <div className="fw-semibold">{item.name}</div>
                           <div className="text-secondary small">
-                            Prix : <span className="fw-semibold">{formatPriceMGA(item.price)}</span>
+                            {t("cart.price", "Price")} : <span className="fw-semibold">{formatPriceMGA(item.price)}</span>
                           </div>
                         </div>
 
@@ -226,22 +216,21 @@ export default function Cart() {
                           type="button"
                           className="btn btn-link text-danger p-0"
                           onClick={() => remove(item.id)}
-                          title="Supprimer"
+                          title={t("cart.actions.remove", "Remove")}
                         >
                           <i className="bi bi-x-lg" />
                         </button>
                       </div>
 
-                      {/* QTY + subtotal */}
                       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-3">
                         <div className="d-inline-flex align-items-center gap-2">
                           <button
                             type="button"
                             className="btn btn-outline-secondary btn-sm"
                             onClick={() => (item.qty === 1 ? remove(item.id) : dec(item.id))}
-                            title={item.qty === 1 ? "Supprimer" : "Diminuer"}
+                            title={item.qty === 1 ? t("cart.actions.remove", "Remove") : t("cart.actions.decrease", "Decrease")}
                           >
-                            {item.qty === 1 ? <i className="bi bi-trash" /> : "−"}
+                            {item.qty === 1 ? <i className="bi bi-trash" /> : "-"}
                           </button>
 
                           <input
@@ -257,15 +246,13 @@ export default function Cart() {
                             type="button"
                             className="btn btn-outline-secondary btn-sm"
                             onClick={() => inc(item.id)}
-                            title="Augmenter"
+                            title={t("cart.actions.increase", "Increase")}
                           >
                             +
                           </button>
                         </div>
 
-                        <div className="fw-bold text-danger">
-                          {formatPriceMGA(item.price * item.qty)}
-                        </div>
+                        <div className="fw-bold text-danger">{formatPriceMGA(item.price * item.qty)}</div>
                       </div>
                     </div>
                   </div>
@@ -274,45 +261,43 @@ export default function Cart() {
 
               <div className="pt-3 d-flex justify-content-end">
                 <Link to="/shop" className="btn btn-outline-dark">
-                  Continuer vos achats
+                  {t("cart.actions.continueShopping", "Continue shopping")}
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* RÉCAP + COUPON */}
           <div className="col-12 col-lg-4">
             <div className="bg-white rounded-4 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Récapitulatif</h5>
+              <h5 className="fw-bold mb-3">{t("cart.summary.title", "Summary")}</h5>
 
               {!isAuth ? (
                 <div className="alert alert-warning py-2">
-                  Votre panier est sauvegarde sur cet appareil. Connectez-vous pour le conserver aussi sur votre compte et finaliser la commande.
+                  {t("cart.summary.deviceNotice", "Your cart is saved on this device. Sign in to keep it on your account and complete the order.")}
                 </div>
               ) : null}
 
               {reservationMessage && <div className="alert alert-success py-2">{reservationMessage}</div>}
               {reservationError && <div className="alert alert-danger py-2">{reservationError}</div>}
 
-              {/* Coupon */}
               <div className="mb-3">
-                <div className="fw-semibold mb-2">Coupon</div>
+                <div className="fw-semibold mb-2">{t("cart.coupon.title", "Coupon")}</div>
 
                 <div className="input-group">
                   <input
                     className="form-control"
-                    placeholder="Entrer un code (ex: FIX10, SAVE15)"
+                    placeholder={t("cart.coupon.placeholder", "Enter a code (e.g. FIX10, SAVE15)")}
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     disabled={!!appliedCoupon}
                   />
                   {!appliedCoupon ? (
                     <button className="btn btn-outline-dark" type="button" onClick={applyCoupon}>
-                      Appliquer
+                      {t("cart.coupon.apply", "Apply")}
                     </button>
                   ) : (
                     <button className="btn btn-outline-danger" type="button" onClick={removeCoupon}>
-                      Retirer
+                      {t("cart.coupon.remove", "Remove")}
                     </button>
                   )}
                 </div>
@@ -327,30 +312,25 @@ export default function Cart() {
                 )}
               </div>
 
-              {/* Totaux */}
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Sous-total</span>
+                <span>{t("cart.summary.subtotal", "Subtotal")}</span>
                 <span className="fw-semibold">{formatPriceMGA(subtotal)}</span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Remise</span>
-                <span className="fw-semibold">
-                  {discountTotal > 0 ? `− ${formatPriceMGA(discountTotal)}` : "—"}
-                </span>
+                <span>{t("cart.summary.discount", "Discount")}</span>
+                <span className="fw-semibold">{discountTotal > 0 ? `- ${formatPriceMGA(discountTotal)}` : "-"}</span>
               </div>
 
               <div className="d-flex justify-content-between text-secondary mb-2">
-                <span>Livraison</span>
-                <span className="fw-semibold">
-                  A confirmer par l'administration
-                </span>
+                <span>{t("cart.summary.delivery", "Delivery")}</span>
+                <span className="fw-semibold">{t("cart.summary.deliveryPending", "To be confirmed by the administration")}</span>
               </div>
 
               <hr />
 
               <div className="d-flex justify-content-between">
-                <span className="fw-bold">Total provisoire</span>
+                <span className="fw-bold">{t("cart.summary.total", "Estimated total")}</span>
                 <span className="fw-bold text-danger">{formatPriceMGA(grandTotal)}</span>
               </div>
 
@@ -362,17 +342,17 @@ export default function Cart() {
                     onClick={reserveCart}
                     disabled={reserving}
                   >
-                    {reserving ? "Reservation..." : "Reserver 24h"}
+                    {reserving ? t("cart.actions.reserving", "Reserving...") : t("cart.actions.reserve24h", "Reserve for 24h")}
                   </button>
                 ) : null}
 
                 <button className="btn btn-warning fw-semibold" type="button" onClick={goCheckout}>
-                  Commander
+                  {t("cart.actions.order", "Order")}
                 </button>
               </div>
 
               <small className="text-secondary d-block mt-2">
-                Le frais de livraison sera confirme par l'administration selon la distance, et peut etre gratuit.
+                {t("cart.summary.deliveryHelp", "The delivery fee will be confirmed by the administration based on distance, and may be free.")}
               </small>
             </div>
           </div>

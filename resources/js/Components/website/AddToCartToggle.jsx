@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useCart } from "../../hooks/website/CartContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function getLocalProductKey(product) {
   if (product?.inventory_id) return `inventory:${product.inventory_id}`;
@@ -9,6 +10,7 @@ function getLocalProductKey(product) {
 }
 
 export default function AddToCartToggle({ product, variant = "full" }) {
+  const { t } = useI18n();
   const { cart, cartCityNames, getQtyByProduct, addOne, inc, dec, remove, setQty } = useCart();
   const productKey = getLocalProductKey(product);
   const qty = getQtyByProduct(product);
@@ -40,7 +42,7 @@ export default function AddToCartToggle({ product, variant = "full" }) {
     setSubmitting(false);
 
     if (result?.ok === false) {
-      setErrorMessage(result.error || "Impossible d'ajouter ce produit au panier.");
+      setErrorMessage(result.error || t("addToCartToggle.errors.add", "Impossible d'ajouter ce produit au panier."));
     }
   };
 
@@ -56,7 +58,7 @@ export default function AddToCartToggle({ product, variant = "full" }) {
           disabled={submitting}
         >
           <i className="bi bi-bag me-2" />
-          {submitting ? "Ajout..." : "Ajouter"}
+          {submitting ? t("addToCartToggle.actions.adding", "Ajout...") : t("addToCartToggle.actions.add", "Ajouter")}
         </button>
 
         {errorMessage ? <div className="text-danger small mt-2">{errorMessage}</div> : null}
@@ -66,30 +68,32 @@ export default function AddToCartToggle({ product, variant = "full" }) {
             <div className="modal-dialog modal-dialog-centered" role="document">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">Commande par ville</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowCityModal(false)} />
+                  <h5 className="modal-title">{t("addToCartToggle.cityRule.title", "Commande par ville")}</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowCityModal(false)} aria-label={t("common.close", "Fermer")} />
                 </div>
 
                 <div className="modal-body">
                   <div className="alert alert-warning mb-3">
-                    Pour eviter les erreurs de livraison, une commande doit contenir les produits d'une seule ville.
+                    {t("addToCartToggle.cityRule.warning", "Pour eviter les erreurs de livraison, une commande doit contenir les produits d'une seule ville.")}
                   </div>
 
                   <p className="mb-2">
-                    Votre panier contient deja des produits de{" "}
-                    <strong>{cartCityNames.join(", ") || conflictItem?.city_name || "cette ville"}</strong>.
+                    {t("addToCartToggle.cityRule.currentCart", "Votre panier contient deja des produits de")}{" "}
+                    <strong>{cartCityNames.join(", ") || conflictItem?.city_name || t("addToCartToggle.cityRule.thisCity", "cette ville")}</strong>.
                   </p>
 
                   <p className="mb-0">
-                    Pour acheter <strong>{product?.name || "ce produit"}</strong> a{" "}
-                    <strong>{product?.city_name || "cette autre ville"}</strong>, finalisez d'abord la commande actuelle
-                    ou videz le panier puis creez une nouvelle commande.
+                    {t("addToCartToggle.cityRule.explanationPrefix", "Pour acheter")}{" "}
+                    <strong>{product?.name || t("addToCartToggle.cityRule.thisProduct", "ce produit")}</strong>{" "}
+                    {t("addToCartToggle.cityRule.explanationMiddle", "a")}{" "}
+                    <strong>{product?.city_name || t("addToCartToggle.cityRule.otherCity", "cette autre ville")}</strong>,{" "}
+                    {t("addToCartToggle.cityRule.explanationSuffix", "finalisez d'abord la commande actuelle ou videz le panier puis creez une nouvelle commande.")}
                   </p>
                 </div>
 
                 <div className="modal-footer">
                   <button type="button" className="btn btn-outline-secondary" onClick={() => setShowCityModal(false)}>
-                    Fermer
+                    {t("common.close", "Fermer")}
                   </button>
                 </div>
               </div>
@@ -113,7 +117,7 @@ export default function AddToCartToggle({ product, variant = "full" }) {
           type="button"
           className="btn btn-outline-danger btn-sm"
           onClick={() => remove(productKey)}
-          title="Supprimer"
+          title={t("addToCartToggle.actions.remove", "Supprimer")}
         >
           <i className="bi bi-trash" />
         </button>
@@ -122,7 +126,7 @@ export default function AddToCartToggle({ product, variant = "full" }) {
           type="button"
           className="btn btn-outline-secondary btn-sm"
           onClick={() => dec(productKey)}
-          title="Diminuer"
+          title={t("addToCartToggle.actions.decrease", "Diminuer")}
         >
           -
         </button>
@@ -138,7 +142,7 @@ export default function AddToCartToggle({ product, variant = "full" }) {
           setErrorMessage("");
           const result = await setQty(productKey, e.target.value);
           if (result?.ok === false) {
-            setErrorMessage(result.error || "Impossible de mettre a jour la quantite.");
+            setErrorMessage(result.error || t("addToCartToggle.errors.updateQty", "Impossible de mettre a jour la quantite."));
           }
         }}
       />
@@ -150,10 +154,10 @@ export default function AddToCartToggle({ product, variant = "full" }) {
           setErrorMessage("");
           const result = await inc(productKey);
           if (result?.ok === false) {
-            setErrorMessage(result.error || "Impossible d'augmenter la quantite.");
+            setErrorMessage(result.error || t("addToCartToggle.errors.increaseQty", "Impossible d'augmenter la quantite."));
           }
         }}
-        title="Augmenter"
+        title={t("addToCartToggle.actions.increase", "Augmenter")}
       >
         +
       </button>

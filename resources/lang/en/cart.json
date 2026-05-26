@@ -1,0 +1,50 @@
+{
+  "title": "Cart",
+  "count": "{{count}} item(s)",
+  "price": "Price",
+  "messages": {
+    "loginBeforeCheckout": "Create an account or sign in before ordering.",
+    "loginBeforeReserve": "Sign in to reserve your cart for 24 hours.",
+    "reservedUntil": "Reservation saved. It will expire on {{date}} if you do not order.",
+    "reserved24h": "Reservation saved for 24 hours.",
+    "reserveFailed": "Unable to reserve this cart."
+  },
+  "empty": {
+    "alt": "Empty cart",
+    "title": "Your cart is empty",
+    "subtitle": "Add products to find them here."
+  },
+  "actions": {
+    "goShop": "Go to shop",
+    "clear": "Clear cart",
+    "remove": "Remove",
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "continueShopping": "Continue shopping",
+    "reserving": "Reserving...",
+    "reserve24h": "Reserve for 24h",
+    "order": "Order"
+  },
+  "coupon": {
+    "title": "Coupon",
+    "placeholder": "Enter a code (e.g. FIX10, SAVE15)",
+    "apply": "Apply",
+    "remove": "Remove",
+    "enterCode": "Enter a coupon code.",
+    "invalid": "Invalid or not applicable coupon.",
+    "labels": {
+      "fix10": "Coupon FIX10 (-10,000 MGA)",
+      "save15": "Coupon SAVE15 (-15%)"
+    }
+  },
+  "summary": {
+    "title": "Summary",
+    "deviceNotice": "Your cart is saved on this device. Sign in to keep it on your account and complete the order.",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "delivery": "Delivery",
+    "deliveryPending": "To be confirmed by the administration",
+    "total": "Estimated total",
+    "deliveryHelp": "The delivery fee will be confirmed by the administration based on distance, and may be free."
+  }
+}

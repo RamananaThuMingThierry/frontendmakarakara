@@ -1,0 +1,7 @@
+{
+  "loginRequired": "Creez un compte ou connectez-vous avant d'ajouter un favori.",
+  "actions": {
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris"
+  }
+}

@@ -5,6 +5,7 @@ import {
   downloadMyOrderInvoice,
   listMyOrders,
 } from "../../api/client_orders";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function formatPriceMGA(value) {
   return `${Number(value || 0).toLocaleString("fr-FR")} MGA`;
@@ -14,8 +15,8 @@ const STATUS_LABELS = {
   pending: "En attente",
   confirmed: "Confirmee",
   processing: "En traitement",
-  delivered: "Livrée",
-  cancelled: "Annulée",
+  delivered: "Livree",
+  cancelled: "Annulee",
 };
 
 const STATUS_COLORS = {
@@ -27,10 +28,10 @@ const STATUS_COLORS = {
 };
 
 const PAYMENT_STATUS_LABELS = {
-  unpaid: "Non payée",
-  pending_verification: "En attente de vérification",
-  paid: "Payée",
-  refunded: "Remboursée",
+  unpaid: "Non payee",
+  pending_verification: "En attente de verification",
+  paid: "Payee",
+  refunded: "Remboursee",
 };
 
 const PAYMENT_STATUS_COLORS = {
@@ -50,6 +51,7 @@ function canCancelOrder(status, paymentStatus) {
 }
 
 export default function Orders() {
+  const { t } = useI18n();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,7 +69,9 @@ export default function Orders() {
         const data = await listMyOrders();
         if (!cancelled) setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
-        if (!cancelled) setError(err?.response?.data?.message || "Impossible de charger les commandes.");
+        if (!cancelled) {
+          setError(err?.response?.data?.message || t("orders.client.errors.load", "Impossible de charger les commandes."));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -77,7 +81,7 @@ export default function Orders() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const summary = useMemo(() => {
     return {
@@ -91,7 +95,7 @@ export default function Orders() {
     return (
       <div className="bg-white rounded-4 shadow-sm p-5 text-center">
         <div className="spinner-border spinner-border-sm me-2" />
-        Chargement des commandes...
+        {t("orders.client.loading", "Chargement des commandes...")}
       </div>
     );
   }
@@ -101,12 +105,14 @@ export default function Orders() {
       <div className="bg-white rounded-4 shadow-sm p-4">
         <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
           <div>
-            <h1 className="h4 fw-bold mb-1">Mes commandes</h1>
-            <p className="text-secondary mb-0">Suivez vos achats, leur statut et vos documents.</p>
+            <h1 className="h4 fw-bold mb-1">{t("orders.client.title", "Mes commandes")}</h1>
+            <p className="text-secondary mb-0">
+              {t("orders.client.subtitle", "Suivez vos achats, leur statut et vos documents.")}
+            </p>
           </div>
           <div>
             <Link to="/shop" className="btn btn-warning">
-              Aller à la boutique
+              {t("orders.client.actions.goToShop", "Aller a la boutique")}
             </Link>
           </div>
         </div>
@@ -114,19 +120,19 @@ export default function Orders() {
         <div className="row g-3">
           <div className="col-12 col-md-4">
             <div className="border rounded-4 p-3 h-100">
-              <div className="text-secondary small">Total commandes</div>
+              <div className="text-secondary small">{t("orders.client.summary.total", "Total commandes")}</div>
               <div className="h3 fw-bold mb-0">{summary.total}</div>
             </div>
           </div>
           <div className="col-12 col-md-4">
             <div className="border rounded-4 p-3 h-100">
-              <div className="text-secondary small">En attente</div>
+              <div className="text-secondary small">{t("orders.status.pending", "En attente")}</div>
               <div className="h3 fw-bold mb-0">{summary.pending}</div>
             </div>
           </div>
           <div className="col-12 col-md-4">
             <div className="border rounded-4 p-3 h-100">
-              <div className="text-secondary small">Livrées</div>
+              <div className="text-secondary small">{t("orders.status.delivered", "Livree")}</div>
               <div className="h3 fw-bold mb-0">{summary.delivered}</div>
             </div>
           </div>
@@ -138,9 +144,9 @@ export default function Orders() {
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-4 shadow-sm p-5 text-center text-secondary">
-          <div className="mb-3">Vous n'avez encore passe aucune commande.</div>
+          <div className="mb-3">{t("orders.client.empty", "Vous n'avez encore passe aucune commande.")}</div>
           <Link to="/shop" className="btn btn-warning">
-            Aller à la boutique
+            {t("orders.client.actions.goToShop", "Aller a la boutique")}
           </Link>
         </div>
       ) : (
@@ -148,7 +154,7 @@ export default function Orders() {
           <div key={order.id} className="bg-white rounded-4 shadow-sm p-4">
             <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
               <div>
-                <div className="small text-secondary">Commande</div>
+                <div className="small text-secondary">{t("orders.table.order", "Commande")}</div>
                 <div className="fw-bold">{order.order_number}</div>
                 <div className="text-secondary small">
                   {new Date(order.created_at).toLocaleDateString("fr-FR")}
@@ -156,10 +162,13 @@ export default function Orders() {
               </div>
               <div className="d-flex flex-wrap gap-2 align-items-start">
                 <span className={`badge text-bg-${STATUS_COLORS[order.status] || "secondary"}`}>
-                  {STATUS_LABELS[order.status] || order.status}
+                  {t(`orders.status.${order.status}`, STATUS_LABELS[order.status] || order.status)}
                 </span>
                 <span className={`badge text-bg-${PAYMENT_STATUS_COLORS[order.payment_status] || "secondary"}`}>
-                  {PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status}
+                  {t(
+                    `orders.paymentStatus.${order.payment_status}`,
+                    PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status
+                  )}
                 </span>
                 {canCancelOrder(order.status, order.payment_status) ? (
                   <button
@@ -168,7 +177,10 @@ export default function Orders() {
                     disabled={actionLoadingId === order.id}
                     onClick={async () => {
                       const confirmed = window.confirm(
-                        `Annuler la commande ${order.order_number} ?`
+                        t("orders.client.actions.confirmCancel", "Annuler la commande {{order}} ?").replace(
+                          "{{order}}",
+                          order.order_number
+                        )
                       );
 
                       if (!confirmed) {
@@ -189,21 +201,23 @@ export default function Orders() {
                         );
                         setActionMessage({
                           type: "success",
-                          text: response?.message || "Commande annulée avec succès.",
+                          text: response?.message || t("orders.client.messages.cancelled", "Commande annulee avec succes."),
                         });
                       } catch (err) {
                         setActionMessage({
                           type: "danger",
                           text:
                             err?.response?.data?.message ||
-                            "Impossible d'annuler cette commande.",
+                            t("orders.client.errors.cancel", "Impossible d'annuler cette commande."),
                         });
                       } finally {
                         setActionLoadingId(null);
                       }
                     }}
                   >
-                    {actionLoadingId === order.id ? "Annulation..." : "Annuler"}
+                    {actionLoadingId === order.id
+                      ? t("orders.client.actions.cancelling", "Annulation...")
+                      : t("orders.actions.cancel", "Annuler")}
                   </button>
                 ) : null}
                 {canDownloadInvoice(order) ? (
@@ -232,7 +246,7 @@ export default function Orders() {
                           type: "danger",
                           text:
                             err?.response?.data?.message ||
-                            "Impossible de télécharger la facture.",
+                            t("orders.client.errors.invoice", "Impossible de telecharger la facture."),
                         });
                       } finally {
                         setActionLoadingId(null);
@@ -240,8 +254,8 @@ export default function Orders() {
                     }}
                   >
                     {actionLoadingId === `invoice-${order.id}`
-                      ? "Téléchargement..."
-                      : "Télécharger facture"}
+                      ? t("orders.client.actions.downloading", "Telechargement...")
+                      : t("orders.client.actions.downloadInvoice", "Telecharger facture")}
                   </button>
                 ) : null}
               </div>
@@ -249,7 +263,7 @@ export default function Orders() {
 
             <div className="row g-3">
               <div className="col-12 col-lg-7">
-                <div className="fw-semibold mb-2">Articles</div>
+                <div className="fw-semibold mb-2">{t("orders.table.items", "Articles")}</div>
                 <div className="d-flex flex-column gap-2">
                   {(order.items || []).map((item) => (
                     <div key={item.id} className="d-flex justify-content-between small border rounded-3 px-3 py-2">
@@ -261,9 +275,10 @@ export default function Orders() {
               </div>
               <div className="col-12 col-lg-5">
                 <div className="border rounded-4 p-3 h-100">
-                  <div className="fw-semibold mb-2">Livraison</div>
+                  <div className="fw-semibold mb-2">{t("orders.client.delivery.title", "Livraison")}</div>
                   <div className="small text-secondary mb-2">
-                    {order.address?.full_name || "Client"} - {order.address?.phone || "Telephone non renseigne"}
+                    {order.address?.full_name || t("orders.client.delivery.clientFallback", "Client")} -{" "}
+                    {order.address?.phone || t("orders.client.delivery.phoneUnavailable", "Telephone non renseigne")}
                   </div>
                   <div className="small mb-3">
                     {[
@@ -274,13 +289,13 @@ export default function Orders() {
                     ].filter(Boolean).join(", ")}
                   </div>
                   <div className="small text-secondary mb-2">
-                    Facture : <strong>{order.invoice?.number || "-"}</strong>
+                    {t("orders.show.invoice", "Facture")} : <strong>{order.invoice?.number || "-"}</strong>
                   </div>
                   <div className="small text-secondary mb-3">
-                    Recu : <strong>{order.receipt?.number || "-"}</strong>
+                    {t("orders.show.receipt", "Recu")} : <strong>{order.receipt?.number || "-"}</strong>
                   </div>
                   <div className="d-flex justify-content-between small text-secondary">
-                    <span>Total</span>
+                    <span>{t("orders.show.total", "Total")}</span>
                     <strong className="text-dark">{formatPriceMGA(order.total)}</strong>
                   </div>
                 </div>

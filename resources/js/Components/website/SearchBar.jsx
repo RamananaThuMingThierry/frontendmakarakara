@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { inventoryApi } from "../../api/inventories";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 const DEFAULT_IMAGE = "/images/box.png";
 
@@ -18,6 +19,7 @@ function getProductImage(product) {
 }
 
 export default function SearchBar() {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState([]);
@@ -56,8 +58,8 @@ export default function SearchBar() {
             grouped.set(product.id, {
               id: product.id,
               product_encrypted_id: product.encrypted_id || null,
-              name: product.name || "Produit",
-              category_name: product?.category?.name || "Produit",
+              name: product.name || t("searchBar.labels.product", "Produit"),
+              category_name: product?.category?.name || t("searchBar.labels.product", "Produit"),
               image: getProductImage(product),
             });
           }
@@ -77,7 +79,7 @@ export default function SearchBar() {
     return () => {
       cancelled = true;
     };
-  }, [open]);
+  }, [open, t]);
 
   useEffect(() => {
     if (open) {
@@ -112,8 +114,8 @@ export default function SearchBar() {
         type="button"
         className="btn btn-link btn-sm text-dark"
         onClick={() => setOpen(true)}
-        aria-label="Rechercher"
-        title="Rechercher"
+        aria-label={t("searchBar.actions.search", "Rechercher")}
+        title={t("searchBar.actions.search", "Rechercher")}
       >
         <i className="bi bi-search" />
       </button>
@@ -126,8 +128,8 @@ export default function SearchBar() {
             <div className="modal-dialog modal-dialog-centered modal-lg">
               <div className="modal-content border-0 rounded-4 shadow">
                 <div className="modal-header border-0">
-                  <h5 className="modal-title fw-bold">Rechercher</h5>
-                  <button type="button" className="btn-close" onClick={closeModal} aria-label="Fermer" />
+                  <h5 className="modal-title fw-bold">{t("searchBar.title", "Rechercher")}</h5>
+                  <button type="button" className="btn-close" onClick={closeModal} aria-label={t("common.close", "Fermer")} />
                 </div>
 
                 <div className="modal-body pt-0">
@@ -140,23 +142,23 @@ export default function SearchBar() {
                       <input
                         ref={inputRef}
                         className="form-control"
-                        placeholder="Tapez le nom du produit..."
+                        placeholder={t("searchBar.placeholder", "Tapez le nom du produit...")}
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                       />
 
                       <button className="btn btn-dark" type="submit">
-                        Rechercher
+                        {t("searchBar.actions.search", "Rechercher")}
                       </button>
                     </div>
                   </form>
 
                   <div className="mt-3">
                     {loading ? (
-                      <div className="text-secondary small">Chargement des suggestions...</div>
+                      <div className="text-secondary small">{t("searchBar.loading", "Chargement des suggestions...")}</div>
                     ) : !q.trim() ? (
                       <div className="text-secondary small">
-                        Astuce : essayez "Serum", "Masque", "Brosse"...
+                        {t("searchBar.hint", 'Astuce : essayez "Serum", "Masque", "Brosse"...')}
                       </div>
                     ) : results.length > 0 ? (
                       <div className="list-group">
@@ -186,12 +188,12 @@ export default function SearchBar() {
                           className="list-group-item list-group-item-action text-center fw-semibold"
                           onClick={submit}
                         >
-                          Voir tous les resultats
+                          {t("searchBar.actions.viewAll", "Voir tous les resultats")}
                         </button>
                       </div>
                     ) : (
                       <div className="alert alert-warning mb-0">
-                        Aucun resultat pour "<span className="fw-semibold">{q}</span>".
+                        {t("searchBar.empty", 'Aucun resultat pour "{{query}}".').replace("{{query}}", q)}
                       </div>
                     )}
                   </div>
@@ -199,7 +201,7 @@ export default function SearchBar() {
 
                 <div className="modal-footer border-0">
                   <button className="btn btn-sm btn-outline-dark" onClick={closeModal} type="button">
-                    Fermer
+                    {t("common.close", "Fermer")}
                   </button>
                 </div>
               </div>

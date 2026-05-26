@@ -1,0 +1,16 @@
+{
+  "title": {
+    "loading": "Vérification...",
+    "success": "Email vérifié",
+    "error": "Erreur de vérification"
+  },
+  "messages": {
+    "loading": "Vérification en cours...",
+    "missingLink": "Lien de vérification manquant.",
+    "success": "Votre email a bien été vérifié.",
+    "error": "Le lien est invalide, expiré ou la vérification a échoué."
+  },
+  "actions": {
+    "goLogin": "Aller à la connexion"
+  }
+}

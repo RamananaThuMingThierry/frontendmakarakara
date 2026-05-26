@@ -1,0 +1,7 @@
+{
+  "loginRequired": "Create an account or sign in before adding a favorite.",
+  "actions": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites"
+  }
+}

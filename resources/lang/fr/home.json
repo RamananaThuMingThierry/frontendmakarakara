@@ -1,0 +1,159 @@
+{
+  "hero": {
+    "fallback1": {
+      "title": "Sublimez vos cheveux",
+      "subtitle": "Découvrez notre gamme exclusive de soins capillaires et d'accessoires de qualité professionnelle."
+    },
+    "fallback2": {
+      "title": "Nouveautés et meilleures ventes",
+      "subtitle": "Retrouvez les produits préférés de nos clientes et les offres du moment dans la boutique."
+    },
+    "actions": {
+      "review": "Laisser un avis",
+      "shop": "Voir la boutique"
+    },
+    "slide": "Diapositive",
+    "slideAlt": "Slide",
+    "defaultTitle": "Bienvenue",
+    "defaultSubtitle": "Découvrez nos produits et services.",
+    "highlights": {
+      "clients": "+5000 clientes satisfaites",
+      "clientsText": "Ils nous font confiance chaque jour",
+      "delivery": "Livraison rapide",
+      "deliveryText": "Suivi précis avec GPS",
+      "reviews": "Avis vérifiés",
+      "reviewsText": "Produits fiables"
+    },
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "features": {
+    "gps": {
+      "title": "Livraison GPS",
+      "text": "Suivi en temps réel de votre commande avec géolocalisation précise"
+    },
+    "quality": {
+      "title": "Qualité garantie",
+      "text": "Tous nos produits sont certifiés et de qualité professionnelle"
+    },
+    "return": {
+      "title": "Retour facile",
+      "text": "30 jours pour retourner votre produit si vous n'êtes pas satisfait"
+    },
+    "support": {
+      "title": "Support 24/7",
+      "text": "Notre équipe est disponible pour vous accompagner à tout moment"
+    }
+  },
+  "clients": {
+    "title": "Clients satisfaits",
+    "subtitle": "Découvrez les résultats réels de notre communauté",
+    "loading": "Chargement...",
+    "empty": "Aucune image disponible.",
+    "imageAlt": "Client satisfait",
+    "clientLabel": "Client",
+    "actions": {
+      "morePhotos": "Voir plus de photos"
+    },
+    "errors": {
+      "load": "Impossible de charger la galerie.",
+      "loginToLike": "Connectez-vous pour aimer une image.",
+      "like": "Impossible de mettre à jour le j'aime."
+    }
+  },
+  "testimonials": {
+    "title": "Témoignages",
+    "subtitle": "Ce que nos clients disent de nous",
+    "loading": "Chargement...",
+    "empty": "Aucun avis publié pour le moment.",
+    "clientLabel": "Client",
+    "actions": {
+      "more": "Voir plus",
+      "leaveReview": "Laisser un avis"
+    }
+  },
+  "products": {
+    "title": "Nos produits",
+    "subtitle": "Produits réels, favoris, avis clients et statuts mis à jour depuis la boutique.",
+    "loading": "Chargement des produits...",
+    "count": "{{count}} produit(s) affichés",
+    "cityRule": "Une commande doit contenir les produits d'une seule ville. Si vous achetez à Antananarivo, prenez uniquement les produits de Antananarivo. Pour une autre ville, faites une commande séparée.",
+    "cityCount": "{{count}} ville(s)",
+    "availableCities": "Villes disponibles",
+    "reviewCount": "{{rating}} ({{count}} avis)",
+    "noReview": "Pas encore d'avis",
+    "empty": "Aucun produit ne correspond à la recherche.",
+    "filters": {
+      "best": "Meilleures ventes",
+      "new": "Nouveautés",
+      "allCities": "Toutes les villes",
+      "search": "Rechercher un produit..."
+    },
+    "badges": {
+      "promo": "Promo",
+      "new": "Nouveau",
+      "best": "Best"
+    },
+    "labels": {
+      "product": "Produit",
+      "uncategorized": "Sans catégorie",
+      "city": "Ville"
+    },
+    "actions": {
+      "chooseCity": "Choisir une ville",
+      "allProducts": "Voir tous les produits",
+      "leaveRating": "Laisser une note"
+    },
+    "errors": {
+      "load": "Impossible de charger les produits."
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Une question sur un produit, une commande, ou une collaboration ? Écrivez-nous.",
+    "cardTitle": "Contactez-nous",
+    "cardText": "Nous répondons généralement sous 24h. Pour une commande, indiquez votre numéro de commande si possible.",
+    "footer": "En envoyant, vous acceptez d'être contacté(e) concernant votre demande.",
+    "messages": {
+      "success": "Message envoyé avec succès.",
+      "error": "Erreur lors de l'envoi du message. Veuillez réessayer."
+    },
+    "labels": {
+      "email": "Email",
+      "supportOrders": "Support & commandes",
+      "phoneWhatsapp": "Téléphone / WhatsApp",
+      "hoursShort": "Lun-Sam - 08:00-18:00",
+      "location": "Localisation"
+    },
+    "badges": {
+      "reply": "Réponse sous 24h",
+      "payment": "Paiement sécurisé",
+      "return": "Retour 30 jours"
+    },
+    "form": {
+      "fullName": "Nom complet",
+      "email": "Email",
+      "phone": "Téléphone (optionnel)",
+      "subject": "Sujet",
+      "message": "Message"
+    },
+    "placeholders": {
+      "name": "Votre nom",
+      "email": "Votre email",
+      "message": "Écrivez votre message..."
+    },
+    "subjects": {
+      "choose": "Choisir...",
+      "order": "Question sur une commande",
+      "product": "Question sur un produit",
+      "return": "Retour / échange",
+      "collab": "Collaboration",
+      "other": "Autre"
+    },
+    "actions": {
+      "sending": "Envoi en cours...",
+      "send": "Envoyer",
+      "reset": "Réinitialiser"
+    }
+  }
+}

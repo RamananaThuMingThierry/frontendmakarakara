@@ -1,0 +1,24 @@
+{
+  "logoAlt": "Logo",
+  "menu": "Menu",
+  "nav": {
+    "home": "Accueil",
+    "shop": "Boutique",
+    "cart": "Panier",
+    "about": "À propos",
+    "contact": "Contact",
+    "favorites": "Favoris"
+  },
+  "actions": {
+    "openNavigation": "Ouvrir la navigation"
+  },
+  "language": {
+    "choose": "Choisir la langue",
+    "label": "Langue"
+  },
+  "account": {
+    "label": "Compte",
+    "mySpace": "Mon espace",
+    "logout": "Déconnexion"
+  }
+}

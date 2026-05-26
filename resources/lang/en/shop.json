@@ -1,0 +1,47 @@
+{
+  "title": "Shop",
+  "subtitle": "The displayed products come from available inventories, with customer ratings, favorites, and badges.",
+  "loading": "Loading products...",
+  "count": "{{count}} product(s) - Page {{page}}/{{total}}",
+  "empty": "No products found with these criteria.",
+  "cityRule": "An order must contain products from a single city. If you buy from Antananarivo, choose only products from Antananarivo. For another city, place a separate order.",
+  "filters": {
+    "search": "Search...",
+    "city": "City",
+    "category": "Category",
+    "allCategories": "All",
+    "allCities": "All cities"
+  },
+  "sort": {
+    "name": "Sort: name",
+    "priceAsc": "Price: low to high",
+    "priceDesc": "Price: high to low",
+    "rating": "Rating: best first",
+    "city": "City: A to Z"
+  },
+  "labels": {
+    "category": "Category",
+    "city": "City",
+    "product": "Product",
+    "uncategorized": "Uncategorized"
+  },
+  "badges": {
+    "promo": "Promo",
+    "new": "New",
+    "best": "Best"
+  },
+  "reviewCount": "{{rating}} ({{count}} review(s))",
+  "noReview": "No review yet",
+  "deliveryCity": "Delivery for city",
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "actions": {
+    "leaveRating": "Leave a rating",
+    "giveRating": "Rate this product"
+  },
+  "errors": {
+    "load": "Unable to load products."
+  }
+}

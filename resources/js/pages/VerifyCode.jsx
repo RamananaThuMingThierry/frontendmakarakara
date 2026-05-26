@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/website/AuthContext";
+import { useI18n } from "../hooks/website/I18nContext";
 
 export default function VerifyCode() {
+  const { t } = useI18n();
   const { verifyResetCode, forgotPassword, loading } = useAuth();
   const nav = useNavigate();
   const location = useLocation();
@@ -25,19 +27,19 @@ export default function VerifyCode() {
     const trimmedCode = code.trim();
 
     if (!trimmedEmail) {
-      setError("Veuillez entrer votre email.");
+      setError(t("verifyCode.errors.emailRequired", "Please enter your email."));
       return;
     }
 
     if (trimmedCode.length !== 6) {
-      setError("Veuillez entrer le code a 6 chiffres.");
+      setError(t("verifyCode.errors.codeLength", "Please enter the 6-digit code."));
       return;
     }
 
     const res = await verifyResetCode({ email: trimmedEmail, code: trimmedCode });
 
     if (!res.ok) {
-      setError(res.errors?.code?.[0] || res.message || "Code invalide.");
+      setError(res.errors?.code?.[0] || res.message || t("verifyCode.errors.invalid", "Invalid code."));
       return;
     }
 
@@ -53,26 +55,27 @@ export default function VerifyCode() {
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      setError("Entrez votre email avant de renvoyer le code.");
+      setError(t("verifyCode.errors.emailBeforeResend", "Enter your email before resending the code."));
       return;
     }
 
     const res = await forgotPassword({ email: trimmedEmail });
 
     if (!res.ok) {
-      setError(res.message || "Impossible de renvoyer le code.");
+      setError(res.message || t("verifyCode.errors.resendFailed", "Unable to resend the code."));
       return;
     }
 
-    setMessage(res.message || "Un nouveau code a ete envoye.");
+    setMessage(res.message || t("verifyCode.success.resent", "A new code has been sent."));
   };
 
   return (
     <div className="container py-5" style={{ maxWidth: 520 }}>
       <div className="rounded-2 shadow-sm p-4" style={{ background: "#fbf7ec" }}>
-        <h2 className="fw-bold mb-1">Verification du code</h2>
+        <h2 className="fw-bold mb-1">{t("verifyCode.title", "Code verification")}</h2>
         <p className="text-secondary mb-4">
-          Entrez le code recu par email. Il reste valable {expiresInMinutes} minutes.
+          {t("verifyCode.subtitle", "Enter the code received by email. It remains valid for")}{" "}
+          {expiresInMinutes} {t("verifyCode.minutes", "minutes")}.
         </p>
 
         {message ? <div className="alert alert-success py-2">{message}</div> : null}
@@ -80,24 +83,24 @@ export default function VerifyCode() {
 
         <form onSubmit={submit} className="d-flex flex-column gap-3">
           <div>
-            <label className="form-label">Email</label>
+            <label className="form-label">{t("verifyCode.fields.email", "Email")}</label>
             <input
               className="form-control"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@gmail.com"
+              placeholder={t("verifyCode.placeholders.email", "email@gmail.com")}
               required
             />
           </div>
 
           <div>
-            <label className="form-label">Code</label>
+            <label className="form-label">{t("verifyCode.fields.code", "Code")}</label>
             <input
               className="form-control text-center"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="123456"
+              placeholder={t("verifyCode.placeholders.code", "123456")}
               inputMode="numeric"
               maxLength={6}
               required
@@ -106,16 +109,18 @@ export default function VerifyCode() {
           </div>
 
           <button className="btn btn-dark fw-semibold" disabled={loading} type="submit">
-            {loading ? "Verification..." : "Verifier le code"}
+            {loading
+              ? t("verifyCode.actions.loading", "Verifying...")
+              : t("verifyCode.actions.submit", "Verify code")}
           </button>
 
           <button className="btn btn-outline-dark" disabled={loading} onClick={resendCode} type="button">
-            Renvoyer le code
+            {t("verifyCode.actions.resend", "Resend code")}
           </button>
 
           <div className="text-secondary small d-flex justify-content-between">
-            <Link to="/forgot-password">Changer email</Link>
-            <Link to="/login">Connexion</Link>
+            <Link to="/forgot-password">{t("verifyCode.actions.changeEmail", "Change email")}</Link>
+            <Link to="/login">{t("verifyCode.actions.login", "Login")}</Link>
           </div>
         </form>
       </div>

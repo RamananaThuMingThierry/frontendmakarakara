@@ -1,0 +1,62 @@
+{
+  "loading": "Chargement du produit...",
+  "cityRule": "Une commande doit contenir les produits d'une seule ville. Si vous choisissez \"{{city}}\", achetez uniquement les produits de cette ville.",
+  "actions": {
+    "otherProducts": "Voir les autres produits",
+    "viewImage": "Voir image {{index}}",
+    "backToShop": "Retour a la boutique",
+    "viewAllReviews": "Voir tous les avis"
+  },
+  "labels": {
+    "product": "Produit",
+    "mainImage": "{{name}} principale",
+    "uncategorized": "Sans categorie",
+    "city": "Ville",
+    "thisCity": "cette ville",
+    "brand": "Marque",
+    "availableIn": "Disponible dans",
+    "noDescription": "Aucune description disponible.",
+    "selectedCity": "Ville selectionnee",
+    "availableCities": "Villes disponibles",
+    "availability": "Disponibilite",
+    "inStock": "En stock",
+    "client": "Client"
+  },
+  "empty": {
+    "alt": "Produit introuvable",
+    "title": "Produit introuvable",
+    "subtitle": "Ce produit n'est pas disponible actuellement."
+  },
+  "reviews": {
+    "title": "Avis sur ce produit",
+    "summary": "{{rating}}/5 sur {{count}} avis",
+    "empty": "Aucun avis publie pour le moment.",
+    "first": "Soyez le premier a laisser un avis sur ce produit."
+  },
+  "review": {
+    "success": "Votre avis a ete envoye.",
+    "error": "Impossible d'envoyer votre avis."
+  },
+  "reviewForm": {
+    "title": "Ajouter votre avis",
+    "subtitle": "Votre note sera associee directement a \"{{name}}\".",
+    "name": "Nom",
+    "city": "Ville",
+    "rating": "Note",
+    "choose": "Choisir",
+    "stars5": "5 etoiles",
+    "stars4": "4 etoiles",
+    "stars3": "3 etoiles",
+    "stars2": "2 etoiles",
+    "stars1": "1 etoile",
+    "message": "Votre avis",
+    "photo": "Photo (optionnel)",
+    "previewAlt": "Apercu",
+    "sending": "Envoi en cours...",
+    "send": "Envoyer mon avis",
+    "reset": "Reinitialiser"
+  },
+  "errors": {
+    "load": "Impossible de charger ce produit."
+  }
+}

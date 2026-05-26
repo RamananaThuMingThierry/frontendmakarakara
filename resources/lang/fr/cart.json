@@ -1,0 +1,50 @@
+{
+  "title": "Panier",
+  "count": "{{count}} article(s)",
+  "price": "Prix",
+  "messages": {
+    "loginBeforeCheckout": "Créez un compte ou connectez-vous avant de passer commande.",
+    "loginBeforeReserve": "Connectez-vous pour réserver votre panier pendant 24 heures.",
+    "reservedUntil": "Réservation enregistrée. Elle expirera le {{date}} si vous ne passez pas commande.",
+    "reserved24h": "Réservation enregistrée pour 24 heures.",
+    "reserveFailed": "Impossible de réserver ce panier."
+  },
+  "empty": {
+    "alt": "Panier vide",
+    "title": "Votre panier est vide",
+    "subtitle": "Ajoutez des produits pour les retrouver ici."
+  },
+  "actions": {
+    "goShop": "Aller à la boutique",
+    "clear": "Vider le panier",
+    "remove": "Supprimer",
+    "decrease": "Diminuer",
+    "increase": "Augmenter",
+    "continueShopping": "Continuer vos achats",
+    "reserving": "Réservation...",
+    "reserve24h": "Réserver 24h",
+    "order": "Commander"
+  },
+  "coupon": {
+    "title": "Coupon",
+    "placeholder": "Entrer un code (ex: FIX10, SAVE15)",
+    "apply": "Appliquer",
+    "remove": "Retirer",
+    "enterCode": "Entrez un code coupon.",
+    "invalid": "Coupon invalide ou non applicable.",
+    "labels": {
+      "fix10": "Coupon FIX10 (-10 000 MGA)",
+      "save15": "Coupon SAVE15 (-15%)"
+    }
+  },
+  "summary": {
+    "title": "Récapitulatif",
+    "deviceNotice": "Votre panier est sauvegardé sur cet appareil. Connectez-vous pour le conserver aussi sur votre compte et finaliser la commande.",
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "delivery": "Livraison",
+    "deliveryPending": "À confirmer par l'administration",
+    "total": "Total provisoire",
+    "deliveryHelp": "Le frais de livraison sera confirmé par l'administration selon la distance, et peut être gratuit."
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
+import { useI18n } from "../../hooks/website/I18nContext";
 
 function buildImageUrl(path) {
   if (!path) return "/images/img.png";
@@ -12,6 +13,7 @@ function buildImageUrl(path) {
 }
 
 export default function TestimonialSection() {
+  const { t } = useI18n();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,13 +37,13 @@ export default function TestimonialSection() {
     };
   }, []);
 
-  const Card = ({ t }) => (
+  const Card = ({ item }) => (
     <div className="col-12 col-md-4">
       <div className="p-4 rounded-4 shadow-sm h-100" style={{ background: "#fbf7ec" }}>
         <div className="d-flex align-items-center mb-3">
           <img
-            src={buildImageUrl(t.photo_url)}
-            alt={t.name}
+            src={buildImageUrl(item.photo_url)}
+            alt={item.name}
             className="rounded-circle me-3"
             style={{
               width: 56,
@@ -53,18 +55,18 @@ export default function TestimonialSection() {
           />
 
           <div>
-            <div className="fw-bold">{t.name}</div>
-            <div className="text-secondary small">{t.city || "Client"}</div>
+            <div className="fw-bold">{item.name}</div>
+            <div className="text-secondary small">{item.city || t("home.testimonials.clientLabel", "Client")}</div>
           </div>
         </div>
 
         <div className="text-warning mb-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <i key={i} className={`bi ${i < Number(t.rating || 0) ? "bi-star-fill" : "bi-star"}`} />
+            <i key={i} className={`bi ${i < Number(item.rating || 0) ? "bi-star-fill" : "bi-star"}`} />
           ))}
         </div>
 
-        <p className="text-secondary mb-0">"{t.message}"</p>
+        <p className="text-secondary mb-0">"{item.message}"</p>
       </div>
     </div>
   );
@@ -74,29 +76,33 @@ export default function TestimonialSection() {
       <div className="container">
         <div className="text-center mb-4">
           <h3 className="fw-bold" style={{ fontFamily: "cursive" }}>
-            Temoignages
+            {t("home.testimonials.title", "Temoignages")}
           </h3>
-          <p className="text-secondary mb-0">Ce que nos clients disent de nous</p>
+          <p className="text-secondary mb-0">
+            {t("home.testimonials.subtitle", "Ce que nos clients disent de nous")}
+          </p>
         </div>
 
         {loading ? (
-          <div className="text-center text-muted">Chargement...</div>
+          <div className="text-center text-muted">{t("home.testimonials.loading", "Chargement...")}</div>
         ) : testimonials.length === 0 ? (
-          <div className="text-center text-muted">Aucun avis publie pour le moment.</div>
+          <div className="text-center text-muted">
+            {t("home.testimonials.empty", "Aucun avis publie pour le moment.")}
+          </div>
         ) : (
           <div className="row g-3">
-            {testimonials.map((t) => (
-              <Card key={t.id} t={t} />
+            {testimonials.map((item) => (
+              <Card key={item.id} item={item} />
             ))}
           </div>
         )}
 
         <div className="text-center mt-4 d-flex justify-content-center gap-2 flex-wrap">
           <Link to="/testimonials" className="btn btn-dark px-4">
-            Voir plus
+            {t("home.testimonials.actions.more", "Voir plus")}
           </Link>
           <Link to="/testimonials" className="btn btn-outline-dark px-4">
-            Laisser un avis
+            {t("home.testimonials.actions.leaveReview", "Laisser un avis")}
           </Link>
         </div>
       </div>

@@ -1,0 +1,25 @@
+{
+  "title": "Galerie Clients",
+  "subtitle": "Tous les resultats de notre communaute",
+  "loading": "Chargement...",
+  "empty": "Aucune image disponible.",
+  "imageAlt": "Client",
+  "clientLabel": "Client",
+  "footer": "Galerie alimentee depuis l'administration.",
+  "stats": {
+    "photos": "{{count}} photos",
+    "likes": "{{count}} likes"
+  },
+  "hints": {
+    "login": "Connectez-vous pour aimer une image.",
+    "likeRule": "Un utilisateur peut laisser 1 like ou le retirer."
+  },
+  "actions": {
+    "back": "Retour"
+  },
+  "errors": {
+    "load": "Impossible de charger la galerie.",
+    "loginToLike": "Connectez-vous pour aimer une image.",
+    "like": "Impossible de mettre a jour le like."
+  }
+}

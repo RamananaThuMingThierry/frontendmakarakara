@@ -1,0 +1,14 @@
+{
+  "title": "Search",
+  "placeholder": "Type the product name...",
+  "loading": "Loading suggestions...",
+  "hint": "Tip: try \"Serum\", \"Mask\", \"Brush\"...",
+  "empty": "No results for \"{{query}}\".",
+  "labels": {
+    "product": "Product"
+  },
+  "actions": {
+    "search": "Search",
+    "viewAll": "View all results"
+  }
+}

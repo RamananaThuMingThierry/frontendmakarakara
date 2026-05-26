@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { inventoryApi } from "../../api/inventories";
 import { publicTestimonialsApi } from "../../api/public_testimonials";
+import { useI18n } from "../../hooks/website/I18nContext";
 import AddToCartToggle from "../../Components/website/AddToCartToggle";
 import FavoriteButton from "../../Components/website/FavoriteButton";
 
@@ -59,6 +60,7 @@ function Stars({ value }) {
 }
 
 export default function Shop() {
+  const { t } = useI18n();
   const [inventories, setInventories] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function Shop() {
         setTestimonials(Array.isArray(testimonialData) ? testimonialData : []);
       } catch (err) {
         if (cancelled) return;
-        setError(err?.response?.data?.message || "Impossible de charger les produits.");
+        setError(err?.response?.data?.message || t("shop.errors.load", "Impossible de charger les produits."));
         setInventories([]);
         setTestimonials([]);
       } finally {
@@ -102,7 +104,7 @@ export default function Shop() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const testimonialStats = useMemo(() => {
     const stats = new Map();
@@ -145,15 +147,15 @@ export default function Shop() {
 
       seen.set(currentCategory.id, {
         key: String(currentCategory.id),
-        label: currentCategory.name || `Categorie ${currentCategory.id}`,
+        label: currentCategory.name || `${t("shop.labels.category", "Categorie")} ${currentCategory.id}`,
       });
     });
 
     return [
-      { key: "all", label: "Toutes" },
+      { key: "all", label: t("shop.filters.allCategories", "Toutes") },
       ...Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label)),
     ];
-  }, [validInventories]);
+  }, [t, validInventories]);
 
   const cities = useMemo(() => {
     const seen = new Map();
@@ -164,15 +166,15 @@ export default function Shop() {
 
       seen.set(currentCity.id, {
         key: String(currentCity.id),
-        label: currentCity.name || `Ville ${currentCity.id}`,
+        label: currentCity.name || `${t("shop.labels.city", "Ville")} ${currentCity.id}`,
       });
     });
 
     return [
-      { key: "all", label: "Toutes les villes" },
+      { key: "all", label: t("shop.filters.allCities", "Toutes les villes") },
       ...Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label)),
     ];
-  }, [validInventories]);
+  }, [t, validInventories]);
 
   const bestProductIds = useMemo(() => {
     return new Set(
@@ -215,9 +217,17 @@ export default function Shop() {
         : false;
 
       const badges = [];
-      if (discount > 0) badges.push({ key: "promo", label: `Promo -${discount}%`, tone: getBadgeTone("promo") });
-      if (isNew) badges.push({ key: "new", label: "Nouveau", tone: getBadgeTone("new") });
-      if (bestProductIds.has(product.id)) badges.push({ key: "best", label: "Best", tone: getBadgeTone("best") });
+      if (discount > 0) {
+        badges.push({
+          key: "promo",
+          label: `${t("shop.badges.promo", "Promo")} -${discount}%`,
+          tone: getBadgeTone("promo"),
+        });
+      }
+      if (isNew) badges.push({ key: "new", label: t("shop.badges.new", "Nouveau"), tone: getBadgeTone("new") });
+      if (bestProductIds.has(product.id)) {
+        badges.push({ key: "best", label: t("shop.badges.best", "Best"), tone: getBadgeTone("best") });
+      }
 
       return {
         id: product.id ?? null,
@@ -227,10 +237,10 @@ export default function Shop() {
         product_encrypted_id: product.encrypted_id || null,
         city_id: currentCity.id ?? inventory.city_id ?? null,
         city_name: currentCity.name || "",
-        name: product.name || "Produit",
+        name: product.name || t("shop.labels.product", "Produit"),
         description: product.description || "",
         category_id: currentCategory.id ? String(currentCategory.id) : "",
-        category_name: currentCategory.name || "Sans categorie",
+        category_name: currentCategory.name || t("shop.labels.uncategorized", "Sans categorie"),
         price,
         compare_price: comparePrice,
         image: getProductImage(product),
@@ -265,7 +275,7 @@ export default function Shop() {
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating || b.testimonial_count - a.testimonial_count);
 
     return list;
-  }, [bestProductIds, category, city, q, sort, testimonialStats, validInventories]);
+  }, [bestProductIds, category, city, q, sort, t, testimonialStats, validInventories]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const currentPage = Math.min(page, totalPages);
@@ -278,9 +288,12 @@ export default function Shop() {
       <div className="container">
         <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-4">
           <div>
-            <h1 className="fw-bold mb-1">Boutique</h1>
+            <h1 className="fw-bold mb-1">{t("shop.title", "Boutique")}</h1>
             <p className="text-secondary mb-0">
-              Les produits affiches proviennent des inventaires disponibles, avec notes clients, favoris et badges.
+              {t(
+                "shop.subtitle",
+                "Les produits affiches proviennent des inventaires disponibles, avec notes clients, favoris et badges."
+              )}
             </p>
           </div>
 
@@ -291,7 +304,7 @@ export default function Shop() {
               </span>
               <input
                 className="form-control"
-                placeholder="Rechercher..."
+                placeholder={t("shop.filters.search", "Rechercher...")}
                 value={q}
                 onChange={(e) => {
                   setQ(e.target.value);
@@ -309,22 +322,24 @@ export default function Shop() {
               }}
               style={{ minWidth: 220 }}
             >
-              <option value="name">Trier : nom</option>
-              <option value="priceAsc">Prix : croissant</option>
-              <option value="priceDesc">Prix : decroissant</option>
-              <option value="rating">Note : meilleure</option>
-              <option value="city">Ville : A a Z</option>
+              <option value="name">{t("shop.sort.name", "Trier : nom")}</option>
+              <option value="priceAsc">{t("shop.sort.priceAsc", "Prix : croissant")}</option>
+              <option value="priceDesc">{t("shop.sort.priceDesc", "Prix : decroissant")}</option>
+              <option value="rating">{t("shop.sort.rating", "Note : meilleure")}</option>
+              <option value="city">{t("shop.sort.city", "Ville : A a Z")}</option>
             </select>
 
             <Link to="/testimonials" className="btn btn-outline-dark">
-              Laisser une note
+              {t("shop.actions.leaveRating", "Laisser une note")}
             </Link>
           </div>
         </div>
 
         <div className="row g-3 mb-4">
           <div className="col-12 col-lg-6">
-            <label className="form-label small text-uppercase text-secondary mb-2">Ville</label>
+            <label className="form-label small text-uppercase text-secondary mb-2">
+              {t("shop.filters.city", "Ville")}
+            </label>
             <select
               className="form-select"
               value={city}
@@ -342,7 +357,9 @@ export default function Shop() {
           </div>
 
           <div className="col-12 col-lg-6">
-            <label className="form-label small text-uppercase text-secondary mb-2">Categorie</label>
+            <label className="form-label small text-uppercase text-secondary mb-2">
+              {t("shop.filters.category", "Categorie")}
+            </label>
             <div className="d-flex flex-wrap gap-2">
               {categories.map((c) => (
                 <button
@@ -362,14 +379,21 @@ export default function Shop() {
         </div>
 
         <div className="alert alert-info border-0 shadow-sm mb-4">
-          Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, choisissez uniquement
-          les produits de Antananarivo. Pour une autre ville, faites une autre commande.
+          {t(
+            "shop.cityRule",
+            "Une commande doit contenir les produits d'une seule ville. Si vous achetez a Antananarivo, choisissez uniquement les produits de Antananarivo. Pour une autre ville, faites une autre commande."
+          )}
         </div>
 
         {error && <div className="alert alert-danger mb-4">{error}</div>}
 
         <div className="text-secondary small mb-3">
-          {loading ? "Chargement des produits..." : `${filtered.length} produit(s) - Page ${currentPage}/${totalPages}`}
+          {loading
+            ? t("shop.loading", "Chargement des produits...")
+            : t("shop.count", "{{count}} produit(s) - Page {{page}}/{{total}}")
+                .replace("{{count}}", filtered.length)
+                .replace("{{page}}", currentPage)
+                .replace("{{total}}", totalPages)}
         </div>
 
         <div className="row g-4">
@@ -397,10 +421,7 @@ export default function Shop() {
                       ))}
                     </div>
 
-                    <FavoriteButton
-                      product={p}
-                      className="position-absolute top-0 end-0 m-2"
-                    />
+                    <FavoriteButton product={p} className="position-absolute top-0 end-0 m-2" />
                   </div>
 
                   <div className="card-body d-flex flex-column">
@@ -416,7 +437,11 @@ export default function Shop() {
                     <div className="d-flex align-items-center gap-2 mb-2">
                       <Stars value={p.rating} />
                       <small className="text-secondary">
-                        {p.testimonial_count > 0 ? `${p.rating.toFixed(1)} (${p.testimonial_count} avis)` : "Pas encore d'avis"}
+                        {p.testimonial_count > 0
+                          ? t("shop.reviewCount", "{{rating}} ({{count}} avis)")
+                              .replace("{{rating}}", p.rating.toFixed(1))
+                              .replace("{{count}}", p.testimonial_count)
+                          : t("shop.noReview", "Pas encore d'avis")}
                       </small>
                     </div>
 
@@ -427,7 +452,8 @@ export default function Shop() {
                     )}
 
                     <div className="small text-secondary mb-2">
-                      Livraison pour la ville : <span className="fw-semibold">{p.city_name || "-"}</span>
+                      {t("shop.deliveryCity", "Livraison pour la ville")} :{" "}
+                      <span className="fw-semibold">{p.city_name || "-"}</span>
                     </div>
 
                     <div className="mt-auto">
@@ -442,7 +468,7 @@ export default function Shop() {
                     <div className="d-grid gap-2 mt-3">
                       <AddToCartToggle product={p} variant="compact" />
                       <Link to="/testimonials" className="btn btn-outline-secondary btn-sm">
-                        Donner une note
+                        {t("shop.actions.giveRating", "Donner une note")}
                       </Link>
                     </div>
                   </div>
@@ -452,13 +478,15 @@ export default function Shop() {
 
           {loading && (
             <div className="col-12">
-              <div className="alert alert-light mb-0">Chargement des produits...</div>
+              <div className="alert alert-light mb-0">{t("shop.loading", "Chargement des produits...")}</div>
             </div>
           )}
 
           {!loading && paginated.length === 0 && (
             <div className="col-12">
-              <div className="alert alert-warning mb-0">Aucun produit trouve avec ces criteres.</div>
+              <div className="alert alert-warning mb-0">
+                {t("shop.empty", "Aucun produit trouve avec ces criteres.")}
+              </div>
             </div>
           )}
         </div>
@@ -468,7 +496,7 @@ export default function Shop() {
             <ul className="pagination justify-content-center">
               <li className={"page-item " + (currentPage === 1 ? "disabled" : "")}>
                 <button className="page-link" onClick={() => setPage((prev) => prev - 1)}>
-                  Precedent
+                  {t("shop.pagination.previous", "Precedent")}
                 </button>
               </li>
 
@@ -485,7 +513,7 @@ export default function Shop() {
 
               <li className={"page-item " + (currentPage === totalPages ? "disabled" : "")}>
                 <button className="page-link" onClick={() => setPage((prev) => prev + 1)}>
-                  Suivant
+                  {t("shop.pagination.next", "Suivant")}
                 </button>
               </li>
             </ul>

@@ -1,0 +1,58 @@
+{
+  "title": "All testimonials",
+  "count": "{{count}} published review(s) - Page {{page}}/{{total}}",
+  "loading": "Loading...",
+  "footer": "Thank you for your trust.",
+  "messages": {
+    "success": "Your review has been published.",
+    "error": "An error occurred while sending your review."
+  },
+  "labels": {
+    "client": "Client",
+    "platform": "Platform",
+    "productTag": "Product: {{product}}",
+    "productFallback": "Product"
+  },
+  "list": {
+    "title": "Customer reviews",
+    "subtitle": "Reviews about products and the platform.",
+    "loading": "Loading reviews...",
+    "empty": "No review published yet."
+  },
+  "form": {
+    "title": "Leave your review",
+    "subtitle": "You can rate a specific product or share a general review about the platform.",
+    "name": "Name",
+    "city": "City",
+    "type": "Review type",
+    "platform": "Platform",
+    "product": "Product",
+    "chooseProduct": "Choose a product",
+    "rating": "Rating",
+    "choose": "Choose",
+    "stars5": "5 stars",
+    "stars4": "4 stars",
+    "stars3": "3 stars",
+    "stars2": "2 stars",
+    "stars1": "1 star",
+    "message": "Your review",
+    "photo": "Photo (optional)",
+    "previewAlt": "Preview",
+    "footer": "Product reviews are linked to the selected product. Platform reviews remain general."
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "back": "Back",
+    "sending": "Sending...",
+    "send": "Send my review",
+    "reset": "Reset"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "errors": {
+    "load": "Unable to load reviews."
+  }
+}

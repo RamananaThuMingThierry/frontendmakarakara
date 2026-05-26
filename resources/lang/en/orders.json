@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Order management",
   "subtitle": "Track customer orders and review order items.",
   "total": "Total",
@@ -79,5 +79,34 @@
     "deliver": "Deliver",
     "cancel": "Cancel",
     "close": "Close"
+  },
+  "client": {
+    "title": "My orders",
+    "subtitle": "Track your purchases, statuses, and documents.",
+    "loading": "Loading orders...",
+    "empty": "You have not placed any orders yet.",
+    "summary": {
+      "total": "Total orders"
+    },
+    "delivery": {
+      "title": "Delivery",
+      "clientFallback": "Client",
+      "phoneUnavailable": "Phone not provided"
+    },
+    "messages": {
+      "cancelled": "Order cancelled successfully."
+    },
+    "errors": {
+      "load": "Unable to load orders.",
+      "cancel": "Unable to cancel this order.",
+      "invoice": "Unable to download the invoice."
+    },
+    "actions": {
+      "goToShop": "Go to shop",
+      "confirmCancel": "Cancel order {{order}}?",
+      "cancelling": "Cancelling...",
+      "downloading": "Downloading...",
+      "downloadInvoice": "Download invoice"
+    }
   }
 }

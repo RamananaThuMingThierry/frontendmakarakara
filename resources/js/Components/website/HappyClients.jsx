@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { publicGalleryApi } from "../../api/public_gallery";
 import { useAuth } from "../../hooks/website/AuthContext";
+import { useI18n } from "../../hooks/website/I18nContext";
 import { imageUrl } from "../../utils/Url";
 import "../../../css/website.css";
 
 export default function HappyClients() {
+  const { t } = useI18n();
   const nav = useNavigate();
   const { isAuth, hydrating } = useAuth();
 
@@ -34,7 +36,7 @@ export default function HappyClients() {
         setItems(Array.isArray(data) ? data : []);
       } catch (e) {
         if (cancelled) return;
-        setError(e?.response?.data?.message || "Impossible de charger la galerie.");
+        setError(e?.response?.data?.message || t("home.clients.errors.load", "Impossible de charger la galerie."));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -45,7 +47,7 @@ export default function HappyClients() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const previewItems = useMemo(
     () =>
@@ -59,7 +61,7 @@ export default function HappyClients() {
     if (pendingId || hydrating) return;
 
     if (!isAuth) {
-      showToast("warning", "Connectez-vous pour aimer une image.");
+      showToast("warning", t("home.clients.errors.loginToLike", "Connectez-vous pour aimer une image."));
       nav("/login");
       return;
     }
@@ -96,7 +98,7 @@ export default function HappyClients() {
       );
     } catch (e) {
       setItems(previousItems);
-      showToast("danger", e?.response?.data?.message || "Impossible de mettre a jour le like.");
+      showToast("danger", e?.response?.data?.message || t("home.clients.errors.like", "Impossible de mettre a jour le like."));
     } finally {
       setPendingId(null);
     }
@@ -107,10 +109,10 @@ export default function HappyClients() {
       <div className="container">
         <div className="text-center mb-4">
           <h3 className="fw-bold" style={{ fontFamily: "cursive" }}>
-            Clients Satisfaits
+            {t("home.clients.title", "Clients Satisfaits")}
           </h3>
           <p className="text-secondary mb-0">
-            Decouvrez les resultats reels de notre communaute
+            {t("home.clients.subtitle", "Decouvrez les resultats reels de notre communaute")}
           </p>
         </div>
 
@@ -120,11 +122,13 @@ export default function HappyClients() {
           <div className="d-flex justify-content-center py-5">
             <div className="d-flex align-items-center gap-2 text-muted">
               <span className="spinner-border spinner-border-sm" />
-              Chargement...
+              {t("home.clients.loading", "Chargement...")}
             </div>
           </div>
         ) : previewItems.length === 0 ? (
-          <div className="text-center text-muted py-5">Aucune image disponible.</div>
+          <div className="text-center text-muted py-5">
+            {t("home.clients.empty", "Aucune image disponible.")}
+          </div>
         ) : (
           <div className="row g-3">
             {previewItems.map((image) => (
@@ -132,7 +136,7 @@ export default function HappyClients() {
                 <div className="client-card position-relative overflow-hidden rounded-4 bg-white border shadow-sm">
                   <img
                     src={imageUrl(image.image_url)}
-                    alt={image.name || "Client satisfait"}
+                    alt={image.name || t("home.clients.imageAlt", "Client satisfait")}
                     className="w-100 h-100 object-fit-cover"
                     style={{ height: 220 }}
                     loading="lazy"
@@ -140,7 +144,7 @@ export default function HappyClients() {
 
                   <div className="position-absolute top-0 start-0 end-0 p-3 d-flex justify-content-between align-items-start">
                     <span className="badge bg-dark bg-opacity-75 rounded-pill">
-                      {image.name || "Client"}
+                      {image.name || t("home.clients.clientLabel", "Client")}
                     </span>
                     <button
                       type="button"
@@ -166,7 +170,7 @@ export default function HappyClients() {
 
         <div className="text-center mt-4">
           <Link className="btn btn-dark btn-sm px-4" to="/gallery">
-            Voir plus de photos
+            {t("home.clients.actions.morePhotos", "Voir plus de photos")}
           </Link>
         </div>
       </div>
@@ -180,6 +184,7 @@ export default function HappyClients() {
                 type="button"
                 className="btn-close btn-close-white me-2 m-auto"
                 onClick={() => setToast((current) => ({ ...current, open: false }))}
+                aria-label={t("common.close", "Close")}
               />
             </div>
           </div>

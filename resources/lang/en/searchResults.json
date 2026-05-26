@@ -1,0 +1,21 @@
+{
+  "title": "Search",
+  "query": "Results for",
+  "loading": "Loading products...",
+  "emptyQuery": "Enter a keyword to search for a product.",
+  "count": "{{count}} result(s)",
+  "labels": {
+    "product": "Product"
+  },
+  "actions": {
+    "goShop": "Go to shop"
+  },
+  "empty": {
+    "alt": "No result",
+    "title": "No result",
+    "subtitle": "Try another keyword or browse the shop."
+  },
+  "errors": {
+    "load": "Unable to load products."
+  }
+}
