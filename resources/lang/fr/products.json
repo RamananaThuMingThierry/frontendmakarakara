@@ -4,6 +4,7 @@
     "product": "Produit",
     "category": "Catégorie",
     "name": "Nom du produit",
+    "sku": "SKU",
     "barcode": "Code-barres",
     "priceMga": "Prix (MGA)",
     "description": "Description",

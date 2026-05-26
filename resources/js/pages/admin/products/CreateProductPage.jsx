@@ -129,7 +129,7 @@ export default function CreateProductPage() {
             {firstError("name") ? <div className="invalid-feedback">{firstError("name")}</div> : null}
           </div>
           <div className="row g-2">
-            <div className="col-12 col-md-6"><div className="mb-3"><label className="form-label">SKU</label><input className={`form-control ${errors.sku ? "is-invalid" : ""}`} value={form.sku} onChange={(event) => setField("sku", event.target.value)} placeholder={t("products.placeholders.sku", "Ex: SKU-0001")} />{firstError("sku") ? <div className="invalid-feedback">{firstError("sku")}</div> : null}</div></div>
+            <div className="col-12 col-md-6"><div className="mb-3"><label className="form-label">{t("products.fields.sku", "SKU")}</label><input className={`form-control ${errors.sku ? "is-invalid" : ""}`} value={form.sku} onChange={(event) => setField("sku", event.target.value)} placeholder={t("products.placeholders.sku", "Ex: SKU-0001")} />{firstError("sku") ? <div className="invalid-feedback">{firstError("sku")}</div> : null}</div></div>
             <div className="col-12 col-md-6"><div className="mb-3"><label className="form-label">{t("products.fields.barcode", "Barcode")}</label><input className={`form-control ${errors.barcode ? "is-invalid" : ""}`} value={form.barcode} onChange={(event) => setField("barcode", event.target.value)} placeholder={t("products.placeholders.barcode", "Ex: 123456789")} />{firstError("barcode") ? <div className="invalid-feedback">{firstError("barcode")}</div> : null}</div></div>
           </div>
           <div className="mb-3">

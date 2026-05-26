@@ -240,7 +240,7 @@ export default function ProductInfo({ product, onRefresh }) {
           <div className="card-body">
             <div className="row g-3">
               <div className="col-12 col-md-6"><label className="form-label text-muted small">{t("products.fields.name", "Product name")}</label><div className="form-control bg-light">{product.name}</div></div>
-              <div className="col-12 col-md-3"><label className="form-label text-muted small">SKU</label><div className="form-control bg-light">{product.sku || "-"}</div></div>
+              <div className="col-12 col-md-3"><label className="form-label text-muted small">{t("products.fields.sku", "SKU")}</label><div className="form-control bg-light">{product.sku || "-"}</div></div>
               <div className="col-12 col-md-3"><label className="form-label text-muted small">{t("products.inventory.table.status", "Status")}</label><div className="form-control bg-light">{product.is_active ? t("products.status.active", "Active") : t("products.status.inactive", "Inactive")}</div></div>
               <div className="col-12 col-md-6"><label className="form-label text-muted small">{t("products.fields.category", "Category")}</label><div className="form-control bg-light">{product.category?.name || "-"}</div></div>
               <div className="col-12 col-md-6"><label className="form-label text-muted small">{t("products.summary.brand", "Brand")}</label><div className="form-control bg-light">{product.brand?.name || "-"}</div></div>
