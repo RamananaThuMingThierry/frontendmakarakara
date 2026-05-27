@@ -1,5 +1,7 @@
 import api from './axios';
 
+const pathId = (id) => encodeURIComponent(String(id ?? ""));
+
 export const categoriesApi = {
   async list() {
     const res = await api.get("/admin/categories");
@@ -12,18 +14,17 @@ export const categoriesApi = {
   },
 
   async show(id) {
-    console.log(id);
-    const res = await api.get(`/admin/categories/${id}`);
+    const res = await api.get(`/admin/categories/${pathId(id)}`);
     return res.data;
   },
 
   async update(id, payload) {
-    const res = await api.put(`/admin/categories/${id}`, payload);
+    const res = await api.put(`/admin/categories/${pathId(id)}`, payload);
     return { data: res.data, message: res.data.message };
   },
 
   async remove(id) {
-    const res = await api.delete(`/admin/categories/${id}`);
+    const res = await api.delete(`/admin/categories/${pathId(id)}`);
     return { message: res.data.message };
   },
 };

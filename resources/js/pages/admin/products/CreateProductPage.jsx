@@ -5,6 +5,8 @@ import TranslatedFileInput from "../../../Components/common/TranslatedFileInput"
 import { productsApi } from "../../../api/products";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
+const routeId = (id) => encodeURIComponent(String(id ?? ""));
+
 export default function CreateProductPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -91,7 +93,7 @@ export default function CreateProductPage() {
     setSaving(true);
     try {
       await productsApi.create(categoryEncryptedId, formData);
-      navigate(`/admin/categories/${categoryEncryptedId}`);
+      navigate(`/admin/categories/${routeId(categoryEncryptedId)}`);
     } catch (error) {
       const data = error?.response?.data;
       if (data?.errors) setErrors(data.errors);
@@ -112,7 +114,7 @@ export default function CreateProductPage() {
           <h4 className="mb-1">{t("products.create.title", "Create product")}</h4>
           <div className="text-muted small">{t("products.fields.category", "Category")}: <b>{category?.name ?? "-"}</b></div>
         </div>
-        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${categoryEncryptedId}`)}><i className="bi bi-arrow-left me-2" />{t("common.back", "Back")}</button>
+        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${routeId(categoryEncryptedId)}`)}><i className="bi bi-arrow-left me-2" />{t("common.back", "Back")}</button>
       </div>
 
       <div className="card border-0 shadow-sm"><div className="card-body">
@@ -152,7 +154,7 @@ export default function CreateProductPage() {
           </div>
           <div className="form-check mb-3"><input className="form-check-input" type="checkbox" id="active" checked={!!form.is_active} onChange={(event) => setField("is_active", event.target.checked)} /><label className="form-check-label" htmlFor="active">{t("products.fields.active", "Active")}</label></div>
           <div className="d-flex justify-content-end gap-2">
-            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${categoryEncryptedId}`)} disabled={saving}>{t("common.cancel", "Cancel")}</button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${routeId(categoryEncryptedId)}`)} disabled={saving}>{t("common.cancel", "Cancel")}</button>
             <button type="submit" className="btn btn-dark" disabled={saving}>{saving ? <><span className="spinner-border spinner-border-sm me-2" />{t("common.saving", "Saving...")}</> : t("products.actions.create", "Create")}</button>
           </div>
         </form>

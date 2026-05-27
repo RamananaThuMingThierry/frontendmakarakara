@@ -13,6 +13,7 @@ Homestead.json
 Homestead.yaml
 auth.json
 npm-debug.log
+vite.config.js
 yarn-error.log
 /.fleet
 /.idea

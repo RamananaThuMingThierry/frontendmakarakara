@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
 const DEFAULT_IMG = "/images/box.png";
+const routeId = (id) => encodeURIComponent(String(id ?? ""));
 
 function getProductThumb(product) {
   const img = product?.images?.[0];
@@ -201,11 +202,11 @@ export default function CategoryManagePage() {
     }
   }
 
-  function onAddProduct(cat) { navigate(`/admin/products/create?category_id=${cat.encrypted_id}`); }
-  function onEditCategory(cat) { if (!cat?.encrypted_id) return; navigate(`/admin/categories/${cat.encrypted_id}/edit`); }
+  function onAddProduct(cat) { navigate(`/admin/products/create?category_id=${routeId(cat.encrypted_id)}`); }
+  function onEditCategory(cat) { if (!cat?.encrypted_id) return; navigate(`/admin/categories/${routeId(cat.encrypted_id)}/edit`); }
   function onAskDeleteCategory(cat) { setDeleteTarget(cat); setDeleteOpen(true); }
-  function onDetailsProduct(p) { if (!p?.encrypted_id || !encryptedId) return; navigate(`/admin/categories/${encryptedId}/products/${p.encrypted_id}`); }
-  function onEditProduct(p) { if (!p?.encrypted_id || !encryptedId) return; navigate(`/admin/categories/${encryptedId}/products/${p.encrypted_id}/edit`); }
+  function onDetailsProduct(p) { if (!p?.encrypted_id || !encryptedId) return; navigate(`/admin/categories/${routeId(encryptedId)}/products/${routeId(p.encrypted_id)}`); }
+  function onEditProduct(p) { if (!p?.encrypted_id || !encryptedId) return; navigate(`/admin/categories/${routeId(encryptedId)}/products/${routeId(p.encrypted_id)}/edit`); }
   function onDeleteProduct(p) { console.log("delete", p); }
 
   async function confirmDeleteCategory() {

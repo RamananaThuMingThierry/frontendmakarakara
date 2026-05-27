@@ -39,7 +39,14 @@ class CategoryRepository extends BaseRepository implements CategoryInterface
             LEFT JOIN products p ON p.category_id = tree.node_id
 
             WHERE cat.parent_id IS NULL
-            GROUP BY cat.id
+            GROUP BY
+                cat.id,
+                cat.name,
+                cat.slug,
+                cat.parent_id,
+                cat.is_active,
+                cat.created_at,
+                cat.updated_at
         ";
 
         $rows = collect(DB::select($sql));

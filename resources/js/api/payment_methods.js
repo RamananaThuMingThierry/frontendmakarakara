@@ -1,6 +1,8 @@
 import api from "./axios";
 import { toFormData } from "../utils/to-form-data";
 
+const pathId = (id) => encodeURIComponent(String(id ?? ""));
+
 export const paymentMethodsApi = {
   async index() {
     const { data } = await api.get("/admin/payment_methods");
@@ -8,7 +10,7 @@ export const paymentMethodsApi = {
   },
 
   async show(encryptedId) {
-    const { data } = await api.get(`/admin/payment_methods/${encryptedId}`);
+    const { data } = await api.get(`/admin/payment_methods/${pathId(encryptedId)}`);
     return data?.data ?? data;
   },
 
@@ -43,7 +45,7 @@ export const paymentMethodsApi = {
       });
       fd.append("_method", "PUT");
 
-      const { data } = await api.post(`/admin/payment_methods/${encryptedId}`, fd, {
+      const { data } = await api.post(`/admin/payment_methods/${pathId(encryptedId)}`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -51,12 +53,12 @@ export const paymentMethodsApi = {
     }
 
     // sinon JSON normal
-    const { data } = await api.put(`/admin/payment_methods/${encryptedId}`, payload);
+    const { data } = await api.put(`/admin/payment_methods/${pathId(encryptedId)}`, payload);
     return { data: data?.data, message: data?.message };
   },
 
   async remove(encryptedId) {
-    const { data } = await api.delete(`/admin/payment_methods/${encryptedId}`);
+    const { data } = await api.delete(`/admin/payment_methods/${pathId(encryptedId)}`);
     return { message: data?.message, data: data?.data ?? data };
   },
 };

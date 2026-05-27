@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { categoriesApi } from "../../../api/categories";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
+const routeId = (id) => encodeURIComponent(String(id ?? ""));
+
 export default function UpdateCategoryPage() {
   const { encryptedId } = useParams();
   const navigate = useNavigate();
@@ -67,7 +69,7 @@ export default function UpdateCategoryPage() {
       await categoriesApi.update(encryptedId, payload);
 
       // après update -> retourner à la page manage
-      navigate(`/admin/categories/${encryptedId}`);
+      navigate(`/admin/categories/${routeId(encryptedId)}`);
     } catch (e2) {
       const d = e2?.response?.data;
       if (d?.errors) setErrors(d.errors);
@@ -101,7 +103,7 @@ export default function UpdateCategoryPage() {
         <button
           type="button"
           className="btn btn-outline-secondary"
-          onClick={() => navigate(`/admin/categories/${encryptedId}`)}
+          onClick={() => navigate(`/admin/categories/${routeId(encryptedId)}`)}
         >
           <i className="bi bi-arrow-left me-2" />
           {t("common.back", "Back")}
@@ -155,7 +157,7 @@ export default function UpdateCategoryPage() {
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navigate(`/admin/categories/${encryptedId}`)}
+                onClick={() => navigate(`/admin/categories/${routeId(encryptedId)}`)}
                 disabled={saving}
               >
                 {t("categories.modal.cancel", "Cancel")}

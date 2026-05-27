@@ -22,6 +22,7 @@ export default function GalleryPage() {
 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
@@ -90,6 +91,7 @@ export default function GalleryPage() {
   }, [items, search]);
 
   function resetFormState() {
+    setEditing(null);
     setForm(initialForm);
     setErrors({});
     setGlobalError("");
@@ -99,6 +101,20 @@ export default function GalleryPage() {
 
   function openCreate() {
     resetFormState();
+    setOpen(true);
+  }
+
+  function openEdit(item) {
+    setEditing(item);
+    setForm({
+      name: item.name || "",
+      likes: item.likes ?? 0,
+      image_url: null,
+    });
+    setErrors({});
+    setGlobalError("");
+    if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
+    setImagePreview(item.image_url ? imageUrl(item.image_url) : "");
     setOpen(true);
   }
 
@@ -135,11 +151,20 @@ export default function GalleryPage() {
     setGlobalError("");
 
     try {
-      const result = await galleryApi.create(buildPayload());
+      const payload = buildPayload();
+      const result = editing
+        ? await galleryApi.update(editing.encrypted_id ?? editing.id, payload)
+        : await galleryApi.create(payload);
       await load({ mode: "refresh" });
       setOpen(false);
       resetFormState();
-      showToast("success", result.message || t("gallery.toast.created", "Image added successfully."));
+      showToast(
+        "success",
+        result.message ||
+          (editing
+            ? t("gallery.toast.updated", "Image updated successfully.")
+            : t("gallery.toast.created", "Image added successfully."))
+      );
     } catch (e2) {
       const data = e2?.response?.data;
       if (data?.errors) setErrors(data.errors);
@@ -289,6 +314,9 @@ export default function GalleryPage() {
                           <button className="btn btn-sm btn-outline-primary" onClick={() => openShow(item)} title={t("gallery.actions.view", "View")}>
                             <i className="bi bi-eye" />
                           </button>
+                          <button className="btn btn-sm btn-outline-dark" onClick={() => openEdit(item)} title={t("gallery.actions.edit", "Edit")}>
+                            <i className="bi bi-pencil-square" />
+                          </button>
                           <button className="btn btn-sm btn-outline-danger" onClick={() => askDelete(item)} title={t("gallery.actions.delete", "Delete")}>
                             <i className="bi bi-trash3" />
                           </button>
@@ -309,7 +337,9 @@ export default function GalleryPage() {
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content border-0 shadow">
                 <div className="modal-header">
-                  <h5 className="modal-title">{t("gallery.modal.createTitle", "Add image")}</h5>
+                  <h5 className="modal-title">
+                    {editing ? t("gallery.modal.editTitle", "Edit image") : t("gallery.modal.createTitle", "Add image")}
+                  </h5>
                   <button type="button" className="btn-close" onClick={closeModal} disabled={saving} />
                 </div>
 
@@ -319,7 +349,9 @@ export default function GalleryPage() {
 
                     <div className="row g-3">
                       <div className="col-12 col-lg-5">
-                        <label className="form-label">{t("gallery.modal.image", "Image")} *</label>
+                        <label className="form-label">
+                          {t("gallery.modal.image", "Image")} {editing ? null : "*"}
+                        </label>
                         <TranslatedFileInput
                           accept="image/*"
                           error={errors.image_url?.[0] || ""}
@@ -385,7 +417,7 @@ export default function GalleryPage() {
                           {t("gallery.modal.saving", "Saving...")}
                         </>
                       ) : (
-                        t("gallery.modal.save", "Save")
+                        editing ? t("gallery.modal.update", "Update") : t("gallery.modal.save", "Save")
                       )}
                     </button>
                   </div>
@@ -443,6 +475,21 @@ export default function GalleryPage() {
                 </div>
 
                 <div className="modal-footer">
+                  {showing ? (
+                    <button
+                      type="button"
+                      className="btn btn-outline-dark me-2"
+                      onClick={() => {
+                        const item = showing;
+                        setShowOpen(false);
+                        setShowing(null);
+                        openEdit(item);
+                      }}
+                    >
+                      <i className="bi bi-pencil-square me-2" />
+                      {t("gallery.actions.edit", "Edit")}
+                    </button>
+                  ) : null}
                   {showing ? (
                     <button
                       type="button"

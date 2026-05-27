@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\PaymentMethod;
 use App\Repositories\PaymentMethodRepository;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PaymentMethodService
@@ -40,7 +41,7 @@ class PaymentMethodService
         if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
 
             $extension = $data['image']->getClientOriginalExtension();
-            $filename = 'paymentmethod-' . time() . '.' . $extension;
+            $filename = 'paymentmethod-' . Str::uuid() . '.' . $extension;
 
             $destination = public_path('images/paymentmethods');
 
@@ -105,7 +106,7 @@ class PaymentMethodService
 
             $extension = $data['image']->getClientOriginalExtension();
 
-            $filename =  'paymentmethod-' . time() . '.' . $extension;
+            $filename =  'paymentmethod-' . Str::uuid() . '.' . $extension;
 
             $destination = public_path('images/paymentmethods');
 

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { categoriesApi } from "../../../api/categories";
 import { useI18n } from "../../../hooks/website/I18nContext";
 
+const routeId = (id) => encodeURIComponent(String(id ?? ""));
+
 export default function CategoriesPage() {
   const { t } = useI18n();
 
@@ -90,7 +92,7 @@ export default function CategoriesPage() {
   }
 
   function onView(encrypted_id) {
-    navigate(`/admin/categories/${encrypted_id}`);
+    navigate(`/admin/categories/${routeId(encrypted_id)}`);
   }
 
   // options parent (si tu veux toujours parent dans modal)
@@ -112,7 +114,7 @@ export default function CategoriesPage() {
 
     setSaving(true);
     try {
-      if (editing) await categoriesApi.update(editing.id, payload);
+      if (editing) await categoriesApi.update(editing.encrypted_id, payload);
       else await categoriesApi.create(payload);
 
       await load({ mode: "refresh" });
@@ -136,8 +138,7 @@ export default function CategoriesPage() {
 
     setDeleting(true);
     try {
-      // si ton API delete attend encrypted_id, remplace par deleteTarget.encrypted_id
-      await categoriesApi.remove(deleteTarget.id);
+      await categoriesApi.remove(deleteTarget.encrypted_id);
 
       await load({ mode: "refresh" });
 

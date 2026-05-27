@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\SettingsRepository;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class SettingsService
 {
@@ -39,7 +40,7 @@ class SettingsService
             }
 
             $extension = $payload['logo']->getClientOriginalExtension();
-            $filename = 'platform-logo-'.time().'.'.$extension;
+            $filename = 'platform-logo-'.Str::uuid().'.'.$extension;
             $destination = public_path('images/settings');
 
             if (!file_exists($destination)) {

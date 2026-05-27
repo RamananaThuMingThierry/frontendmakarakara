@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useI18n } from "../../hooks/website/I18nContext";
 
 export default function TranslatedFileInput({
@@ -12,7 +12,6 @@ export default function TranslatedFileInput({
   emptyLabel,
 }) {
   const { t } = useI18n();
-  const inputRef = useRef(null);
 
   const chooseLabel =
     buttonLabel ||
@@ -27,34 +26,36 @@ export default function TranslatedFileInput({
       : t("common.noFileChosen", "No file chosen"));
 
   return (
-    <>
+    <div>
+      <div
+        className={`input-group position-relative ${error ? "has-validation" : ""}`}
+        style={{ cursor: disabled ? "not-allowed" : "pointer" }}
+      >
       <input
-        ref={inputRef}
         type="file"
-        className="d-none"
+        className="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+        style={{ zIndex: 2, cursor: disabled ? "not-allowed" : "pointer" }}
         accept={accept}
         multiple={multiple}
         disabled={disabled}
-        onChange={(event) => {
-          onChange?.(event);
-          event.target.value = "";
-        }}
+        onChange={onChange}
       />
 
-      <div className={`input-group ${error ? "has-validation" : ""}`}>
-        <button
-          type="button"
+        <span
           className="btn btn-outline-secondary"
-          onClick={() => inputRef.current?.click()}
-          disabled={disabled}
+          aria-disabled={disabled}
+          style={{ pointerEvents: "none" }}
         >
           {chooseLabel}
-        </button>
-        <div className={`form-control text-truncate ${error ? "is-invalid" : ""}`}>
+        </span>
+        <span
+          className={`form-control text-truncate ${error ? "is-invalid" : ""}`}
+          style={{ pointerEvents: "none" }}
+        >
           {selectedText || noneLabel}
-        </div>
-        {error ? <div className="invalid-feedback">{error}</div> : null}
+        </span>
       </div>
-    </>
+      {error ? <div className="invalid-feedback d-block">{error}</div> : null}
+    </div>
   );
 }

@@ -11,6 +11,8 @@ function getImageUrl(image) {
   return null;
 }
 
+const routeId = (id) => encodeURIComponent(String(id ?? ""));
+
 export default function EditProductPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -99,7 +101,7 @@ export default function EditProductPage() {
     setSaving(true);
     try {
       await productsApi.update(categoryId, productId, formData);
-      navigate(`/admin/categories/${categoryId}/products/${productId}`);
+      navigate(`/admin/categories/${routeId(categoryId)}/products/${routeId(productId)}`);
     } catch (error) {
       const data = error?.response?.data;
       if (data?.errors) setErrors(data.errors);
@@ -120,7 +122,7 @@ export default function EditProductPage() {
           <h4 className="mb-1">{t("products.edit.title", "Edit product")}</h4>
           <div className="text-muted small">{t("products.fields.category", "Category")}: <b>{product?.category?.name ?? "-"}</b></div>
         </div>
-        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${categoryId}/products/${productId}`)}><i className="bi bi-arrow-left me-2" />{t("common.back", "Back")}</button>
+        <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${routeId(categoryId)}/products/${routeId(productId)}`)}><i className="bi bi-arrow-left me-2" />{t("common.back", "Back")}</button>
       </div>
 
       <div className="card border-0 shadow-sm"><div className="card-body">
@@ -146,7 +148,7 @@ export default function EditProductPage() {
           </div>
           <div className="form-check mb-3"><input className="form-check-input" type="checkbox" id="product-active" checked={!!form.is_active} onChange={(event) => setField("is_active", event.target.checked)} /><label className="form-check-label" htmlFor="product-active">{t("products.fields.active", "Active")}</label></div>
           <div className="d-flex justify-content-end gap-2">
-            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${categoryId}/products/${productId}`)} disabled={saving}>{t("common.cancel", "Cancel")}</button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(`/admin/categories/${routeId(categoryId)}/products/${routeId(productId)}`)} disabled={saving}>{t("common.cancel", "Cancel")}</button>
             <button type="submit" className="btn btn-dark" disabled={saving}>{saving ? <><span className="spinner-border spinner-border-sm me-2" />{t("common.saving", "Saving...")}</> : t("products.actions.update", "Update")}</button>
           </div>
         </form>

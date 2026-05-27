@@ -24,7 +24,7 @@ const NAV = [
   { to: "/admin/reservations", icon: "bi-bookmark-check", labelKey: "reservations", fallback: "Reservations" },
   { to: "/admin/sliders", icon: "bi-images", labelKey: "sliders", fallback: "Banners" },
   { to: "/admin/users", icon: "bi-people", labelKey: "users", fallback: "Users" },
-  { to: "/admin/contacts", icon: "bi-envelope-paper", labelKey: "contacts", fallback: "Contacts" },
+  { to: "/admin/contacts", icon: "bi-envelope-paper", labelKey: "contacts", fallback: "Messages" },
   { to: "/admin/settings", icon: "bi-gear", labelKey: "settings", fallback: "Settings" },
   { to: "/admin/activity-logs", icon: "bi-file-earmark-text", labelKey: "activityLogs", fallback: "Activity logs" },
   { to: "/admin/account", icon: "bi-person-circle", labelKey: "account", fallback: "My account" },
@@ -169,6 +169,7 @@ export default function AdminLayout() {
 
   useEffect(() => {
     setNotificationsOpen(false);
+    setDrawerOpen(false);
   }, [location.pathname]);
 
   async function loadNotifications() {
